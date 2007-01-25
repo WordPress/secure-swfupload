@@ -18,7 +18,7 @@
 				upload1 = new mmSWFUpload({
 					upload_backend: "upload.aspx",
 					flash_path : "../upload.swf",
-					allowed_filesize : "30720",	// 30 MB
+					allowed_filesize : "100",	// 1 GB
 					allowed_filetypes : "*.*",
 
 					upload_ready_callback : 'upload1.flashReady',
@@ -67,14 +67,14 @@
 								<legend>Large File Upload Site</legend>
 							</fieldset>
 							<div>
-								<input type="button" value="Upload file (Max 30MB)" onclick="upload1.callSWF()" style="font-size: 8pt;" />
+								<input type="button" value="Upload file (Max 1 GB)" onclick="upload1.callSWF()" style="font-size: 8pt;" />
 								<input id="btnCancel1" type="button" value="Cancel Uploads" onclick="upload1.cancelQueue();" disabled="disabled" style="font-size: 8pt;" /><br />
 							</div>
 						</div>
 						<div id="degradedUI1">
 							<fieldset>
 								<legend>Large File Upload Site</legend>
-								<input type="file" name="anyfile" /> (Any file, Max 30MB)<br/>
+								<input type="file" name="anyfile" /> (Any file, Max 1 GB)<br/>
 							</fieldset>
 							<div>
 								<input type="submit" value="Submit Files" />
