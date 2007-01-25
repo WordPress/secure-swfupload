@@ -18,7 +18,7 @@
 				upload1 = new mmSWFUpload({
 					upload_backend: "upload.aspx",
 					flash_path : "../upload.swf",
-					allowed_filesize : "100",	// 1 GB
+					allowed_filesize : "1048576",	// 1 GB
 					allowed_filetypes : "*.*",
 
 					upload_ready_callback : 'upload1.flashReady',
