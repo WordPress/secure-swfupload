@@ -4,7 +4,7 @@
 <head>
     <title>SWFUpload Revision 3 Demo</title>
 
-	<link href="../Default.aspx.css" rel="stylesheet" type="text/css" />
+	<link href="Default.aspx.css" rel="stylesheet" type="text/css" />
 
 </head>
 <body>
