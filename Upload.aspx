@@ -5,5 +5,6 @@
     <title>SWFUpload Revision 3 Demo</title>
 </head>
 <body>
+	<p>Upload Page</p>
 </body>
 </html>
