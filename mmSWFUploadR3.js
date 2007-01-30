@@ -3,6 +3,11 @@
 /**
  * mmSWFUpload 0.7.1 Revision 3 by Jacob Roberts, January 2007, linebyline.blogspot.com
  *
+ * + Fixed a bug in the upload.swf that prevented further file processing after an error is returned.
+ * + Added uploadLimit variable.  Only complete uploads are counted. Once the limit is reached the flash
+ *      movie will not upload any more files. (The ability to select or queue many files is not affected
+ *      by the upload limit)
+ * + Added cancelQueue and cancelUpload methods.
  * + Added ID property to the FileObj in the upload.swf
  * + Added Upload and Queue settings
  * + Added methods for generating the flash HTML and inserting it into the DOM.
@@ -23,6 +28,8 @@
  *		= This fixes ASP.Net not allowing the flash to be added to the Form
  * + Added error checking to the callSWF method
  *
+ *
+ * -------- -------- -------- -------- -------- -------- -------- --------
  * mmSWFUpload 0.7: Flash upload dialog - http://profandesign.se/swfupload/
  *
  * SWFUpload is (c) 2006 Lars Huring and Mammon Media and is released under the MIT License:
