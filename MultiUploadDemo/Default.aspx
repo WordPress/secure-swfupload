@@ -20,6 +20,7 @@
 					flash_path : "../upload.swf",
 					allowed_filesize : "1048576",	// 1 GB
 					allowed_filetypes : "*.*",
+					upload_limit : "10",
 
 					upload_ready_callback : 'upload1.flashReady',
 					upload_start_callback : 'uploadStart1',
@@ -38,6 +39,7 @@
 					flash_path : "../upload.swf",
 					allowed_filesize : "100",	// 100 KB
 					allowed_filetypes : "*.*",
+					upload_limit : "5",
 
 					upload_ready_callback : 'upload2.flashReady',
 					upload_start_callback : 'uploadStart2',

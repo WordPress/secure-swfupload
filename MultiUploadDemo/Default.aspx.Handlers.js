@@ -90,6 +90,10 @@ function uploadError1(error_code, fileObj, message) {
 				progress.SetStatus("File is too big.");
 				//Console.Writeln("Error Code: File too big, File name: " + file.name + ", File size: " + file.size + ", Message: " + message);
 				break;
+			case -60:	// File upload limit reached
+				progress.SetStatus("Upload limit exceeded.");
+				//Console.Writeln("Error Code: File too big, File name: " + file.name + ", File size: " + file.size + ", Message: " + message);
+				break;
 			default:
 				progress.SetStatus("Unhandled Error");
 				// EEK!
@@ -187,6 +191,10 @@ function uploadError2(error_code, fileObj, message) {
 				break;
 			case -50:	// Filesize too big
 				progress.SetStatus("File is too big.");
+				//Console.Writeln("Error Code: File too big, File name: " + file.name + ", File size: " + file.size + ", Message: " + message);
+				break;
+			case -60:	// File upload limit reached
+				progress.SetStatus("Upload limit exceeded.");
 				//Console.Writeln("Error Code: File too big, File name: " + file.name + ", File size: " + file.size + ", Message: " + message);
 				break;
 			default:

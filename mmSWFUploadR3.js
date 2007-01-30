@@ -95,6 +95,10 @@
 				Console.Writeln("Error Code: File too big, File name: " + file.name + ", File size: " + file.size + ", Message: " + msg);
 				break;
 		
+			case -60:	// Upload limit reached
+				Console.Writeln("Error Code: Upload limit reached, File name: " + file.name + ", File size: " + file.size + ", Message: " + msg);
+				break;
+		
 		}
 		
 	};
@@ -124,6 +128,7 @@
 		this.addSetting("begin_uploads_immediately", settings["begin_uploads_immediately"], true);
 		this.addSetting("allowed_filetypes", settings["allowed_filetypes"], "*.gif;*.jpg;*.png");
 		this.addSetting("allowed_filesize", settings["allowed_filesize"], "1000");
+		this.addSetting("upload_limit", settings["upload_limit"], "1000");
 
 		this.addSetting("flash_path", settings["flash_path"], "upload.swf");
 		this.addSetting("flash_target", settings["flash_target"], "");
@@ -212,6 +217,7 @@
 		html += "&beginUploadsImmediately=" + this.getSetting("begin_uploads_immediately");
 		html += "&allowedFiletypes=" + this.getSetting("allowed_filetypes");
 		html += "&allowedFilesize=" + this.getSetting("allowed_filesize");
+		html += "&uploadLimit=" + this.getSetting("upload_limit");
 	
 		return html;
 	}
