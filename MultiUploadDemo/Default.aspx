@@ -5,7 +5,7 @@
     <title>SWFUpload Revision 3 Demo</title>
 
 	<link href="Default.aspx.css" rel="stylesheet" type="text/css" />
-	<script type="text/javascript" src="../mmSWFUploadR3.js"></script>
+	<script type="text/javascript" src="../mmSWFUploadR4.js"></script>
 	<script type="text/javascript" src="Default.aspx.Handlers.js"></script>
 	<script type="text/javascript">
 		var upload1;

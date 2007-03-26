@@ -1,7 +1,13 @@
 
 
 /**
- * mmSWFUpload 0.7.1 Revision 3 by Jacob Roberts, January 2007, linebyline.blogspot.com
+ * mmSWFUpload 0.7.1 Revision 4 by Jacob Roberts, January 2007, linebyline.blogspot.com
+ *
+ * + Changed QueueComplete event to only fire if at least one file has been successfully uploaded.
+ * + Added "Stop Upload" feature.
+ * + Revised the FLA file to clean things up, better handle errors, etc.
+ * + Fixed a bug where cancelling the first upload would cause the remaining uploads to fire before calling
+ * "startUpload"
  *
  * + Fixed a bug in the upload.swf that prevented further file processing after an error is returned.
  * + Added uploadLimit variable.  Only complete uploads are counted. Once the limit is reached the flash
