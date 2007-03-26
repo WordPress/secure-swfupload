@@ -1,9 +1,10 @@
-﻿var upload1_target = "fsUploadProgress";
+﻿var upload_target = "fsUploadProgress";
 function uploadStart(fileObj) {
 	try {
 		// You might include code here that prevents the form from being submitted while the upload is in
 		// progress.  Then you'll want to put code in the Queue Complete handler to "unblock" the form
-		var progress = new FileProgress(fileObj, upload1_target);
+		var progress = new FileProgress(fileObj, upload_target);
+		progress.SetStart();
 		progress.SetStatus("Ready for Upload...");
 		progress.ToggleCancel(true, upload);
 		
@@ -17,7 +18,7 @@ function uploadProgress(fileObj, bytesLoaded) {
 	try {
 		var percent = Math.ceil((bytesLoaded / fileObj.size) * 100)
 
-		var progress = new FileProgress(fileObj, upload1_target);
+		var progress = new FileProgress(fileObj, upload_target);
 		progress.SetProgress(percent);
 		progress.SetStatus("Uploading...");
 	} catch (e) { /*Console.Writeln("Upload Progress: " + fileObj.name + " " + percent);*/ }
@@ -27,7 +28,7 @@ function uploadComplete(fileObj) {
 	try {
 		
 
-		var progress = new FileProgress(fileObj, upload1_target);
+		var progress = new FileProgress(fileObj, upload_target);
 		progress.SetComplete();
 		progress.SetStatus("Complete.");
 		progress.ToggleCancel(false);
@@ -50,7 +51,7 @@ function uploadDialogCancel() {
 
 function uploadCancel(fileObj) {
 	try {
-		var progress = new FileProgress(fileObj, upload1_target);
+		var progress = new FileProgress(fileObj, upload_target);
 		progress.SetCancelled();
 		progress.SetStatus("Cancelled");
 		progress.ToggleCancel(false);
@@ -60,7 +61,7 @@ function uploadCancel(fileObj) {
 
 function uploadError(error_code, fileObj, message) {
 	try {
-		var progress = new FileProgress(fileObj, upload1_target);
+		var progress = new FileProgress(fileObj, upload_target);
 		progress.SetError();
 		progress.ToggleCancel(false);
 
@@ -91,6 +92,10 @@ function uploadError(error_code, fileObj, message) {
 			case -60:	// File upload limit reached
 				progress.SetStatus("Upload limit exceeded.");
 				//Console.Writeln("Error Code: Upload limit exceeded, File name: " + file.name + ", File size: " + file.size + ", Message: " + message);
+				break;
+			case -70:	// File upload exception
+				progress.SetStatus("File Upload Failed.");
+				//Console.Writeln("Error Code: Upload Initialization exception, File name: " + file.name + ", File size: " + file.size + ", Message: " + message);
 				break;
 			default:
 				progress.SetStatus("Unhandled Error");
@@ -138,6 +143,12 @@ function FileProgress(fileObj, target_id) {
 		}
 
 }
+FileProgress.prototype.SetStart = function() {
+		this.fileProgressElement.className = "progressContainer";
+		this.fileProgressElement.childNodes[3].className = "progressBarInProgress";
+		this.fileProgressElement.childNodes[3].style.width = "";
+}
+
 FileProgress.prototype.SetProgress = function(percentage) {
 		this.fileProgressElement.className = "progressContainer green";
 		this.fileProgressElement.childNodes[3].className = "progressBarInProgress";

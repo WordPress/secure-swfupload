@@ -31,7 +31,8 @@
 					
 					flash_target : "flashContainer",
 					ui_target : "flashUI",
-					degraded_target : "degradedUI"
+					degraded_target : "degradedUI",
+					debug: true
 				});
 	
 	     }
@@ -84,13 +85,13 @@
 						<td>
 							<div id="flashUI" style="display: none;">
 								<div>
-									<input type="text" /><input type="button" value="Browse..." onclick="upload.callSWF()" />
+									<input type="text" /><input type="button" value="Browse..." onclick="upload.callSWF()" /> (30 MB max)
 								</div>
 								<div class="flash" id="fsUploadProgress">
 								</div>
 							</div>
 							<div id="degradedUI">
-								<input type="file" name="resume" /><br/>
+								<input type="file" name="resume" /> (30 MB max)<br/>
 							</div>
 						</td>
 					</tr>
@@ -105,6 +106,8 @@
 				</table>
 				<br />
 				<input type="button" value="Submit Application" onclick="doSubmit()" />
+				<input type="button" value="Stop Upload" onclick="upload.stopUpload();" />
+				<input type="button" value="Cancel All" onclick="upload.cancelQueue();" />
 			</fieldset>
 
 		</div>

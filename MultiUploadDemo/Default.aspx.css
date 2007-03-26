@@ -61,8 +61,11 @@ fieldset.flash
 	border-color: #D9E4FF;
 }
 
-.progressContainer {
+.progressWrapper {
 	width: 357px;
+	overflow: hidden;
+}
+.progressContainer {
 	margin: 5px;
 	padding: 4px;
 	

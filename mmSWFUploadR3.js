@@ -105,7 +105,8 @@
 			case -60:	// Upload limit reached
 				Console.Writeln("Error Code: Upload limit reached, File name: " + file.name + ", File size: " + file.size + ", Message: " + msg);
 				break;
-		
+			case -70:	// Upload Initialization exception
+				Console.Writeln("Error Code: Upload Initialization exception, File name: " + file.name + ", File size: " + file.size + ", Message: " + msg);
 		}
 		
 	};
@@ -132,6 +133,11 @@
 		this.addSetting("upload_error_callback", settings["upload_error_callback"], "mmSWFUpload.handleErrors");
 		this.addSetting("upload_queue_complete_callback", settings["upload_queue_complete_callback"],  "");
 		this.addSetting("upload_cancel_callback", settings["upload_cancel_callback"],  "");
+		if (this.getSetting("debug")) {
+			this.addSetting("debug_callback", settings["debug_callback"],  "Console.Writeln");
+		} else {
+			this.addSetting("debug_callback", "",  "");
+		}
 		this.addSetting("begin_uploads_immediately", settings["begin_uploads_immediately"], true);
 		this.addSetting("allowed_filetypes", settings["allowed_filetypes"], "*.gif;*.jpg;*.png");
 		this.addSetting("allowed_filesize", settings["allowed_filesize"], "1000");
@@ -212,7 +218,7 @@
 
 	mmSWFUpload.prototype._getFlashVars = function() {
 		var html = "";
-		html += "uploadBackend=" + this.getSetting("upload_backend");
+		html += "uploadBackend=" + encodeURIComponent(this.getSetting("upload_backend"));
 		html += "&uploadReadyCallback=" + this.getSetting("upload_ready_callback");
 		html += "&uploadStartCallback=" + this.getSetting("upload_start_callback");
 		html += "&uploadProgressCallback=" + this.getSetting("upload_progress_callback");
@@ -221,11 +227,11 @@
 		html += "&uploadErrorCallback=" + this.getSetting("upload_error_callback");
 		html += "&uploadCancelCallback=" + this.getSetting("upload_cancel_callback");
 		html += "&uploadQueueCompleteCallback=" + this.getSetting("upload_queue_complete_callback");
+		html += "&debugCallback=" + this.getSetting("debug_callback");
 		html += "&beginUploadsImmediately=" + this.getSetting("begin_uploads_immediately");
 		html += "&allowedFiletypes=" + this.getSetting("allowed_filetypes");
 		html += "&allowedFilesize=" + this.getSetting("allowed_filesize");
 		html += "&uploadLimit=" + this.getSetting("upload_limit");
-	
 		return html;
 	}
 	
@@ -357,6 +363,23 @@
 			catch (e) {
 				if (this.debug) {
 					Console.Writeln("Could not call cancelQueue");
+				}
+			}
+		} else { 
+			if (this.debug) {
+				Console.Writeln("Could not find Flash element");
+			}
+		}
+    };
+
+	mmSWFUpload.prototype.stopUpload = function() {
+		if (this.movieElement != null) {
+			try {
+				this.movieElement.stopUpload();
+			}
+			catch (e) {
+				if (this.debug) {
+					Console.Writeln("Could not call stopUpload");
 				}
 			}
 		} else { 
