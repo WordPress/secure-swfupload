@@ -21,7 +21,7 @@
 					upload_backend: "upload.aspx",	// Relative to the SWF file
 
 					// File Upload Settings
-					allowed_filesize : "300",	// 300 KB
+					allowed_filesize : "1048576",	// 1 GB
 					allowed_filetypes : "*.*",
 					upload_limit : "10",
 					begin_uploads_immediately : true,
@@ -52,7 +52,7 @@
 					
 					// File Upload Settings
 					allowed_filesize : "100",	// 100 KB
-					allowed_filetypes : "*.jpg;*.gif;*.png;*.bmp",
+					allowed_filetypes : "*.*", 		// Or something like: "*.jpg;*.gif;*.png;*.bmp",
 					upload_limit : "5",
 
 					// Event Handler Settings
@@ -88,14 +88,14 @@
 								<legend>Large File Upload Site</legend>
 							</fieldset>
 							<div>
-								<input type="button" value="Upload file (Max 300 KB)" onclick="upload1.callSWF()" style="font-size: 8pt;" />
+								<input type="button" value="Upload file (Max 1 GB)" onclick="upload1.callSWF()" style="font-size: 8pt;" />
 								<input id="btnCancel1" type="button" value="Cancel Uploads" onclick="upload1.cancelQueue();" disabled="disabled" style="font-size: 8pt;" /><br />
 							</div>
 						</div>
 						<div id="degradedUI1">
 							<fieldset>
 								<legend>Large File Upload Site</legend>
-								<input type="file" name="anyfile" /> (Any file, Max 300 KB)<br/>
+								<input type="file" name="anyfile" /> (Any file, Max 1 GB)<br/>
 							</fieldset>
 							<div>
 								<input type="submit" value="Submit Files" />

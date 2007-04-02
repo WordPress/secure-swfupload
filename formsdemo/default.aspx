@@ -21,8 +21,8 @@
 					upload_backend_cookies: ["asp.net_sessionid", "asp_auth_ticket"],	// example of passing more than one cookie by using an array.
 
 					// Flash file settings
-					allowed_filesize : "300",	// 300 KB
-					allowed_filetypes : "*.doc;*.wpd;*.pdf",
+					allowed_filesize : "10240",	// 10 MB
+					allowed_filetypes : "*.*",	// or you could use something like: "*.doc;*.wpd;*.pdf",
 					upload_limit : "1",
 					begin_uploads_immediately : false,
 
@@ -103,7 +103,7 @@
 							<div id="flashUI" style="display: none;">
 								<!-- This is the UI that I built. It only gets displayed if SWFUpload loads properly -->
 								<div>
-									<input type="text" /><input type="button" value="Browse..." onclick="swf_upload_control.callSWF()" /> (300 KB max)
+									<input type="text" /><input type="button" value="Browse..." onclick="swf_upload_control.callSWF()" /> (10 MB max)
 								</div>
 								<div class="flash" id="fsUploadProgress">
 									<!-- This is where the file progress gets shown.  SWFUpload doesn't handle this automatically.
@@ -113,7 +113,7 @@
 							<div id="degradedUI">
 								<!-- This is the standard UI.  This UI is shown by default but when SWFUpload loads it will be
 								hidden and the "flashUI" will be shown -->
-								<input type="file" name="resume" /> (300 KB max)<br/>
+								<input type="file" name="resume" /> (10 MB max)<br/>
 							</div>
 							<div id="flashContainer"><!-- This is where the flash embed/object tag will go once SWFUpload has loaded --></div>
 						</td>

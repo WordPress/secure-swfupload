@@ -26,17 +26,10 @@ a.likeParent:active,
 a.likeParent:visited,
 a.likeParent:hover 
 {
-	font-size: 10pt;
-	font-weight: normal;
-	color: #000000;
+	font-family: Verdana;
+	font-size: 14pt;
+	color: black;
 	text-decoration: none;
-	font-family: Verdana;	
-
-	font-size: inherit;
-	font-weight: inherit;
-	color: inherit;
-	text-decoration: inherit;
-	font-family: inherit;	
 }
 
 div.title 
