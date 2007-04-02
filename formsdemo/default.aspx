@@ -13,13 +13,15 @@
 			if (typeof(da_onload) == "function") {
 				da_onload();
 			}
+				if (typeof(SWFUpload) == "undefined") return;
+				
 				swf_upload_control = new SWFUpload({
 					// Backend settings
 					upload_backend: "upload.aspx",	// Relative to the SWF file
 					upload_backend_cookies: ["asp.net_sessionid", "asp_auth_ticket"],	// example of passing more than one cookie by using an array.
 
 					// Flash file settings
-					allowed_filesize : "1024",	// 1 MB
+					allowed_filesize : "300",	// 300 KB
 					allowed_filetypes : "*.doc;*.wpd;*.pdf",
 					upload_limit : "1",
 					begin_uploads_immediately : false,
@@ -61,7 +63,7 @@
 
 </head>
 <body>
-	<div class="title"><a class="inherit" href="../default.aspx">SWFUpload (Revision 4) Classic Form Demo</a></div>
+	<div class="title"><a class="likeParent" href="../default.aspx">SWFUpload (Revision 4) Classic Form Demo</a></div>
 	
 	<form id="form1" action="thanks.aspx" enctype="multipart/form-data" method="post">
 		<div class="content">
@@ -101,7 +103,7 @@
 							<div id="flashUI" style="display: none;">
 								<!-- This is the UI that I built. It only gets displayed if SWFUpload loads properly -->
 								<div>
-									<input type="text" /><input type="button" value="Browse..." onclick="swf_upload_control.callSWF()" /> (1 MB max)
+									<input type="text" /><input type="button" value="Browse..." onclick="swf_upload_control.callSWF()" /> (300 KB max)
 								</div>
 								<div class="flash" id="fsUploadProgress">
 									<!-- This is where the file progress gets shown.  SWFUpload doesn't handle this automatically.
@@ -111,7 +113,7 @@
 							<div id="degradedUI">
 								<!-- This is the standard UI.  This UI is shown by default but when SWFUpload loads it will be
 								hidden and the "flashUI" will be shown -->
-								<input type="file" name="resume" /> (30 MB max)<br/>
+								<input type="file" name="resume" /> (300 KB max)<br/>
 							</div>
 							<div id="flashContainer"><!-- This is where the flash embed/object tag will go once SWFUpload has loaded --></div>
 						</td>

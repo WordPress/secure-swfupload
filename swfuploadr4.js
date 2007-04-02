@@ -77,7 +77,7 @@
 
 		try {
 			// Generate the tags ID
-			this.movieName = "SWFUpload_" + SWFUpload.movieCount++;
+			this.movieName = "SWFUpload" + SWFUpload.movieCount++;
 
 			// Load the settings.  Load the Flash movie.
 			this.init(settings);
@@ -205,9 +205,9 @@
 		
 			// Build the basic Object tag
 			html = '<object id="' + this.movieName + '" classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000" width="' + this.getSetting("flash_width") + '" height="' + this.getSetting("flash_height") + '">';
-			html += '<param name="movie" value="' + this.getSetting("flash_path") + '" />';
+			html += '<param name="movie" value="' + this.getSetting("flash_path") + '">';
 			
-			html += '<param name="bgcolor" value="#000000" />';
+			html += '<param name="bgcolor" value="' + this.getSetting["flash_color"] + '" />';
 			html += '<param name="quality" value="high" />';
 			html += '<param name="wmode" value="transparent" />';
 			html += '<param name="menu" value="false" />';
@@ -243,9 +243,13 @@
 		target_element.appendChild(container);
 
 		container.innerHTML = html;
-			
+		
 		this.movieElement = document.getElementById(this.movieName);
-
+		
+		// Fix IEs "Flash can't callback when in a form" issue (http://www.extremefx.com.ar/blog/fixing-flash-external-interface-inside-form-on-internet-explorer)
+		if (typeof(window[this.movieName]) == "undefined" || window[this.moveName] != this.movieElement) {
+			window[this.movieName] = this.movieElement;
+		}		
 	};
 
 	// This private method builds the parameter string that will be passed
@@ -296,14 +300,14 @@
 		html += "&uploadLimit=" + this.getSetting("upload_limit");
 		
 		return html;
-	}
+	};
 	
 	// This is the callback method that the Flash movie will call when it has been loaded and is ready to go.
 	// The user shouldn't be able to do any file uploading until after this gets called.
 	SWFUpload.prototype.flashReady = function() {
 		try {
 			if (this.debug) Console.Writeln("Flash called back and is ready.");
-
+			
 			this.showUI();
 		} catch (ex) {}
 	};
@@ -410,7 +414,7 @@
 				Console.Writeln("Could not find Flash element");
 			}
 		}
-    }
+    };
     
 	SWFUpload.prototype.cancelUpload = function(file_id) {
 		if (this.movieElement != null) {
@@ -494,7 +498,7 @@ Cookie.Get = function(c_name)
 	} catch (ex) { }
 
 	return "";
-}
+};
 
 
 /* **********************************
@@ -528,5 +532,4 @@ Console.Writeln = function(value) {
 		
 		console.scrollTop = console.scrollHeight - console.clientHeight;
 	} catch (ex) {}
-}
-
+};

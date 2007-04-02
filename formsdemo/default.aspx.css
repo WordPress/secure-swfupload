@@ -20,12 +20,18 @@ td
 	vertical-align: top;
 }
 
-a.inherit,
-a.inherit:link,
-a.inherit:active,
-a.inherit:visited,
-a.inherit:hover 
+a.likeParent,
+a.likeParent:link,
+a.likeParent:active,
+a.likeParent:visited,
+a.likeParent:hover 
 {
+	font-size: 10pt;
+	font-weight: normal;
+	color: #000000;
+	text-decoration: none;
+	font-family: Verdana;	
+
 	font-size: inherit;
 	font-weight: inherit;
 	color: inherit;

@@ -14,15 +14,17 @@
 			if (typeof(da_onload) == "function") {
 				da_onload();
 			}
+				if (typeof(SWFUpload) == "undefined") return;
+
 				upload1 = new SWFUpload({
 					// Backend Settings
 					upload_backend: "upload.aspx",	// Relative to the SWF file
 
 					// File Upload Settings
-					allowed_filesize : "1048576",	// 1 GB
+					allowed_filesize : "300",	// 300 KB
 					allowed_filetypes : "*.*",
 					upload_limit : "10",
-					begin_uploads_immediately : false,
+					begin_uploads_immediately : true,
 
 					// Event Handler Settings
 					upload_ready_callback : 'upload1.flashReady',	// Note: this needs to refer to your variable name
@@ -86,14 +88,14 @@
 								<legend>Large File Upload Site</legend>
 							</fieldset>
 							<div>
-								<input type="button" value="Upload file (Max 1 GB)" onclick="upload1.callSWF()" style="font-size: 8pt;" />
+								<input type="button" value="Upload file (Max 300 KB)" onclick="upload1.callSWF()" style="font-size: 8pt;" />
 								<input id="btnCancel1" type="button" value="Cancel Uploads" onclick="upload1.cancelQueue();" disabled="disabled" style="font-size: 8pt;" /><br />
 							</div>
 						</div>
 						<div id="degradedUI1">
 							<fieldset>
 								<legend>Large File Upload Site</legend>
-								<input type="file" name="anyfile" /> (Any file, Max 1 GB)<br/>
+								<input type="file" name="anyfile" /> (Any file, Max 300 KB)<br/>
 							</fieldset>
 							<div>
 								<input type="submit" value="Submit Files" />
