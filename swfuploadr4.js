@@ -86,7 +86,7 @@
 			if (this.debug) this.DisplayDebugInfo();
 
 			// Now nothing happens until Flash calls back to our flash_ready handler
-		catch (ex) {
+		} catch (ex) {
 		
 		}
 	}
@@ -224,9 +224,9 @@
 		var container = document.createElement("div");
 		container.style.width = "0px";
 		container.style.height = "0px";
-		container.style.position = "absolute";
+		/*container.style.position = "absolute";
 		container.style.top = "0px";
-		container.style.left = "0px";
+		container.style.left = "0px";*/
 
 		var target_element;
 		var flash_target_id = this.getSetting("flash_target");
@@ -260,7 +260,7 @@
 				url_separator = "&";
 			}
 			
-			if (upload_cookies instanceOf Array) {
+			if (upload_cookies instanceof Array) {
 				var upload_cookie_pairs = new Array();
 				for (var i=0; i < upload_cookies.length; i++) {
 					var value = Cookie.Get(upload_cookies[i]);

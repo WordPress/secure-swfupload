@@ -22,6 +22,7 @@
 					allowed_filesize : "1048576",	// 1 GB
 					allowed_filetypes : "*.*",
 					upload_limit : "10",
+					begin_uploads_immediately : false,
 
 					// Event Handler Settings
 					upload_ready_callback : 'upload1.flashReady',	// Note: this needs to refer to your variable name
@@ -49,7 +50,7 @@
 					
 					// File Upload Settings
 					allowed_filesize : "100",	// 100 KB
-					allowed_filetypes : "*.jpg,*.gif,*.png,*.bmp",
+					allowed_filetypes : "*.jpg;*.gif;*.png;*.bmp",
 					upload_limit : "5",
 
 					// Event Handler Settings
@@ -74,7 +75,7 @@
 
 </head>
 <body>
-	<div class="title">SWFUpload (Revision 4) Flash Uploader Test</div>
+	<div class="title"><a class="inherit" href="../default.aspx">SWFUpload (Revision 4) Multi-Upload Demo</a></div>
 	<form id="form1" action="Default.aspx" method="post" enctype="multipart/form-data">
 		<div class="content">
 			<table>

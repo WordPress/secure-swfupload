@@ -11,7 +11,7 @@
 	
 	<form id="form1" enctype="multipart/form-data" runat="server">
 		<div class="content">
-			Thank you for your submission.  <a href="index.html">Submit another Application</a>
+			Thank you for your submission.  <a href="default.aspx">Submit another Application</a>
 		</div>
 		<div class="content">
 			Thanks for trying this demo.  Your files are discarded for the purposes of this demo.

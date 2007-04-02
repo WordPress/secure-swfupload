@@ -20,7 +20,7 @@
 
 					// Flash file settings
 					allowed_filesize : "1024",	// 1 MB
-					allowed_filetypes : "*.doc,*.wpd,*.pdf",
+					allowed_filetypes : "*.doc;*.wpd;*.pdf",
 					upload_limit : "1",
 					begin_uploads_immediately : false,
 
@@ -48,16 +48,20 @@
 	     }
 	     
 	     function doSubmit() {
-			upload.startUpload();
+			try {
+				swf_upload_control.startUpload();
+			} catch (ex) {}
 	     }
 	     function uploadDone() {
-			document.forms[0].submit();
+			try {
+				document.forms[0].submit();
+			} catch (ex) {}
 	     }
 	</script>
 
 </head>
 <body>
-	<div class="title">SWFUpload (Revision 4) Classic Form Demo</div>
+	<div class="title"><a class="inherit" href="../default.aspx">SWFUpload (Revision 4) Classic Form Demo</a></div>
 	
 	<form id="form1" action="thanks.aspx" enctype="multipart/form-data" method="post">
 		<div class="content">
@@ -93,6 +97,7 @@
 							Resume:
 						</td>
 						<td>
+							
 							<div id="flashUI" style="display: none;">
 								<!-- This is the UI that I built. It only gets displayed if SWFUpload loads properly -->
 								<div>
@@ -108,6 +113,7 @@
 								hidden and the "flashUI" will be shown -->
 								<input type="file" name="resume" /> (30 MB max)<br/>
 							</div>
+							<div id="flashContainer"><!-- This is where the flash embed/object tag will go once SWFUpload has loaded --></div>
 						</td>
 					</tr>
 					<tr>
@@ -121,14 +127,10 @@
 				</table>
 				<br />
 				<input type="submit" value="Submit Application" onclick="doSubmit(); return false;" />
-				<input type="button" value="Stop Upload" onclick="upload.stopUpload();" />
-				<input type="button" value="Cancel All" onclick="upload.cancelQueue();" />
+				<input type="button" value="Stop Upload" onclick="swf_upload_control.stopUpload();" />
+				<input type="button" value="Cancel All" onclick="swf_upload_control.cancelQueue();" />
 			</fieldset>
-
 		</div>
 	</form>
-
-	<div id="flashContainer"><!-- This is where the flash embed/object tag will go once SWFUpload has loaded --></div>
-
 </body>
 </html>

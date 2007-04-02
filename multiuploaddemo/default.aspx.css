@@ -1,7 +1,7 @@
 ﻿* 
 {
-	font-family: Verdana;
-	font-size: 10pt;
+	font-family: inherit;
+	font-size: inherit;
 }
 
 html, body, form 
@@ -9,11 +9,28 @@ html, body, form
 	margin: 0;
 	padding: 0;
 	width: 100%;
+
+	font-family: Verdana;
+	font-size: 10pt;
+
 }
 
 td 
 {
 	vertical-align: top;
+}
+
+a.inherit,
+a.inherit:link,
+a.inherit:active,
+a.inherit:visited,
+a.inherit:hover 
+{
+	font-size: inherit;
+	font-weight: inherit;
+	color: inherit;
+	text-decoration: inherit;
+	font-family: inherit;	
 }
 
 div.title 
@@ -42,16 +59,6 @@ legend
 	font-size: 11pt;
 	font-weight: bold;
 	color: Black;
-}
-
-a.SWFUploadLink {
-	font-weight: bold;
-	color: blue;
-	text-decoration: none;
-}
-
-a.SWFUploadLink:hover {
-	text-decoration: underline;
 }
 
 fieldset.flash
@@ -95,7 +102,8 @@ fieldset.flash
 	font-weight: bold;
 	color: #555555;
 	
-	width: 340px;
+	width: 323px;
+	height: 14px;
 	text-align: left;
 	white-space: nowrap;
 	overflow: hidden;
@@ -121,7 +129,7 @@ fieldset.flash
 }
 .progressBarStatus {
 	margin-top: 2px;
-	width: 340px;
+	width: 337px;
 	font-size: 7pt;
 	font-family: Verdana;
 	text-align: left;

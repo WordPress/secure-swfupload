@@ -3,15 +3,15 @@
 <head>
     <title>SWFUpload Revision 4 Demo</title>
 
-	<link href="FormsDemo/Default.aspx.css" rel="stylesheet" type="text/css" />
+	<link href="formsdemo/Default.aspx.css" rel="stylesheet" type="text/css" />
 
 </head>
 <body>
 	<div class="title">SWFUpload (Revision 4)  Demos</div>
 	
 	<ul>
-		<li><a href="FormsDemo/index.html">SWFUpload Forms Demo</a></li>
-		<li><a href="MultiUploadDemo/index.html">SWFUpload Multi-Upload Demo</a></li>
+		<li><a href="formsdemo/default.aspx">SWFUpload Classic Form Demo</a></li>
+		<li><a href="multiuploaddemo/default.aspx">SWFUpload Multi-Upload Demo</a></li>
 	</ul>
 	
 </body>

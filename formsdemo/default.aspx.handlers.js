@@ -6,7 +6,7 @@ function uploadStart(fileObj) {
 		var progress = new FileProgress(fileObj, upload_target);
 		progress.SetStart();
 		progress.SetStatus("Ready for Upload...");
-		progress.ToggleCancel(true, upload);
+		progress.ToggleCancel(true, swf_upload_control);	// I pass in the SWFUpload instance here so the cancel button can call the [SWFUpload Object].cancelUpload method.
 		
 		document.getElementById("btnCancel1").disabled = false;
 	} catch (e) { /*Console.Writeln("Upload started");*/ }
