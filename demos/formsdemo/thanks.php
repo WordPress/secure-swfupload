@@ -1,4 +1,4 @@
-﻿<?
+<?
 session_start();
 
 if ($_SESSION["resume_name"] == "") {

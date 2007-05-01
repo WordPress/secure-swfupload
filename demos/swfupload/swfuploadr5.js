@@ -1,7 +1,17 @@
 
 
 /**
- * SWFUpload 0.8.3 Revision 5 by Jacob Roberts, April 2007, linebyline.blogspot.com
+ * SWFUpload 0.8.3 Revision 5.2 by Jacob Roberts, April 2007, linebyline.blogspot.com
+ * --------- Revision 5.2 -----------
+ * = A little more code cleaning and variable renaming
+ * + Changed from an array queue to a FIFO queue. This eliminates the "current_index" and
+ *    should reduce some memory usage.
+ * + Added out of order file uploading.  Call StartUpload(/file_id/).
+ * + Added custom query_string parameters in addition to the cookies
+ * + Added the ability to modify the URL, cookies, params and send to flash
+ * + Added per file query_string params
+ * + Added files queued limit.  Sometimes you may want the user to only queue one file at a time (or something)
+ * + Fixed limits so a zero(0) value means unlimited.
  * --------- Revision 5 -------------
  * = More code cleaning.  Ported SWF to FlashDevelop. (Since my Flash Studio trial expired)
  *    The port to FlashDevelop is a big deal.  It significantly changes the code structure
@@ -93,16 +103,16 @@
 /* *********** */
 	function SWFUpload(init_settings) {
 		// Remove background flicker in IE (read this: http://misterpixel.blogspot.com/2006/09/forensic-analysis-of-ie6.html)
-		try { document.execCommand('BackgroundImageCache', false, true); } catch(e) {}
+		// try { document.execCommand('BackgroundImageCache', false, true); } catch(e) {}
 
 		try {
 			// Generate the control's ID. Setup global control tracking
-			this.movieName = "SWFUpload" + SWFUpload.movieCount++;
-			SWFUpload.Instances[this.movieName] = this;
+			this.movieName = "SWFUpload_" + SWFUpload.movieCount++;
+			SWFUpload.instances[this.movieName] = this;
 
 			// Load the settings.  Load the Flash movie.
-			this.InitSettings(init_settings);
-			this.LoadFlash();
+			this._initSettings(init_settings);
+			this._loadFlash();
 			
 			if (this.debug) this.DisplayDebugInfo();
 
@@ -115,7 +125,7 @@
 /* *************** */
 /* Static thingies */
 /* *************** */
-	SWFUpload.Instances = new Object();
+	SWFUpload.instances = new Object();
 	SWFUpload.movieCount = 0;
 	SWFUpload.ERROR_CODE_HTTP_ERROR 				= -10;
 	SWFUpload.ERROR_CODE_MISSING_UPLOAD_TARGET		= -20;
@@ -126,23 +136,25 @@
 	SWFUpload.ERROR_CODE_UPLOAD_LIMIT_EXCEEDED		= -70;
 	SWFUpload.ERROR_CODE_UPLOAD_FAILED				= -80;
 	SWFUpload.ERROR_CODE_QUEUE_LIMIT_EXCEEDED		= -90;
+	SWFUpload.ERROR_CODE_SPECIFIED_FILE_NOT_FOUND	= -100;
 	
 /* ***************** */
 /* Instance Thingies */
 /* ***************** */
-	// init is a private method that ensures that all the object settings are set or get a default value
+	// init is a private method that ensures that all the object settings are set, getting a default value if one was not assigned.
 	SWFUpload.prototype.InitSettings = function(init_settings) {
 		this.settings = new Object();
 
 		this.AddSetting("control_id", this.movieName);
 
 		// UI setting
-		this.AddSetting("ui_container_element", init_settings["ui_container_element"], "");
-		this.AddSetting("degraded_container_element", init_settings["degraded_container_element"], "");
+		this.AddSetting("ui_container_id", init_settings["ui_container_id"], "");
+		this.AddSetting("degraded_container_id", init_settings["degraded_container_id"], "");
 
 		// Upload backend settings
 		this.AddSetting("upload_target_url", init_settings["upload_target_url"], "");
-		this.AddSetting("upload_cookies", init_settings["upload_cookies"], "");
+		this.AddSetting("upload_cookies", init_settings["upload_cookies"], []);
+		this.AddSetting("upload_params", init_settings["upload_params"], {});
 		
 		// Upload settings
 		this.AddSetting("begin_upload_on_queue", init_settings["begin_upload_on_queue"], true);
@@ -150,6 +162,7 @@
 		this.AddSetting("file_types_description", init_settings["file_types_description"], "Common Web Image Formats (gif, jpg, png)");
 		this.AddSetting("file_size_limit", init_settings["file_size_limit"], "1000");
 		this.AddSetting("file_upload_limit", init_settings["file_upload_limit"], "0");
+		this.AddSetting("file_queue_limit", init_settings["file_queue_limit"], "0");
 
 		// Flash Settings
 		this.AddSetting("flash_url", init_settings["flash_url"], "swfupload.swf");
@@ -177,7 +190,7 @@
 	// loadFlash is a private method that generates the HTML tag for the Flash
 	// It then adds the flash to the "target" or to the body and stores a 
 	// reference to the flash element in "movieElement".
-	SWFUpload.prototype.LoadFlash = function() {
+	SWFUpload.prototype._loadFlash = function() {
 		var html = "";
 		// Create Mozilla Embed HTML
 		if (navigator.plugins && navigator.mimeTypes && navigator.mimeTypes.length) {
@@ -246,73 +259,69 @@
 	// to flash.
 	SWFUpload.prototype._getFlashVars = function() {
 		// Add the cookies to the backend string
-		var upload_backend = this.GetSetting("upload_target_url");
-		var upload_cookies = this.GetSetting("upload_cookies");
-		if (upload_backend != null && upload_backend != "" && upload_cookies != null && (typeof(upload_cookies) == "string" || typeof(upload_cookies) == "array")) {
-			var url_separator = "?";
-			if (upload_backend.indexOf("?") != -1) {
-				url_separator = "&";
-			}
-			
-			if (typeof(upload_cookies) == "array") {
-				var upload_cookie_pairs = new Array();
-				for (var i=0; i < upload_cookies.length; i++) {
-					if (typeof(upload_cookies[i]) == "string" && upload_cookies[i] != "") {
-						var value = Cookie.Get(upload_cookies[i]);
-						if (value != "") {
-							upload_cookie_pairs.push(upload_cookies[i] + "=" + encodeURIComponent(value));
-						}
-					}
-				}
-				
-				upload_backend += url_separator + upload_cookie_pairs.join("&");
-			} else if (upload_cookies != "") {
-				var value = Cookie.Get(upload_cookies);
-				if (value != "") {
-					upload_backend += url_separator + upload_cookies + "=" + encodeURIComponent(value);
-				}
-			}
-		}
+		var upload_target_url = this.GetSetting("upload_target_url");
+		var query_string = this._buildQueryString();
 		
 		// Build the parameter string		
 		var html = "";
 		html += "controlID=" + encodeURIComponent(this.GetSetting("control_id"));
-		html += "&uploadTargetURL=" + encodeURIComponent(upload_backend);
+		html += "&uploadTargetURL=" + encodeURIComponent(upload_target_url);
+		html += "&uploadQueryString= + encodeURIComponent(query_string);
 		html += "&beginUploadOnQueue=" + encodeURIComponent(this.GetSetting("begin_upload_on_queue"));
 		html += "&fileTypes=" + encodeURIComponent(this.GetSetting("file_types"));
 		html += "&fileTypesDescription=" + encodeURIComponent(this.GetSetting("file_types_description"));
 		html += "&fileSizeLimit=" + encodeURIComponent(this.GetSetting("file_size_limit"));
 		html += "&fileUploadLimit=" + encodeURIComponent(this.GetSetting("file_upload_limit"));
+		html += "&fileQueueLimit=" + encodeURIComponent(this.GetSetting("file_queue_limit"));
 		html += "&debug=" + encodeURIComponent(this.GetSetting("debug"));
 		
 		return html;
 	};
 	
-	// This is the callback method that the Flash movie will call when it has been loaded and is ready to go.
-	// The user shouldn't be able to do any file uploading until after this gets called.
-	SWFUpload.prototype.FlashReady = function() {
-		try {
-			if (this.debug) Console.Writeln("Flash called back and is ready.");
-			
-			this.ShowUI();
-		} catch (ex) {}
+	SWFUpload.prototype._buildQueryString = function() {
+		var upload_cookies = this.GetSetting("upload_cookies");
+		var upload_params = this.GetSettings("upload_params");
+		var query_string_pairs = new Array();
+		// Retrieve the cookies
+		if (typeof(upload_cookies) == "object")
+			for (var i=0; i < upload_cookies.length; i++) {
+				if (typeof(upload_cookies[i]) == "string" && upload_cookies[i] != "") {
+					var value = Cookie.Get(upload_cookies[i]);
+					if (value != "") {
+						query_string_pairs.push(encodeURIComponent(upload_cookies[i]) + "=" + encodeURIComponent(value));
+					}
+				}
+			}
+		}
+		// Retrieve the user defined parameters
+		if (typeof(upload_params) == "object") {
+			for (var name in upload_params) {
+				if (typeof(upload_params[name]) == "string" && upload_params[name] != "") {
+					var value = upload_params[name]);
+						query_string_pairs.push(encodeURIComponent(name) + "=" + encodeURIComponent(value));
+				}
+			}
+		}
+		
+		return query_string_pairs.join("&");
 	};
-	
 	
 	// This private method "loads" the UI.  If a target was specified then it is assumed that "display: none" was set and
 	// it does a "display: block" so the UI is shown.  Then if a degraded_target is specified it hides it by setting "display: none"
-	SWFUpload.prototype.ShowUI = function() {
+	SWFUpload.prototype._showUI = function() {
 		try {
 
-			if(this.GetSetting("ui_container_element") != "") {
-				var ui_target = document.getElementById(this.GetSetting("ui_container_element"));
+			var ui_container_id = this.GetSetting("ui_container_id");
+			if(ui_container_id != "") {
+				var ui_target = document.getElementById(ui_container_id);
 				if (ui_target != null) {
 					ui_target.style.display = "block";
 				}
 			}
 			
-			if(this.GetSetting("degraded_container_element") != "") {
-				var degraded_target = document.getElementById(this.GetSetting("degraded_container_element"));
+			var degraded_container_id = this.GetSetting("degraded_container_id");
+			if(degraded_container_id != "") {
+				var degraded_target = document.getElementById(degraded_container_id);
 				if (degraded_target != null) {
 					degraded_target.style.display = "none";
 				}
@@ -371,6 +380,30 @@
 		Console.Writeln(debug_message);
 	};
 
+	// Sets the UploadTargetURL. To commit the change you must call UpdateUploadStrings.
+	SWFUpload.prototype.SetUploadTargetURL = function(url) {
+		if (typeof(url) == "string") {
+			return this.AddSetting("upload_target_url", url, "");
+		} else {
+			return false;
+		}
+	}
+	// Sets the upload_cookies array. To commit the change you must call UpdateUploadStrings.
+	SWFUpload.prototype.SetUploadCookies = function(cookie_name_array) {
+		if (typeof(cookie_name_array) == "array") {
+			return this.AddSetting("upload_cookies", cookie_name_array, []);
+		} else {
+			return false;
+		}
+	}
+	// Sets the upload params object. To commit the change you must call UpdateUploadStrings.
+	SWFUpload.prototype.SetUploadParams = function(param_object) {
+		if (typeof(param_object) == "object") {
+			return this.AddSetting("upload_params", param_object, []);
+		} else {
+			return false;
+		}
+	}
 
 	/* *****************************
 	    -- Flash control methods --
@@ -394,13 +427,15 @@
 			}
 		}
 		
-		return false;
     };
     
-    SWFUpload.prototype.StartUpload = function() {
+    // Begins the uploads (if begin_upload_on_queue is disabled)
+    // The file_id is optional.  If specified only that file will be uploaded.  If not specified SWFUpload will
+    // begin to process the queue.
+    SWFUpload.prototype.StartUpload = function(file_id) {
 		if (this.movieElement != null) {
 			try {
-				this.movieElement.StartUpload();
+				this.movieElement.StartUpload(file_id);
 			}
 			catch (e) {
 				if (this.debug) {
@@ -413,9 +448,9 @@
 			}
 		}
 
-		return false;
     };
     
+    // Cancels the current uploading item.  If no item is uploading then nothing happens.
 	SWFUpload.prototype.CancelUpload = function(file_id) {
 		if (this.movieElement != null) {
 			try {
@@ -432,8 +467,9 @@
 			}
 		}
 
-		return false;
     };
+    
+    // Cancels all the files in the queue.  Including any current uploads.
 	SWFUpload.prototype.CancelQueue = function() {
 		if (this.movieElement != null) {
 			try {
@@ -450,9 +486,9 @@
 			}
 		}
 
-		return false;
     };
 
+	// Stops the current upload.  The file is re-queued.  If nothing is currently uploading then nothing happens.
 	SWFUpload.prototype.StopUpload = function() {
 		if (this.movieElement != null) {
 			try {
@@ -469,17 +505,18 @@
 			}
 		}
 
-		return false;
     };
 	
-	SWFUpload.prototype.SetUploadTargetURL = function(url) {
+	// Updates the upload url strings in the Flash Movie
+	// This must be called in order for calls to SetUploadTargetURL, SetUploadCookies, and SetUploadQueryString to take effect.
+	SWFUpload.prototype.UpdateUploadStrings = function() {
 		if (this.movieElement != null) {
 			try {
-				this.movieElement.SetUploadTargetURL(url);
+				this.movieElement.SetUploadStrings(this.GetSetting("upload_target_url"), this._buildQueryString());
 			}
 			catch (e) {
 				if (this.debug) {
-					Console.Writeln("Could not call SetUploadTargetURL");
+					Console.Writeln("Could not call SetUploadStrings");
 				}
 			}
 		} else { 
@@ -488,35 +525,93 @@
 			}
 		}
 
-		return false;
     };
+    
+    SWFUpload.prototype.AddFileParam = function(file_id, name, value) {
+		if (this.movieElement != null) {
+			try {
+				return this.movieElement.AddFileParam(file_id, encodeURIComponent(name), encodeURIComponent(value));
+			}
+			catch (e) {
+				if (this.debug) {
+					Console.Writeln("Could not call AddFileParam");
+				}
+			}
+		} else { 
+			if (this.debug) {
+				Console.Writeln("Could not find Flash element");
+			}
+		}
+
+    }
+    SWFUpload.prototype.RemoveFileParam = function(file_id, name) {
+		if (this.movieElement != null) {
+			try {
+				return this.movieElement.RemoveFileParam(file_id, encodeURIComponent(name));
+			}
+			catch (e) {
+				if (this.debug) {
+					Console.Writeln("Could not call AddFileParam");
+				}
+			}
+		} else { 
+			if (this.debug) {
+				Console.Writeln("Could not find Flash element");
+			}
+		}
+
+    }
 
 /* *******************************
         Default Event Handlers
    ******************************* */
+	// This is the callback method that the Flash movie will call when it has been loaded and is ready to go.
+	// Calling this or _showUI "manually" bypass the Flash Detection built in to SWFUpload.
+	// FlashReady should not generally be overwritten unless you wish to do your own thing (other than _showUI);
+	SWFUpload.prototype.FlashReady = function() {
+		try {
+			if (this.debug) Console.Writeln("Flash called back and is ready.");
+			
+			this._showUI();
+		} catch (ex) {}
+	};
+	
+	// Called when the user cancels the File Browser window.
 	SWFUpload.prototype.DialogCancelled = function() {
 		if (this.debug) { Console.Writeln("Browse Dialog Cancelled."); }
 	};
+	
+	// Called once for file the user selects
 	SWFUpload.prototype.FileQueued = function(file) {
 		if (this.debug) { Console.Writeln("File Queued: " + file.id); }
 	};
+	
+	// Called during upload as the file progresses
 	SWFUpload.prototype.FileProgress = function(file, bytes_complete) {
 		if (this.debug) { Console.Writeln("File Progress: " + file.id + ", Bytes: " + bytes_complete); }
 	};
+	
+	// Called after a file is cancelled
 	SWFUpload.prototype.FileCancelled = function(file) {
 		if (this.debug) { Console.Writeln("File Cancelled: " + file.id); }
 	};
+	
+	// Called when a file upload has completed
 	SWFUpload.prototype.FileComplete = function(file) {
 		if (this.debug) { Console.Writeln("File Complete: " + file.id); }
 	};
-	SWFUpload.prototype.QueueCopmlete = function(file_upload_count) {
+	
+	// Called when at least 1 file has been uploaded and there are no files remaining in the queue.
+	SWFUpload.prototype.QueueComplete = function(file_upload_count) {
 		if (this.debug) { Console.Writeln("Queue Complete. Files Uploaded:" + file_upload_count); }
 	};
+	
+	// Called by SWFUpload JavaScript and Flash flash functions when debug is enabled
 	SWFUpload.prototype.Debug = function(message) {
 		if (this.debug) { Console.Writeln(message); }
 	}
 	
-	// Default error handling.
+	// Called when an error occurs. Use errcode to determine which error occurred.
 	SWFUpload.prototype.Error = function(errcode, file, msg) {
 		try {
 			if (this.debug) {
@@ -548,6 +643,8 @@
 						break;
 					case SWFUpload.ERROR_CODE_UPLOAD_FAILED:
 						Console.Writeln("Error Code: Upload Initialization exception, File name: " + file.name + ", File size: " + file.size + ", Message: " + msg);
+					case SWFUpload.ERROR_CODE_SPECIFIED_FILE_NOT_FOUND:
+						Console.Writeln("Error Code: File ID specified for upload was not found, Message: " + msg);
 					default:
 						Console.Writeln("Error Code: Unhandled error occured. Errorcode: " + errcode);
 				}
@@ -564,7 +661,6 @@
 if (typeof Cookie == "undefined") {
 	var Cookie = new Object();
 }
-
 
 // Gets a cookie (http://www.w3schools.com/js/js_cookies.asp)
 Cookie.Get = function(c_name)
@@ -590,8 +686,12 @@ Cookie.Get = function(c_name)
 
 /* **********************************
 	Debug Console
+	The debug console is a self contained, in page location
+	for debug message to be sent.  The Debug Console adds
+	itself to the body if necessary.
+	
+	The console is automatically scrolled as messages appear.
    ********************************** */
-
 if (typeof Console == "undefined") {
 	var Console = new Object();
 }

@@ -1,4 +1,4 @@
-﻿function uploadStart(fileObj) {
+function uploadStart(fileObj) {
 	try {
 		// You might include code here that prevents the form from being submitted while the upload is in
 		// progress.  Then you'll want to put code in the Queue Complete handler to "unblock" the form
