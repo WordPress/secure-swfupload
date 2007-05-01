@@ -62,7 +62,7 @@ function uploadCancel(fileObj) {
 function uploadError(error_code, fileObj, message) {
 	try {
 		if (error_code == SWFUpload.ERROR_CODE_QUEUE_LIMIT_EXCEEDED) {
-			alert("You have attempted to upload too many files.\nPlease select up to " + this.GetSetting("file_upload_limit"));
+			alert("You have attempted to queue too many files.\n" + (message == 0 ? "You have reached the upload limit." : "You may select " + (message > 1 ? "up to " + message + " files." : "one file.")));
 			return;
 		}
 

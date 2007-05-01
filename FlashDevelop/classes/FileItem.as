@@ -12,7 +12,7 @@ class FileItem
 	{
 		this.paramArray = new Array();
 		this.file_reference = file_reference;
-		this.id = id + "_" + (FileItem.file_id_sequence++);		
+		this.id = control_id + "_" + (FileItem.file_id_sequence++);		
 		
 	}
 	
@@ -46,5 +46,9 @@ class FileItem
 		}
 		
 		return file_object;
+	}
+	
+	public function toString():String {
+		return "FileItem - ID: " + this.id;
 	}
 }

@@ -103,9 +103,11 @@
 /* *********** */
 	function SWFUpload(init_settings) {
 		// Remove background flicker in IE (read this: http://misterpixel.blogspot.com/2006/09/forensic-analysis-of-ie6.html)
-		// try { document.execCommand('BackgroundImageCache', false, true); } catch(e) {}
+		// This doesn't have anything to do with SWFUpload but can help your UI behave better
+		try { document.execCommand('BackgroundImageCache', false, true); } catch(e) {}
 
 		try {
+			this.settings = new Object();
 			// Generate the control's ID. Setup global control tracking
 			this.movieName = "SWFUpload_" + SWFUpload.movieCount++;
 			SWFUpload.instances[this.movieName] = this;
@@ -118,7 +120,7 @@
 
 			// Now nothing happens until Flash calls back to our flash_ready handler
 		} catch (ex) {
-		
+			if (this.debug) Console.Writeln("An exception occured during initialization. " + ex);
 		}
 	};
 
@@ -142,12 +144,12 @@
 /* Instance Thingies */
 /* ***************** */
 	// init is a private method that ensures that all the object settings are set, getting a default value if one was not assigned.
-	SWFUpload.prototype.InitSettings = function(init_settings) {
-		this.settings = new Object();
+	SWFUpload.prototype._initSettings = function(init_settings) {
 
 		this.AddSetting("control_id", this.movieName);
 
 		// UI setting
+		this.AddSetting("ui_function", init_settings["ui_function"], null);
 		this.AddSetting("ui_container_id", init_settings["ui_container_id"], "");
 		this.AddSetting("degraded_container_id", init_settings["degraded_container_id"], "");
 
@@ -266,7 +268,7 @@
 		var html = "";
 		html += "controlID=" + encodeURIComponent(this.GetSetting("control_id"));
 		html += "&uploadTargetURL=" + encodeURIComponent(upload_target_url);
-		html += "&uploadQueryString= + encodeURIComponent(query_string);
+		html += "&uploadQueryString=" + encodeURIComponent(query_string);
 		html += "&beginUploadOnQueue=" + encodeURIComponent(this.GetSetting("begin_upload_on_queue"));
 		html += "&fileTypes=" + encodeURIComponent(this.GetSetting("file_types"));
 		html += "&fileTypesDescription=" + encodeURIComponent(this.GetSetting("file_types_description"));
@@ -280,10 +282,10 @@
 	
 	SWFUpload.prototype._buildQueryString = function() {
 		var upload_cookies = this.GetSetting("upload_cookies");
-		var upload_params = this.GetSettings("upload_params");
+		var upload_params = this.GetSetting("upload_params");
 		var query_string_pairs = new Array();
 		// Retrieve the cookies
-		if (typeof(upload_cookies) == "object")
+		if (typeof(upload_cookies) == "object") {
 			for (var i=0; i < upload_cookies.length; i++) {
 				if (typeof(upload_cookies[i]) == "string" && upload_cookies[i] != "") {
 					var value = Cookie.Get(upload_cookies[i]);
@@ -296,9 +298,8 @@
 		// Retrieve the user defined parameters
 		if (typeof(upload_params) == "object") {
 			for (var name in upload_params) {
-				if (typeof(upload_params[name]) == "string" && upload_params[name] != "") {
-					var value = upload_params[name]);
-						query_string_pairs.push(encodeURIComponent(name) + "=" + encodeURIComponent(value));
+				if (typeof(upload_params[name]) == "string" /*&& upload_params[name] != ""*/) {
+					query_string_pairs.push(encodeURIComponent(name) + "=" + encodeURIComponent(upload_params[name]));
 				}
 			}
 		}
@@ -308,6 +309,7 @@
 	
 	// This private method "loads" the UI.  If a target was specified then it is assumed that "display: none" was set and
 	// it does a "display: block" so the UI is shown.  Then if a degraded_target is specified it hides it by setting "display: none"
+	// If you want SWFUpload to do something else then provide a "ui_function" setting and that will be called instead.
 	SWFUpload.prototype._showUI = function() {
 		try {
 
@@ -567,12 +569,17 @@
    ******************************* */
 	// This is the callback method that the Flash movie will call when it has been loaded and is ready to go.
 	// Calling this or _showUI "manually" bypass the Flash Detection built in to SWFUpload.
-	// FlashReady should not generally be overwritten unless you wish to do your own thing (other than _showUI);
+	// FlashReady should not generally be overwritten. Use a ui_function setting if you want to control the UI loading after the flash has loaded.
 	SWFUpload.prototype.FlashReady = function() {
 		try {
 			if (this.debug) Console.Writeln("Flash called back and is ready.");
 			
-			this._showUI();
+			var ui_function = this.GetSetting("ui_function");
+			if (typeof(ui_function) == "function") {
+				ui_function();
+			} else {
+				this._showUI();
+			}
 		} catch (ex) {}
 	};
 	
@@ -706,9 +713,14 @@ Console.Writeln = function(value) {
 			
 			console = document.createElement("textarea");
 			console.id = "SWFUpload_Console";
-			console.style.whiteSpace = "pre";
+			console.style.fontFamily = "monospace";
+			//console.style.whiteSpace = "nowrap";
+			console.setAttribute("wrap", "off");
+			console.wrap = "off";
+			console.style.overflow = "auto";
 			console.style.width = "700px";
 			console.style.height = "350px";
+			console.style.margin = "5px";
 			documentForm.appendChild(console);
 		}
 		

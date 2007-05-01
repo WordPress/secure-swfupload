@@ -27,71 +27,74 @@
 			if (typeof(da_onload) == "function") {
 				da_onload();
 			}
-				if (typeof(SWFUpload) == "undefined") return;
+			if (typeof(SWFUpload) == "undefined") return;
 
-				upload1 = new SWFUpload({
-					// Backend Settings
-					upload_target_url: "../multiuploaddemo/upload.php",	// Relative to the SWF file
-					upload_cookies: "PHPSESSID",
+			upload1 = new SWFUpload({
+				// Backend Settings
+				upload_target_url: "../multiuploaddemo/upload.php",	// Relative to the SWF file
+				upload_cookies: ["PHPSESSID"],
+				upload_params: { test_param: "this is it & this is it \" ' http://www.yahoo.com\\" },
 
-					// File Upload Settings
-					file_size_limit : "102400",	// 100MB
-					file_types : "*.*",
-					file_types_description : "All Files",
-					file_upload_limit : "10",
-					begin_upload_on_queue : true,
+				// File Upload Settings
+				file_size_limit : "102400",	// 100MB
+				file_types : "*.*",
+				file_types_description : "All Files",
+				file_upload_limit : "10",
+				file_queue_limit : 2,
+				begin_upload_on_queue : true,
 
-					// Event Handler Settings
-					file_queued_handler : uploadStart,
-					file_progress_handler : uploadProgress,
-					file_cancelled_handler : uploadCancel,
-					file_complete_handler : uploadComplete,
-					queue_complete_handler : uploadQueueComplete,
-					error_handler : uploadError,
+				// Event Handler Settings
+				file_queued_handler : uploadStart,
+				file_progress_handler : uploadProgress,
+				file_cancelled_handler : uploadCancel,
+				file_complete_handler : uploadComplete,
+				queue_complete_handler : uploadQueueComplete,
+				error_handler : uploadError,
 
-					// Flash Settings
-					flash_url : "../swfupload/swfuploadr5.swf",	// Relative to this file
+				// Flash Settings
+				flash_url : "../swfupload/swfuploadr5.swf",	// Relative to this file
 
-					// UI Settings
-					ui_container_element : "flashUI1",
-					degraded_container_element : "degradedUI1",
+				// UI Settings
+				ui_container_id : "flashUI1",
+				degraded_container_id : "degradedUI1",
 
-					// Debug Settings
-					debug: false
-				});
-				upload1.AddSetting("progress_target", "fsUploadProgress1");
-	
-				upload2 = new SWFUpload({
-					// Backend Settings
-					upload_target_url: "../multiuploaddemo/upload.php",	// Relative to the SWF file
-					upload_cookies: "PHPSESSID",
+				// Debug Settings
+				debug: true
+			});
+			upload1.AddSetting("progress_target", "fsUploadProgress1");	// Add an additional setting that will later be used by the handler.
 
-					// File Upload Settings
-					file_size_limit : "100",	// 100 kb
-					file_types : "*.jpg;*.gif;*.png",
-					file_types_description : "Image Files",
-					file_upload_limit : "10",
-					begin_upload_on_queue : true,
+			upload2 = new SWFUpload({
+				// Backend Settings
+				upload_target_url: "../multiuploaddemo/upload.php",	// Relative to the SWF file
+				upload_cookies: ["PHPSESSID"],
+				upload_params: { test_param: "none&bob=john", test_param2: "this is test param 2" },
 
-					// Event Handler Settings
-					file_queued_handler : uploadStart,
-					file_progress_handler : uploadProgress,
-					file_cancelled_handler : uploadCancel,
-					file_complete_handler : uploadComplete,
-					queue_complete_handler : uploadQueueComplete,
-					error_handler : uploadError,
+				// File Upload Settings
+				file_size_limit : "100",	// 100 kb
+				file_types : "*.jpg;*.gif;*.png",
+				file_types_description : "Image Files",
+				file_upload_limit : "10",
+				begin_upload_on_queue : true,
 
-					// Flash Settings
-					flash_url : "../swfupload/swfuploadr5.swf",	// Relative to this file
+				// Event Handler Settings
+				file_queued_handler : uploadStart,
+				file_progress_handler : uploadProgress,
+				file_cancelled_handler : uploadCancel,
+				file_complete_handler : uploadComplete,
+				queue_complete_handler : uploadQueueComplete,
+				error_handler : uploadError,
 
-					// UI Settings
-					ui_container_element : "flashUI2",
-					degraded_container_element : "degradedUI2",
+				// Flash Settings
+				flash_url : "../swfupload/swfuploadr5.swf",	// Relative to this file
 
-					// Debug Settings
-					debug: false
-				});
-				upload2.AddSetting("progress_target", "fsUploadProgress2");
+				// UI Settings
+				ui_container_id : "flashUI2",
+				degraded_container_id : "degradedUI2",
+
+				// Debug Settings
+				debug: false
+			});
+			upload2.AddSetting("progress_target", "fsUploadProgress2");	// Add an additional setting that will later be used by the handler.
 
 	     }
 	</script>

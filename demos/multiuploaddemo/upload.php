@@ -1,5 +1,5 @@
 <?
-	$session_id = $_GET["PHPSESSID"];
+	$session_id = isset($_GET["PHPSESSID"]) ? $_GET["PHPSESSID"] : false;
 	if ($session_id) {
 		session_id($session_id);
 	}
