@@ -1,18 +1,20 @@
-function uploadStart(fileObj) {
+function fileBrowse() {
+	var txtFileName = document.getElementById("txtFileName");
+	txtFileName.value = "";
+
+	this.CancelQueue();
+	this.Browse();
+}
+
+function fileQueued(fileObj) {
 	try {
-		// You might include code here that prevents the form from being submitted while the upload is in
-		// progress.  Then you'll want to put code in the Queue Complete handler to "unblock" the form
-		var progress = new FileProgress(fileObj, this.GetSetting("progress_target"));
-		progress.SetStart();
-		progress.SetStatus("Ready for Upload...");
-		progress.ToggleCancel(true, this);	// I pass in the SWFUpload instance here so the cancel button can call the [SWFUpload Object].cancelUpload method.
-		
-		document.getElementById("btnCancel1").disabled = false;
+		var txtFileName = document.getElementById("txtFileName");
+		txtFileName.value = fileObj.name;
 	} catch (e) { /*Console.Writeln("Upload started");*/ }
 		
 }
 
-function uploadProgress(fileObj, bytesLoaded) {
+function fileProgress(fileObj, bytesLoaded) {
 
 	try {
 		var percent = Math.ceil((bytesLoaded / fileObj.size) * 100)
@@ -23,7 +25,7 @@ function uploadProgress(fileObj, bytesLoaded) {
 	} catch (e) { /*Console.Writeln("Upload Progress: " + fileObj.name + " " + percent);*/ }
 }
 
-function uploadComplete(fileObj) {
+function fileComplete(fileObj) {
 	try {
 		
 
@@ -35,42 +37,62 @@ function uploadComplete(fileObj) {
 	} catch (e) { /*Console.Writeln("Upload Complete: " + fileObj.name);*/ }
 }
 
-function uploadQueueComplete(fileObj) {
+function queueComplete(fileObj) {
 	try {
 		uploadDone();
 	} catch (e) { /* Console.Writeln("Queue Done"); */ }
 }
 
-function uploadDialogCancel() {
+function fileDialogCancel() {
 /*	try {
 		Console.Writeln("Pressed Cancel");
 	} catch (e) { Console.Writeln("Error displaying file cancel information"); }
 */
 }
 
-function uploadCancel(fileObj) {
+function uploadCancelled(fileObj) {
 	try {
-		var progress = new FileProgress(fileObj, this.GetSetting("progress_target"));
-		progress.SetCancelled();
-		progress.SetStatus("Cancelled");
-		progress.ToggleCancel(false);
+		//var progress = new FileProgress(fileObj, this.GetSetting("progress_target"));
+		//progress.SetCancelled();
+		//progress.SetStatus("Cancelled");
+		//progress.ToggleCancel(false);
 	}
 	catch (e) {}
 }
 
 function uploadError(error_code, fileObj, message) {
 	try {
-		if (error_code == SWFUpload.ERROR_CODE_QUEUE_LIMIT_EXCEEDED) {
-			var queue_remaining = fileObj;
-			var message = "You have attempted to upload too many files.\nYou ";
-			if (queue_remaining == 0) {
-				alert(message + " cannot add any more files");
-			} else if (queue_remaining == 1) {
-				alert(message + " may add one more file");
-			} else {
-				alert(message + " may add up to " + queue_remaining + " files");
-			}
-			return;
+		// Handle this error separately because we don't want to create a FileProgress element for it.
+		switch(error_code) {
+			case SWFUpload.ERROR_CODE_QUEUE_LIMIT_EXCEEDED:
+				alert("You have attempted to queue too many files.\n" + (message == 0 ? "You have reached the upload limit." : "You may select " + (message > 1 ? "up to " + message + " files." : "one file.")));
+				return;
+				break;
+			case SWFUpload.ERROR_CODE_MISSING_UPLOAD_TARGET:
+				alert("There was a configuration error.  You will not be able to upload a resume at this time.");
+				if (this.debug) Console.Writeln("Error Code: No backend file, File name: " + file.name + ", Message: " + message);
+				return;
+				break;
+			case SWFUpload.ERROR_CODE_FILE_EXCEEDS_SIZE_LIMIT:
+				alert("The file you selected is too big.");
+				if (this.debug) Console.Writeln("Error Code: File too big, File name: " + file.name + ", File size: " + file.size + ", Message: " + message);
+				return;
+				break;
+			case SWFUpload.ERROR_CODE_ZERO_BYTE_FILE:
+				alert("The file you select is empty.  Please select another file.");
+				if (this.debug) Console.Writeln("Error Code: Zero byte file, File name: " + file.name + ", File size: " + file.size + ", Message: " + message);
+				return;
+				break;
+			case SWFUpload.ERROR_CODE_UPLOAD_LIMIT_EXCEEDED:
+				alert("You may only upload 1 file.");
+				if (this.debug) Console.Writeln("Error Code: Upload Limit Exceeded, File name: " + file.name + ", File size: " + file.size + ", Message: " + message);
+				return;
+				break;
+			default:
+				alert("An error occurred in the upload. Try again later.");
+				if (this.debug) Console.Writeln("Error Code: " + error_code + ", File name: " + file.name + ", File size: " + file.size + ", Message: " + message);
+				return;
+				break;
 		}
 
 		var progress = new FileProgress(fileObj, this.GetSetting("progress_target"));
@@ -81,10 +103,6 @@ function uploadError(error_code, fileObj, message) {
 			case SWFUpload.ERROR_CODE_HTTP_ERROR:
 				progress.SetStatus("Upload Error");
 				if (this.debug) Console.Writeln("Error Code: HTTP Error, File name: " + file.name + ", Message: " + message);
-				break;
-			case SWFUpload.ERROR_CODE_MISSING_UPLOAD_TARGET:
-				progress.SetStatus("Configuration Error");
-				if (this.debug) Console.Writeln("Error Code: No backend file, File name: " + file.name + ", Message: " + message);
 				break;
 			case SWFUpload.ERROR_CODE_UPLOAD_FAILED:
 				progress.SetStatus("Upload Failed.");
@@ -97,22 +115,6 @@ function uploadError(error_code, fileObj, message) {
 			case SWFUpload.ERROR_CODE_SECURITY_ERROR:
 				progress.SetStatus("Security Error");
 				if (this.debug) Console.Writeln("Error Code: Security Error, File name: " + file.name + ", Message: " + message);
-				break;
-			case SWFUpload.ERROR_CODE_FILE_EXCEEDS_SIZE_LIMIT:
-				progress.SetStatus("File is too big.");
-				if (this.debug) Console.Writeln("Error Code: File too big, File name: " + file.name + ", File size: " + file.size + ", Message: " + message);
-				break;
-			case SWFUpload.ERROR_CODE_ZERO_BYTE_FILE:
-				progress.SetStatus("Cannot upload Zero Byte files.");
-				if (this.debug) Console.Writeln("Error Code: Zero byte file, File name: " + file.name + ", File size: " + file.size + ", Message: " + message);
-				break;
-			case SWFUpload.ERROR_CODE_UPLOAD_LIMIT_EXCEEDED:
-				progress.SetStatus("Upload limit exceeded.");
-				if (this.debug) Console.Writeln("Error Code: Upload Limit Exceeded, File name: " + file.name + ", File size: " + file.size + ", Message: " + message);
-				break;
-			default:
-				progress.SetStatus("Unhandled Error");
-				if (this.debug) Console.Writeln("Error Code: " + error_code + ", File name: " + file.name + ", File size: " + file.size + ", Message: " + message);
 				break;
 		}
 	} catch (e) {}

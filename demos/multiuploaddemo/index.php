@@ -59,7 +59,7 @@
 				degraded_container_id : "degradedUI1",
 
 				// Debug Settings
-				debug: true
+				debug: false
 			});
 			upload1.AddSetting("progress_target", "fsUploadProgress1");	// Add an additional setting that will later be used by the handler.
 

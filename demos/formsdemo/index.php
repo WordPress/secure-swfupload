@@ -5,7 +5,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" >
 <head>
-    <title>SWFUpload Revision 4 Demo</title>
+    <title>SWFUpload Revision 5 Demo</title>
 
 	<link href="../css/default.css" rel="stylesheet" type="text/css" />
 	<script type="text/javascript" src="../swfupload/swfuploadr5.js"></script>
@@ -16,21 +16,22 @@
 			swf_upload_control = new SWFUpload({
 				// Backend settings
 				upload_target_url: "../formsdemo/upload.php",	// Relative to the SWF file
-				upload_cookies: "PHPSESSID",
+				upload_cookies: ["PHPSESSID"],
 
 				// Flash file settings
 				file_size_limit : "10240",	// 10 MB
 				file_types : "*.*",	// or you could use something like: "*.doc;*.wpd;*.pdf",
 				file_types_description : "All Files",
 				file_upload_limit : "1",
+				//file_queue_limit : "1", // this isn't needed because the upload_limit will automatically place a queue limit
 				begin_upload_on_queue : false,
 
 				// Event handler settings
-				file_queued_handler : uploadStart,
-				file_progress_handler : uploadProgress,
-				file_cancelled_handler : uploadCancel,
-				file_complete_handler : uploadComplete,
-				queue_complete_handler : uploadQueueComplete,
+				file_queued_handler : fileQueued,
+				file_progress_handler : fileProgress,
+				file_cancelled_handler : uploadCancelled,
+				file_complete_handler : fileComplete,
+				queue_complete_handler : queueComplete,
 				error_handler : uploadError,
 				
 				// Flash Settings
@@ -38,8 +39,8 @@
 				flash_url : "../swfupload/swfuploadr5.swf",	// Relative to this file
 
 				// UI settings
-				ui_container_element : "flashUI",
-				degraded_container_element : "degradedUI",
+				ui_container_id : "flashUI",
+				degraded_container_id : "degradedUI",
 				
 				// Debug settings
 				debug: false
@@ -51,11 +52,17 @@
 	
 	     }
 	     
-	     function doSubmit() {
+	     // Called by the submit button to start the upload
+		 function doSubmit() {
 			try {
+				var btnBrowse = document.getElementById("btnBrowse");
+				btnBrowse.disabled = true;
+				
 				swf_upload_control.StartUpload();
 			} catch (ex) {}
 	     }
+		 
+		 // Called by the queue complete handler to submit the form
 	     function uploadDone() {
 			try {
 				document.forms[0].submit();
@@ -65,7 +72,7 @@
 
 </head>
 <body>
-	<div class="title"><a class="likeParent" href="../index.php">SWFUpload (Revision 4) Classic Form Demo</a></div>
+	<div class="title"><a class="likeParent" href="../index.php">SWFUpload (Revision 5) Classic Form Demo</a></div>
 	
 	<form id="form1" action="thanks.php" enctype="multipart/form-data" method="post">
 		<div class="content">
@@ -103,13 +110,13 @@
 						<td>
 							
 							<div id="flashUI" style="display: none;">
-								<!-- This is the UI that I built. It only gets displayed if SWFUpload loads properly -->
+								<!-- The UI only gets displayed if SWFUpload loads properly -->
 								<div>
-									<input type="text" /><input type="button" value="Browse..." onclick="swf_upload_control.Browse()" /> (10 MB max)
+									<input type="text" id="txtFileName" disabled="true" style="border: solid 1px; background-color: #FFFFFF;" /><input id="btnBrowse" type="button" value="Browse..." onclick="fileBrowse.apply(swf_upload_control)" /> (10 MB max)
 								</div>
 								<div class="flash" id="fsUploadProgress">
-									<!-- This is where the file progress gets shown.  SWFUpload doesn't handle this automatically.
-										Its my Handlers (in handlers.js) that process the upload events and handle the UI updates -->
+									<!-- This is where the file progress gets shown.  SWFUpload doesn't update the UI directly.
+										The Handlers (in handlers.js) process the upload events and make the UI updates -->
 								</div>
 							</div>
 							<div id="degradedUI">
@@ -131,7 +138,6 @@
 				</table>
 				<br />
 				<input type="submit" value="Submit Application" onclick="doSubmit(); return false;" />
-				<input type="button" value="Cancel All" onclick="swf_upload_control.CancelQueue();" />
 			</fieldset>
 		</div>
 	</form>

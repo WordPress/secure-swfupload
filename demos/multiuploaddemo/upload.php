@@ -1,4 +1,4 @@
-<?
+<?php
 	$session_id = isset($_GET["PHPSESSID"]) ? $_GET["PHPSESSID"] : false;
 	if ($session_id) {
 		session_id($session_id);

@@ -42,9 +42,9 @@ div.title
 	width: auto;
 	/*background-color: #B5C4FF;*/
 	background-color: #99BBE8;
-	/*border-bottom: solid 1px #000000;*/
+	border-bottom: solid 1px #000000;
 	padding: 2px;
-	/*margin-bottom: 15px*/;
+	margin-bottom: 15px;
 
 	font-family: Verdana;
 	font-size: 14pt;
