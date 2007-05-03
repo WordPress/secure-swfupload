@@ -1,0 +1,190 @@
+label { display: block; }
+fieldset {
+	border: solid 1px #C0C0C0;
+	padding: 4px;
+}
+
+table.layout {
+	width: 948px;
+	border-collapse: collapse;
+}
+
+input.textbox {
+	margin: 4px 0px;
+	padding: 1px;
+	border: solid 1px #A7A6AA;
+
+	font-size: .8em;
+	line-height: 15px;
+	height: 15px;
+}
+
+table.btn {
+	border: 0;
+	margin: 2px 0px;
+	border-collapse: collapse;
+	height: 22px;
+	empty-cells: show;
+}
+td.btn-left {
+	width: 2px;
+	padding: 0;
+
+	background-color: Transparent;
+	background-image: url(../images/btn_states.gif);
+	background-repeat: no-repeat;
+	background-position: left 0px;
+}
+td.btn-right {
+	width: 2px;
+	padding: 0;
+
+	background-color: Transparent;
+	background-image: url(../images/btn_states.gif);
+	background-repeat: no-repeat;
+	background-position: left -22px;
+}
+td.btn-center {
+	padding: 0;
+	background-color: Transparent;
+}
+td.btn-center button {
+	border: none 0px;
+	width: auto;
+	height: 22px;
+	margin: 0px 0px;
+	padding: 0px 5px;
+
+	overflow: hidden;
+	white-space: nowrap;
+
+	background-color: Transparent;
+	background-image: url(../images/btn_states.gif);
+	background-repeat: repeat-x;
+	background-position: left -44px;
+}
+td.btn-center button:hover {
+	background-position: left -66px;
+}
+td.btn-center button:active {
+	background-position: left -88px;
+}
+
+button.action  {
+	width: 266px !important;
+}
+
+select {
+	font-family: monospace;
+	border: solid 1px #C3C3C3;
+	margin: 2px 0px;
+	padding: 0;
+}
+
+#fsStaticSettings div {
+	position: relative;
+	clear: both;
+	margin: 2px 0px;
+}
+#fsStaticSettings label {
+	display: block;
+	float: left;
+	font-size: .8em;
+	width: 150px;
+	overflow: hidden;
+	height: 25px;
+	line-height: 25px;
+}
+#fsStaticSettings input {
+	width: 121px;
+	height: 15px;
+	margin: 4px 0px;
+	padding: 1px;
+	border: solid 1px #A7A6AA;
+}
+#fsStaticSettings div.checkbox label {
+	display: inline;
+	float: none;
+	width: auto;
+	overflow: hidden;
+	height: 25px;
+}
+#fsStaticSettings div.checkbox input {
+	width: auto;
+	height: auto;
+	margin: auto;
+	padding: auto;
+	border: 0;
+}
+
+
+#btnRemoveFileParam,
+#btnRemoveCookie,
+#btnRemoveParam,
+#btnAddFileParam,
+#btnAddCookie,
+#btnAddParam
+{
+	position: absolute;
+
+	border: 0;
+	margin: 5px 0px;
+	padding: 0;
+	width: 16px;
+	height: 16px;
+
+	background-color: Transparent;
+	background-position: center;
+}
+#btnAddFileParam,
+#btnAddCookie,
+#btnAddParam
+{
+	background-image: url(../images/add.png);
+}
+#btnRemoveFileParam,
+#btnRemoveCookie,
+#btnRemoveParam
+{
+	background-image: url(../images/delete.png);
+}
+
+#selCookies,
+#selParams
+{
+	width: 235px;
+}
+
+#txtAddCookieName,
+#txtUploadTarget,
+#txtControlID
+{
+	width: 232px;
+}
+#txtAddParamName,
+#txtAddParamValue
+{
+	width: 111px;
+}
+
+#txtFlashHTML
+{
+	width: 270px;
+	height: 60px;
+	font-size: .75em;
+}
+
+#selEventsQueue,
+#selEventsFile,
+#selEventsError
+{
+	width: 300px;
+}
+
+#SWFUpload_Console {
+	font-family: monospace;
+	width: 900px;
+	height: 400px;
+	background-color: #F0F0F0;
+	border: solid 1px #C0C0C0;
+}
