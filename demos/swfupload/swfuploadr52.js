@@ -171,8 +171,8 @@
 		// Flash Settings
 		this.AddSetting("flash_url", init_settings["flash_url"], "swfupload.swf");
 		this.AddSetting("flash_container_id", init_settings["flash_container_id"], "");
-		this.AddSetting("flash_width", init_settings["flash_width"], "0px");
-		this.AddSetting("flash_height", init_settings["flash_height"], "0px");
+		this.AddSetting("flash_width", init_settings["flash_width"], "1px");
+		this.AddSetting("flash_height", init_settings["flash_height"], "1px");
 		this.AddSetting("flash_color", init_settings["flash_color"], "#000000");
 
 		// Debug Settings

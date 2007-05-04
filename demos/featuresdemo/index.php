@@ -18,7 +18,7 @@
 
 	<link href="../css/default.css" rel="stylesheet" type="text/css" />
 	<link href="css/featuresdemo.css" rel="stylesheet" type="text/css" />
-	<script type="text/javascript" src="../swfupload/swfuploadr5.js"></script>
+	<script type="text/javascript" src="../swfupload/swfuploadr52.js"></script>
 	<script type="text/javascript" src="js/featuresdemo.js"></script>
 	<script type="text/javascript" src="js/handlers.js"></script>
 	<script type="text/javascript">
@@ -59,7 +59,7 @@
 				error_handler : uploadError,
 
 				// Flash Settings
-				flash_url : "../swfupload/swfuploadr5.swf",	// Relative to this file
+				flash_url : "../swfupload/swfuploadr52.swf",	// Relative to this file
 
 				// UI Settings
 				ui_function : FeaturesDemo.ShowUI,
