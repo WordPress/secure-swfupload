@@ -94,32 +94,32 @@
 								</div>
 								<div>
 									<table class="btn"><tr><td class="btn-left"></td><td class="btn-center">
-										<button id="btnBrowse" class="action">Select Files...</button>
+										<button id="btnBrowse" type="button" class="action">Select Files...</button>
 									</td><td class="btn-right"></td></tr></table>
 								</div>
 								<div>
 									<table class="btn"><tr><td class="btn-left"></td><td class="btn-center">
-										<button id="btnStartQueueUpload" class="action">Start Queue</button>
+										<button id="btnStartQueueUpload" type="button" class="action">Start Queue</button>
 									</td><td class="btn-right"></td></tr></table>
 								</div>
 								<div>
 									<table class="btn"><tr><td class="btn-left"></td><td class="btn-center">
-										<button id="btnStartSelectedFile" class="action">Start Selected File</button>
+										<button id="btnStartSelectedFile" type="button" class="action">Start Selected File</button>
 									</td><td class="btn-right"></td></tr></table>
 								</div>
 								<div>
 									<table class="btn"><tr><td class="btn-left"></td><td class="btn-center">
-										<button id="btnStopUpload" class="action">Stop Upload</button>
+										<button id="btnStopUpload" type="button" class="action">Stop Upload</button>
 									</td><td class="btn-right"></td></tr></table>
 								</div>
 								<div>
 									<table class="btn"><tr><td class="btn-left"></td><td class="btn-center">
-										<button id="btnCancelSelectedFile" class="action">Cancel Selected File</button>
+										<button id="btnCancelSelectedFile" type="button" class="action">Cancel Selected File</button>
 									</td><td class="btn-right"></td></tr></table>
 								</div>
 								<div>
 									<table class="btn"><tr><td class="btn-left"></td><td class="btn-center">
-										<button id="btnCancelQueue" class="action">Cancel Queue</button>
+										<button id="btnCancelQueue" type="button" class="action">Cancel Queue</button>
 									</td><td class="btn-right"></td></tr></table>
 								</div>
 								<div>
@@ -127,11 +127,11 @@
 									<div style="margin-left: 5px;">
 										<input id="txtAddFileParamName" type="text" class="textbox" style="width: 100px;" />
 										<input id="txtAddFileParamValue" type="text" class="textbox" style="width: 100px;" />
-										<button id="btnAddFileParam"></button>
+										<button id="btnAddFileParam" type="button"></button>
 									</div>
 									<div style="margin-left: 5px;">
 										<input id="txtRemoveFileParamName" type="text" class="textbox" style="width: 100px;" />
-										<button id="btnRemoveFileParam"></button>
+										<button id="btnRemoveFileParam" type="button"></button>
 									</div>
 								</div>
 							</fieldset>
@@ -142,21 +142,21 @@
 								<label>upload_cookies</label>
 								<div>
 									<select id="selCookies" size="5"></select>
-									<button id="btnRemoveCookie"></button>
+									<button id="btnRemoveCookie" type="button"></button>
 								</div>
 								<div>
 									<input id="txtAddCookieName" type="text" class="textbox" />
-									<button id="btnAddCookie"></button>
+									<button id="btnAddCookie" type="button"></button>
 								</div>
 								<label>upload_params</label>
 								<div>
 									<select id="selParams" size="5"></select>
-									<button id="btnRemoveParam"></button>
+									<button id="btnRemoveParam" type="button"></button>
 								</div>
 								<div>
 									<input id="txtAddParamName" type="text" class="textbox" />
 									<input id="txtAddParamValue" type="text" class="textbox" />
-									<button id="btnAddParam"></button>
+									<button id="btnAddParam" type="button"></button>
 								</div>
 								<div>
 									<label for="txtUploadTarget">upload_target_url:</label>
@@ -164,7 +164,7 @@
 								</div>
 								<div>
 									<table class="btn"><tr><td class="btn-left"></td><td class="btn-center">
-										<button id="btnUpdateDynamicSettings">Update Dynamic Settings</button>
+										<button id="btnUpdateDynamicSettings" type="button">Update Dynamic Settings</button>
 									</td><td class="btn-right"></td></tr></table>
 								</div>
 							</fieldset>
@@ -245,7 +245,7 @@
 								</div>
 								<div>
 									<table class="btn"><tr><td class="btn-left"></td><td class="btn-center">
-										<button id="btnReloadSWFUpload">Reload SWFUpload</button>
+										<button id="btnReloadSWFUpload" type="button">Reload SWFUpload</button>
 									</td><td class="btn-right"></td></tr></table>
 								</div>
 							</fieldset>
