@@ -490,7 +490,7 @@ class SWFUpload {
 	function CheckFileSize(file_item:FileItem):Number {
 		if (file_item.file_reference.size == 0) {
 			return -1;
-		} else if (this.fileSizeLimit == 0 || file_item.file_reference.size > (this.fileSizeLimit * 1000)) {
+		} else if (this.fileSizeLimit != 0 && file_item.file_reference.size > (this.fileSizeLimit * 1000)) {
 			return 1;
 		} else {
 			return 0;
