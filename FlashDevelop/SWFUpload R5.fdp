@@ -7,7 +7,7 @@
   <!-- Output SWF options -->
   <output>
     <movie input="" />
-    <movie path="swfuploadr52.swf" />
+    <movie path="swfupload.swf" />
     <movie fps="1" />
     <movie width="0" />
     <movie height="0" />
