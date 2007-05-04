@@ -8,7 +8,7 @@
     <title>SWFUpload Revision 5 Demo</title>
 
 	<link href="../css/default.css" rel="stylesheet" type="text/css" />
-	<script type="text/javascript" src="../swfupload/swfuploadr52.js"></script>
+	<script type="text/javascript" src="../swfuploadr52_0001/swfupload.js"></script>
 	<script type="text/javascript" src="js/handlers.js"></script>
 	<script type="text/javascript">
 		var swf_upload_control;
@@ -36,7 +36,7 @@
 				
 				// Flash Settings
 				flash_container_element : "flashContainer",
-				flash_url : "../swfupload/swfuploadr52.swf",	// Relative to this file
+				flash_url : "../swfuploadr52_0001/swfupload.swf",	// Relative to this file
 
 				// UI settings
 				ui_container_id : "flashUI",
