@@ -18,7 +18,7 @@
 
 	<link href="../css/default.css" rel="stylesheet" type="text/css" />
 	<link href="css/featuresdemo.css" rel="stylesheet" type="text/css" />
-	<script type="text/javascript" src="../swfupload/swfuploadr52.js"></script>
+	<script type="text/javascript" src="../swfupload/swfuploadr52.js?eek"></script>
 	<script type="text/javascript" src="js/featuresdemo.js"></script>
 	<script type="text/javascript" src="js/handlers.js"></script>
 	<script type="text/javascript">

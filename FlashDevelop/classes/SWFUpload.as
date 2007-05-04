@@ -288,8 +288,6 @@ class SWFUpload {
 	// Cancel the current upload and stops.  Doesn't advance the upload pointer. Starting again will re-upload the current file.
 	function StopUpload():Void {
 		if (this.current_file_item != null) {
-			this.Debug("StopUpload(): Stopping Upload run");
-
 			// Cancel the upload and re-queue the FileItem
 			this.current_file_item.file_reference.cancel();
 			this.file_queue.unshift(this.current_file_item);
@@ -492,7 +490,7 @@ class SWFUpload {
 	function CheckFileSize(file_item:FileItem):Number {
 		if (file_item.file_reference.size == 0) {
 			return -1;
-		} else if (file_item.file_reference.size > (this.fileSizeLimit * 1000)) {
+		} else if (this.fileSizeLimit == 0 || file_item.file_reference.size > (this.fileSizeLimit * 1000)) {
 			return 1;
 		} else {
 			return 0;

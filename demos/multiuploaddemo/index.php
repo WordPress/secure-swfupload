@@ -40,7 +40,7 @@
 				file_types : "*.*",
 				file_types_description : "All Files",
 				file_upload_limit : "10",
-				file_queue_limit : 2,
+				file_queue_limit : "0",
 				begin_upload_on_queue : true,
 
 				// Event Handler Settings
@@ -74,6 +74,7 @@
 				file_types : "*.jpg;*.gif;*.png",
 				file_types_description : "Image Files",
 				file_upload_limit : "10",
+				file_queue_limit : "2",
 				begin_upload_on_queue : true,
 
 				// Event Handler Settings

@@ -173,7 +173,7 @@
 		this.AddSetting("flash_container_id", init_settings["flash_container_id"], "");
 		this.AddSetting("flash_width", init_settings["flash_width"], "1px");
 		this.AddSetting("flash_height", init_settings["flash_height"], "1px");
-		this.AddSetting("flash_color", init_settings["flash_color"], "#000000");
+		this.AddSetting("flash_color", init_settings["flash_color"], "#FFFFFF");
 
 		// Debug Settings
 		this.AddSetting("debug", init_settings["debug"],  false);
@@ -202,7 +202,7 @@
 		var container = document.createElement("div");
 		container.style.width = this.GetSetting("flash_width");
 		container.style.height = this.GetSetting("flash_height");
-		container.style.overflow = "hidden";
+		//container.style.overflow = "hidden";
 
 		var target_element;
 		var flash_container_id = this.GetSetting("flash_container_id");

@@ -319,6 +319,7 @@ var FeaturesDemo = {
 			file_cancelled_handler : fileCancelled,
 			file_complete_handler : fileComplete,
 			queue_complete_handler : queueComplete,
+			queue_stopped_handler : queueStopped,
 			dialog_cancelled_handler : fileDialogCancelled,
 			error_handler : uploadError,
 			flash_url : FeaturesDemo.SU.GetSetting("flash_url"),
