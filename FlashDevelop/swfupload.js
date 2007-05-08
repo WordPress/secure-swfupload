@@ -118,17 +118,8 @@ SWFUpload.BrotherCake.onDomReady = function (function_to_execute, element_condit
 /* Instance Thingies */
 /* ***************** */
 // init is a private method that ensures that all the object settings are set, getting a default value if one was not assigned.
-SWFUpload.prototype = function () {
 
-
-    // Public Methods and
-    return {
-
-    }
-}();
-
-
-.initSettings = function (init_settings) {
+SWFUpload.prototype.initSettings = function (init_settings) {
 
     this.AddSetting("control_id", this.movieName, "");
 
