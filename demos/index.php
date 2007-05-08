@@ -16,12 +16,13 @@
 		<li><a href="formsdemo/index.php">Classic Form Demo</a></li>
 		<li><a href="multiuploaddemo/index.php">Multi-Upload Demo</a></li>
 		<li><a href="featuresdemo/index.php">Features Demo</a></li>
+		<li><a href="applicationdemo/index.php">Application Demo</a></li>
 	</ul>
 	
 	<ul>
 		<li><a href="http://linebyline.blogspot.com">Revision 5 developed by Jake Roberts</a></li>
 		<li><a href="http://swfupload.mammon.se">Original SWFUpload Website</a></li>
-		<li><a href="swfupload_vr5.zip">Download the Revision 5.2 Source and Demos</a></li>
+		<li><a href="swfupload_vr52.zip">Download the Revision 5.2 Source and Demos</a></li>
 	</ul>
 </body>
 </html>

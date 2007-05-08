@@ -55,7 +55,7 @@ class SWFUpload {
 	var fileUploadLimit:Number = 0;
 	var fileQueueLimit:Number = 0;
 	var beginUploadOnQueue:Boolean;
-	var debug:Boolean;
+	var debug_enabled:Boolean;
 
 	// Error code "constants"
 	var ERROR_CODE_HTTP_ERROR:Number 				= -10;
@@ -89,16 +89,16 @@ class SWFUpload {
 		this.controlID = _root.controlID;
 
 		// Configure the callbacks
-		this.flashReady_Callback = "SWFUpload.instances[\"" + this.controlID + "\"].FlashReady";
-		this.dialogCancelled_Callback = "SWFUpload.instances[\"" + this.controlID + "\"].DialogCancelled";
-		this.fileQueued_Callback = "SWFUpload.instances[\"" + this.controlID + "\"].FileQueued";
-		this.fileProgress_Callback = "SWFUpload.instances[\"" + this.controlID + "\"].FileProgress";
-		this.fileCancelled_Callback = "SWFUpload.instances[\"" + this.controlID + "\"].FileCancelled";
-		this.fileComplete_Callback = "SWFUpload.instances[\"" + this.controlID + "\"].FileComplete";
-		this.queueComplete_Callback = "SWFUpload.instances[\"" + this.controlID + "\"].QueueComplete";
-		this.queueStopped_Callback = "SWFUpload.instances[\"" + this.controlID + "\"].QueueStopped";
-		this.error_Callback = "SWFUpload.instances[\"" + this.controlID + "\"].Error";
-		this.debug_Callback = "SWFUpload.instances[\"" + this.controlID + "\"].Debug";
+		this.flashReady_Callback = "SWFUpload.instances[\"" + this.controlID + "\"].flashReady";
+		this.dialogCancelled_Callback = "SWFUpload.instances[\"" + this.controlID + "\"].dialogCancelled";
+		this.fileQueued_Callback = "SWFUpload.instances[\"" + this.controlID + "\"].fileQueued";
+		this.fileProgress_Callback = "SWFUpload.instances[\"" + this.controlID + "\"].fileProgress";
+		this.fileCancelled_Callback = "SWFUpload.instances[\"" + this.controlID + "\"].fileCancelled";
+		this.fileComplete_Callback = "SWFUpload.instances[\"" + this.controlID + "\"].fileComplete";
+		this.queueComplete_Callback = "SWFUpload.instances[\"" + this.controlID + "\"].queueComplete";
+		this.queueStopped_Callback = "SWFUpload.instances[\"" + this.controlID + "\"].queueStopped";
+		this.error_Callback = "SWFUpload.instances[\"" + this.controlID + "\"].error";
+		this.debug_Callback = "SWFUpload.instances[\"" + this.controlID + "\"].debug";
 
 		// Get the Flash Vars
 		this.uploadTargetURL = _root.uploadTargetURL;
@@ -112,9 +112,9 @@ class SWFUpload {
 			this.beginUploadOnQueue = false;
 		}
 		try {
-			this.debug = _root.debug == "true" ? true : false;
+			this.debug_enabled = _root.debug_enabled == "true" ? true : false;
 		} catch (ex:Object) {
-			this.debug = false;
+			this.debug_enabled = false;
 		}
 
 		try {
@@ -498,7 +498,7 @@ class SWFUpload {
 	}
 
 	function Debug(msg:String):Void {
-		if (this.debug) {
+		if (this.debug_enabled) {
 			var lines:Array = msg.split("\n");
 			for (var i:Number=0; i < lines.length; i++) {
 				lines[i] = "SWF DEBUG: " + lines[i];
