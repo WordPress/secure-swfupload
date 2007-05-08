@@ -55,7 +55,7 @@ class SWFUpload {
 	var fileUploadLimit:Number = 0;
 	var fileQueueLimit:Number = 0;
 	var beginUploadOnQueue:Boolean;
-	var debug_enabled:Boolean;
+	var debugEnabled:Boolean;
 
 	// Error code "constants"
 	var ERROR_CODE_HTTP_ERROR:Number 				= -10;
@@ -112,9 +112,9 @@ class SWFUpload {
 			this.beginUploadOnQueue = false;
 		}
 		try {
-			this.debug_enabled = _root.debug_enabled == "true" ? true : false;
+			this.debugEnabled = _root.debugEnabled == "true" ? true : false;
 		} catch (ex:Object) {
-			this.debug_enabled = false;
+			this.debugEnabled = false;
 		}
 
 		try {
@@ -498,7 +498,7 @@ class SWFUpload {
 	}
 
 	function Debug(msg:String):Void {
-		if (this.debug_enabled) {
+		if (this.debugEnabled) {
 			var lines:Array = msg.split("\n");
 			for (var i:Number=0; i < lines.length; i++) {
 				lines[i] = "SWF DEBUG: " + lines[i];

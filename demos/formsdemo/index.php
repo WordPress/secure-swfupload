@@ -8,12 +8,13 @@
     <title>SWFUpload Revision 5 Demo</title>
 
 	<link href="../css/default.css" rel="stylesheet" type="text/css" />
-	<script type="text/javascript" src="../swfuploadr52_0001/swfupload.js"></script>
+	<script type="text/javascript" src="../swfuploadr52_0002/swfupload.js"></script>
 	<script type="text/javascript" src="js/handlers.js"></script>
 	<script type="text/javascript">
 		var swf_upload_control;
-		window.onload = function() {
-			swf_upload_control = new SWFUpload({
+
+        window.onload = function () {
+            swf_upload_control = new SWFUpload({
 				// Backend settings
 				upload_target_url: "../formsdemo/upload.php",	// Relative to the SWF file
 				upload_cookies: ["PHPSESSID"],
@@ -33,35 +34,34 @@
 				file_complete_handler : fileComplete,
 				queue_complete_handler : queueComplete,
 				error_handler : uploadError,
-				
+
 				// Flash Settings
 				flash_container_element : "flashContainer",
-				flash_url : "../swfuploadr52_0001/swfupload.swf",	// Relative to this file
+				flash_url : "../swfuploadr52_0002/swfupload.swf",	// Relative to this file
 
 				// UI settings
 				ui_container_id : "flashUI",
 				degraded_container_id : "degradedUI",
-				
+
 				// Debug settings
-				debug: false
+				debug: true
 			});
-			
-			// This is a setting that my Handlers will use. It's not part of SWFUpload
-			// But I can add it to the SWFUpload object and then use it where I need to
-			swf_upload_control.AddSetting("progress_target", "fsUploadProgress")
-	
-	     }
-	     
+
+            // This is a setting that my Handlers will use. It's not part of SWFUpload
+            // But I can add it to the SWFUpload object and then use it where I need to
+            swf_upload_control.addSetting("progress_target", "fsUploadProgress")
+
+        }
 	     // Called by the submit button to start the upload
 		 function doSubmit() {
 			try {
 				var btnBrowse = document.getElementById("btnBrowse");
 				btnBrowse.disabled = true;
-				
+
 				swf_upload_control.StartUpload();
 			} catch (ex) {}
 	     }
-		 
+
 		 // Called by the queue complete handler to submit the form
 	     function uploadDone() {
 			try {
@@ -73,7 +73,7 @@
 </head>
 <body>
 	<div class="title"><a class="likeParent" href="../index.php">SWFUpload (Revision 5) Classic Form Demo</a></div>
-	
+
 	<form id="form1" action="thanks.php" enctype="multipart/form-data" method="post">
 		<div class="content">
 			<fieldset >
@@ -108,7 +108,7 @@
 							Resume:
 						</td>
 						<td>
-							
+
 							<div id="flashUI" style="display: none;">
 								<!-- The UI only gets displayed if SWFUpload loads properly -->
 								<div>

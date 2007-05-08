@@ -12,8 +12,6 @@
 /* *********** */
 
 var SWFUpload = function (init_settings) {
-    var oSelf = this, dom_conditionals = [];
-
     // Remove background flicker in IE (read this: http://misterpixel.blogspot.com/2006/09/forensic-analysis-of-ie6.html)
     // This doesn't have anything to do with SWFUpload but can help your UI behave better
     try {
@@ -22,29 +20,25 @@ var SWFUpload = function (init_settings) {
         this.debugMessage(ex);
     }
 
+
     try {
         this.settings = {};
-        // Generate the control's ID. Setup global control tracking
         this.movieName = "SWFUpload_" + SWFUpload.movieCount++;
+        this.movieElement = null;
+
+        // Setup global control tracking
         SWFUpload.instances[this.movieName] = this;
 
         // Load the settings.  Load the Flash movie.
         this.initSettings(init_settings);
+        this.loadFlash();
 
-        dom_conditionals.push(this.getSetting("ui_container_id"));
-        dom_conditionals.push(this.getSetting("degraded_container_id"));
-        dom_conditionals.push(this.getSetting("flash_container_id"));
-
-        SWFUpload.BrotherCake.onDomReady(function () {
-            oSelf.loadFlash();
-
-            if (oSelf.debug_enabled)  {
-                oSelf.displayDebugInfo();
-            }
-        }, dom_conditionals);
+        if (this.debug_enabled)  {
+            this.displayDebugInfo();
+        }
 
     } catch (ex) {
-        this.debugMessage("An exception occured during initialization. " + ex);
+        this.debugMessage(ex);
     }
 };
 
@@ -63,56 +57,6 @@ SWFUpload.ERROR_CODE_UPLOAD_LIMIT_EXCEEDED    = -70;
 SWFUpload.ERROR_CODE_UPLOAD_FAILED            = -80;
 SWFUpload.ERROR_CODE_QUEUE_LIMIT_EXCEEDED     = -90;
 SWFUpload.ERROR_CODE_SPECIFIED_FILE_NOT_FOUND = -100;
-
-
-/*
- * *****************************************************
- * DF1.1 :: domFunction
- * DOM scripting by brothercake -- http://www.brothercake.com/
- * GNU Lesser General Public License -- http://www.gnu.org/licenses/lgpl.html
- * ***************************************************** */
-SWFUpload.BrotherCake = {};
-SWFUpload.BrotherCake.onDomReady = function (function_to_execute, element_conditionals) {
-    var t = null, n;
-    if (typeof(function_to_execute) !== 'function') {
-        return false;
-    }
-
-    n = 0;
-    t = setInterval(function () {
-        var i, document_ready_flag;
-        document_ready_flag = false;
-
-        n++;
-        if (n >= 60) {
-            clearInterval(t);
-            t = null;
-        } else if (typeof document.getElementsByTagName !== 'undefined' && (document.getElementsByTagName('body')[0] !== null || document.body !== null)) {
-            document_ready_flag = true;
-
-            if (typeof(element_conditionals) === 'object' && typeof(element_conditionals.length) === 'number') {
-                for (i = 0; i < element_conditionals.length; i++) {
-                    if (typeof(element_conditionals[i]) === 'string') {
-                        if (document.getElementById(element_conditionals[i]) === null) {
-                            document_ready_flag = false;
-                            break;
-                        }
-                    }
-                }
-            }
-
-            if (document_ready_flag === true && typeof(function_to_execute) === 'function') {
-                function_to_execute();
-                clearInterval(t);
-                t = null;
-            }
-        }
-    }, 250);
-
-    return true;
-
-};
-
 
 /* ***************** */
 /* Instance Thingies */
@@ -153,30 +97,31 @@ SWFUpload.prototype.initSettings = function (init_settings) {
     this.debug_enabled = this.getSetting("debug_enabled");
 
     // Event Handlers
-    this.flashReady      = this.RetrieveSetting(init_settings.flash_ready_handler,      this.flashReady);
-    this.dialogCancelled = this.RetrieveSetting(init_settings.dialog_cancelled_handler, this.dialogCancelled);
-    this.fileQueued      = this.RetrieveSetting(init_settings.file_queued_handler,      this.fileQueued);
-    this.fileProgress    = this.RetrieveSetting(init_settings.file_progress_handler,    this.fileProgress);
-    this.fileCancelled   = this.RetrieveSetting(init_settings.file_cancelled_handler,   this.fileCancelled);
-    this.fileComplete    = this.RetrieveSetting(init_settings.file_complete_handler,    this.fileComplete);
-    this.queueStopped    = this.RetrieveSetting(init_settings.queue_stopped_handler,    this.queueStopped);
-    this.queueComplete   = this.RetrieveSetting(init_settings.queue_complete_handler,   this.queueComplete);
-    this.error           = this.RetrieveSetting(init_settings.error_handler,            this.error);
-    this.debug           = this.RetrieveSetting(init_settings.debug_handler,            this.debug);
+    this.flashReady      = this.retrieveSetting(init_settings.flash_ready_handler,      this.flashReady);
+    this.dialogCancelled = this.retrieveSetting(init_settings.dialog_cancelled_handler, this.dialogCancelled);
+    this.fileQueued      = this.retrieveSetting(init_settings.file_queued_handler,      this.fileQueued);
+    this.fileProgress    = this.retrieveSetting(init_settings.file_progress_handler,    this.fileProgress);
+    this.fileCancelled   = this.retrieveSetting(init_settings.file_cancelled_handler,   this.fileCancelled);
+    this.fileComplete    = this.retrieveSetting(init_settings.file_complete_handler,    this.fileComplete);
+    this.queueStopped    = this.retrieveSetting(init_settings.queue_stopped_handler,    this.queueStopped);
+    this.queueComplete   = this.retrieveSetting(init_settings.queue_complete_handler,   this.queueComplete);
+    this.error           = this.retrieveSetting(init_settings.error_handler,            this.error);
+    this.debug           = this.retrieveSetting(init_settings.debug_handler,            this.debug);
 };
 
 // loadFlash is a private method that generates the HTML tag for the Flash
 // It then adds the flash to the "target" or to the body and stores a
 // reference to the flash element in "movieElement".
 SWFUpload.prototype.loadFlash = function () {
-    var html = this.getFlashHTML();
+    var html, container, target_element, flash_container_id;
+    html = this.getFlashHTML();
 
     // Build the DOM nodes to hold the flash;
-    var container = document.createElement("div");
+    container = document.createElement("div");
     container.style.width = this.getSetting("flash_width");
     container.style.height = this.getSetting("flash_height");
 
-    var target_element;
+    target_element;
     var flash_container_id = this.getSetting("flash_container_id");
     if (flash_container_id !== "") {
         target_element = document.getElementById(flash_container_id);
@@ -257,7 +202,7 @@ SWFUpload.prototype.getFlashVars = function () {
     html += "&fileSizeLimit=" + encodeURIComponent(this.getSetting("file_size_limit"));
     html += "&fileUploadLimit=" + encodeURIComponent(this.getSetting("file_upload_limit"));
     html += "&fileQueueLimit=" + encodeURIComponent(this.getSetting("file_queue_limit"));
-    html += "&debug_enabled=" + encodeURIComponent(this.getSetting("debug_enabled"));
+    html += "&debugEnabled=" + encodeURIComponent(this.getSetting("debug_enabled"));
 
     return html;
 };
@@ -272,7 +217,7 @@ SWFUpload.prototype.buildQueryString = function () {
     if (typeof(upload_cookies) === "object" && typeof(upload_cookies.length) === "number") {
         for (i = 0; i < upload_cookies.length; i++) {
             if (typeof(upload_cookies[i]) === "string" && upload_cookies[i] !== "") {
-                value = this.GetCookie(upload_cookies[i]);
+                value = this.getCookie(upload_cookies[i]);
                 if (value !== "") {
                     query_string_pairs.push(encodeURIComponent(upload_cookies[i]) + "=" + encodeURIComponent(value));
                 }
@@ -303,16 +248,17 @@ SWFUpload.prototype.showUI = function () {
 
         if (ui_container_id !== "") {
             ui_target = document.getElementById(ui_container_id);
-            if (!ui_target) {
+            if (ui_target !== null) {
                 ui_target.style.display = "block";
-            }
-        }
 
-        degraded_container_id = this.getSetting("degraded_container_id");
-        if (degraded_container_id !== "") {
-            degraded_target = document.getElementById(degraded_container_id);
-            if (!degraded_target) {
-                degraded_target.style.display = "none";
+                // Now that the UI has been taken care of hide the degraded UI
+                degraded_container_id = this.getSetting("degraded_container_id");
+                if (degraded_container_id !== "") {
+                    degraded_target = document.getElementById(degraded_container_id);
+                    if (degraded_target !== null) {
+                        degraded_target.style.display = "none";
+                    }
+                }
             }
         }
 
@@ -356,7 +302,7 @@ SWFUpload.prototype.retrieveSetting = function (value, default_value) {
 // It loops through all the settings and displays
 // them in the debug Console.
 SWFUpload.prototype.displayDebugInfo = function () {
-    var key, debug_message;
+    var key, debug_message = "";
 
     debug_message += "----- DEBUG OUTPUT ----\nID: " + this.movieElement.id + "\n";
 
@@ -405,9 +351,9 @@ SWFUpload.prototype.setUploadParams = function (param_object) {
    ***************************** */
 
 SWFUpload.prototype.browse = function () {
-    if (!this.movieElement) {
+    if (typeof(this.movieElement) !== "undefined" && typeof(this.movieElement.Browse) === "function") {
         try {
-            this.movieElement.browse();
+            this.movieElement.Browse();
         }
         catch (ex) {
             this.debugMessage("Could not call browse: " + ex);
@@ -422,7 +368,7 @@ SWFUpload.prototype.browse = function () {
 // The file_id is optional.  If specified only that file will be uploaded.  If not specified SWFUpload will
 // begin to process the queue.
 SWFUpload.prototype.startUpload = function (file_id) {
-    if (!this.movieElement) {
+    if (typeof(this.movieElement) !== "undefined" && typeof(this.movieElement.StartUpload) === "function") {
         try {
             this.movieElement.StartUpload(file_id);
         }
@@ -437,7 +383,7 @@ SWFUpload.prototype.startUpload = function (file_id) {
 
 // Cancels the current uploading item.  If no item is uploading then nothing happens.
 SWFUpload.prototype.cancelUpload = function (file_id) {
-    if (!this.movieElement) {
+    if (typeof(this.movieElement) !== "undefined" && typeof(this.movieElement.CancelUpload) === "function") {
         try {
             this.movieElement.CancelUpload(file_id);
         }
@@ -452,7 +398,7 @@ SWFUpload.prototype.cancelUpload = function (file_id) {
 
 // Cancels all the files in the queue.  Including any current uploads.
 SWFUpload.prototype.cancelQueue = function () {
-    if (!this.movieElement) {
+    if (typeof(this.movieElement) !== "undefined" && typeof(this.movieElement.CancelQueue) === "function") {
         try {
             this.movieElement.CancelQueue();
         }
@@ -467,7 +413,7 @@ SWFUpload.prototype.cancelQueue = function () {
 
 // Stops the current upload.  The file is re-queued.  If nothing is currently uploading then nothing happens.
 SWFUpload.prototype.stopUpload = function () {
-    if (!this.movieElement) {
+    if (typeof(this.movieElement) !== "undefined" && typeof(this.movieElement.StopUpload) === "function") {
         try {
             this.movieElement.StopUpload();
         }
@@ -483,7 +429,7 @@ SWFUpload.prototype.stopUpload = function () {
 // Updates the upload url strings in the Flash Movie
 // This must be called in order for calls to SetUploadTargetURL, SetUploadCookies, and SetUploadQueryString to take effect.
 SWFUpload.prototype.updateUploadStrings = function () {
-    if (!this.movieElement) {
+    if (typeof(this.movieElement) !== "undefined" && typeof(this.movieElement.SetUploadStrings) === "function") {
         try {
             this.movieElement.SetUploadStrings(this.getSetting("upload_target_url"), this.buildQueryString());
         }
@@ -497,9 +443,9 @@ SWFUpload.prototype.updateUploadStrings = function () {
 };
 
 SWFUpload.prototype.addFileParam = function (file_id, name, value) {
-    if (!this.movieElement) {
+    if (typeof(this.movieElement) !== "undefined" && typeof(this.movieElement.AddFileParam) === "function") {
         try {
-            return this.movieElement.addFileParam(file_id, encodeURIComponent(name), encodeURIComponent(value));
+            return this.movieElement.AddFileParam(file_id, encodeURIComponent(name), encodeURIComponent(value));
         }
         catch (ex) {
             this.debugMessage("Could not call addFileParam");
@@ -510,7 +456,7 @@ SWFUpload.prototype.addFileParam = function (file_id, name, value) {
 };
 
 SWFUpload.prototype.removeFileParam = function (file_id, name) {
-    if (!this.movieElement) {
+    if (typeof(this.movieElement) !== "undefined" && typeof(this.movieElement.RemoveFileParam) === "function") {
         try {
             return this.movieElement.RemoveFileParam(file_id, encodeURIComponent(name));
         }
@@ -665,7 +611,11 @@ SWFUpload.prototype.getCookie = function (cookie_name) {
    ********************************** */
 SWFUpload.prototype.debugMessage = function (message) {
     if (this.debug_enabled) {
-        SWFUpload.Console.writeLine(message);
+        if (typeof(message) === "object" && message.hasOwnProperty("name") && message.hasOwnProperty("message")) {
+            SWFUpload.Console.writeLine("EXCEPTION: " + message.name + ". Message: " + message.message);
+        } else {
+            SWFUpload.Console.writeLine(message);
+        }
     }
 };
 
@@ -696,6 +646,6 @@ SWFUpload.Console.writeLine = function (message) {
 
         console.scrollTop = console.scrollHeight - console.clientHeight;
     } catch (ex) {
-        alert("Error in debug console: " + ex);
+        alert("Exception: " + ex.name + " Message: " + ex.message);
     }
 };
