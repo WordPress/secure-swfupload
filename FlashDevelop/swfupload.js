@@ -121,8 +121,7 @@ SWFUpload.prototype.loadFlash = function () {
     container.style.width = this.getSetting("flash_width");
     container.style.height = this.getSetting("flash_height");
 
-    target_element;
-    var flash_container_id = this.getSetting("flash_container_id");
+    flash_container_id = this.getSetting("flash_container_id");
     if (flash_container_id !== "") {
         target_element = document.getElementById(flash_container_id);
     }
@@ -610,11 +609,12 @@ SWFUpload.prototype.getCookie = function (cookie_name) {
     The console is automatically scrolled as messages appear.
    ********************************** */
 SWFUpload.prototype.debugMessage = function (message) {
+    var exception_message, exception_values;
+
     if (this.debug_enabled) {
         if (typeof(message) === "object" && typeof(message.name) === "string" && typeof(message.message) === "string") {
-            //SWFUpload.Console.writeLine("EXCEPTION: " + message.name + ". Message: " + message.message);
-            var exception_message = "";
-            var exception_values = [];
+            exception_message = "";
+            exception_values = [];
             for (var key in message) {
                 exception_values.push(key + ": " + message[key]);
             }
