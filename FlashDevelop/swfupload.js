@@ -611,8 +611,17 @@ SWFUpload.prototype.getCookie = function (cookie_name) {
    ********************************** */
 SWFUpload.prototype.debugMessage = function (message) {
     if (this.debug_enabled) {
-        if (typeof(message) === "object" && message.hasOwnProperty("name") && message.hasOwnProperty("message")) {
-            SWFUpload.Console.writeLine("EXCEPTION: " + message.name + ". Message: " + message.message);
+        if (typeof(message) === "object" && typeof(message.name) === "string" && typeof(message.message) === "string") {
+            //SWFUpload.Console.writeLine("EXCEPTION: " + message.name + ". Message: " + message.message);
+            var exception_message = "";
+            var exception_values = [];
+            for (var key in message) {
+                exception_values.push(key + ": " + message[key]);
+            }
+            exception_message = exception_values.join("\n");
+            exception_values = exception_message.split("\n");
+            exception_message = "EXCEPTION: " + exception_values.join("\nEXCEPTION: ");
+            SWFUpload.Console.writeLine(exception_message);
         } else {
             SWFUpload.Console.writeLine(message);
         }

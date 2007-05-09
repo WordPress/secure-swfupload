@@ -1,16 +1,6 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <?php
 	session_start();
-	$upload_path = str_replace("\\", "/", realpath(dirname($_SERVER['SCRIPT_FILENAME']))) . "/uploads/";
-	if (count($_FILES)) {
-		// Check for form uploads (in case the user uploaded using the degraded form)
-		if (!@move_uploaded_file($_FILES["anyfile1"]["tmp_name"], $upload_path . $_FILES["anyfile1"]["name"])) {
-		}
-
-		if (!@move_uploaded_file($_FILES["anyfile2"]["tmp_name"], $upload_path . $_FILES["anyfile2"]["name"])) {
-		}
-	}
-
 ?>
 <html xmlns="http://www.w3.org/1999/xhtml" >
 <head>
@@ -18,21 +8,14 @@
 
 	<link href="../css/default.css" rel="stylesheet" type="text/css" />
 	<link href="css/featuresdemo.css" rel="stylesheet" type="text/css" />
-	<script type="text/javascript" src="../swfuploadr52_0001/swfupload.js"></script>
+	<script type="text/javascript" src="../swfuploadr52_0002/swfupload.js"></script>
 	<script type="text/javascript" src="js/featuresdemo.js"></script>
 	<script type="text/javascript" src="js/handlers.js"></script>
 	<script type="text/javascript">
 		var suo;
-		var su_onload = window.onload;
 		window.onload = function() {
-			// Make sure the old window onload gets run
-			if (typeof(su_onload) == "function") {
-				su_onload();
-			}
-
 			// Check to see if SWFUpload is available
-			if (typeof(SWFUpload) == "undefined") return;
-
+			if (typeof(SWFUpload) === "undefined") return;
 
 			// Instantiate a SWFUpload Instance
 			suo = new SWFUpload({
@@ -59,10 +42,10 @@
 				error_handler : uploadError,
 
 				// Flash Settings
-				flash_url : "../swfuploadr52_0001/swfupload.swf",	// Relative to this file
+				flash_url : "../swfuploadr52_0002/swfupload.swf",	// Relative to this file
 
 				// UI Settings
-				ui_function : FeaturesDemo.ShowUI,
+				ui_function : FeaturesDemo.showUI,
 				ui_container_id : "divSWFUpload",
 				degraded_container_id : "divDegraded",
 

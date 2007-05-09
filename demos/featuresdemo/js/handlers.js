@@ -5,7 +5,7 @@ function fileQueued(fileObj) {
 		FeaturesDemo.selQueue.options[FeaturesDemo.selQueue.options.length] = new Option(queue_string, fileObj.id);
 		FeaturesDemo.selEventsQueue.options[FeaturesDemo.selEventsQueue.options.length] = new Option("File Queued: " + fileObj.id, "");
 		FeaturesDemo.selEventsFile.options[FeaturesDemo.selEventsFile.options.length] = new Option("File Queued: " + fileObj.id, "");
-	} catch (e) { Console.Writeln("Upload started: " + e); }
+	} catch (ex) { this.debugMessage(ex); }
 
 }
 
@@ -22,7 +22,7 @@ function fileProgress(fileObj, bytesLoaded) {
 
 
 		FeaturesDemo.selEventsFile.options[FeaturesDemo.selEventsFile.options.length] = new Option("File Progress: " + bytesLoaded, "");
-	} catch (e) { Console.Writeln("Upload Progress: " + fileObj.name + " " + percent + ": " + e); }
+	} catch (ex) { this.debugMessage(ex); }
 }
 
 function fileComplete(fileObj) {
@@ -33,13 +33,13 @@ function fileComplete(fileObj) {
 
 		FeaturesDemo.selEventsQueue.options[FeaturesDemo.selEventsQueue.options.length] = new Option("File Complete: " + fileObj.id, "");
 		FeaturesDemo.selEventsFile.options[FeaturesDemo.selEventsFile.options.length] = new Option("File Complete: " + fileObj.id, "");
-	} catch (e) { Console.Writeln("Upload Complete: " + fileObj.name + ": " + e); }
+	} catch (ex) { this.debugMessage(ex); }
 }
 
 function queueComplete() {
 	try {
 		FeaturesDemo.selEventsQueue.options[FeaturesDemo.selEventsQueue.options.length] = new Option("Queue Complete", "");
-	} catch (e) { Console.Writeln("Queue Complete: " + e); }
+	} catch (ex) { this.debugMessage(ex); }
 }
 
 function queueStopped(fileObj) {
@@ -51,12 +51,12 @@ function queueStopped(fileObj) {
 
 		FeaturesDemo.selEventsFile.options[FeaturesDemo.selEventsFile.options.length] = new Option("File Stopped: " + fileObj.id, "");
 		FeaturesDemo.selEventsQueue.options[FeaturesDemo.selEventsQueue.options.length] = new Option("Queue Stopped", "");
-	} catch (e) { Console.Writeln("Queue Stopped: " + e); }
+	} catch (ex) { this.debugMessage(ex); }
 }
 function fileDialogCancelled() {
 	try {
 		FeaturesDemo.selEventsQueue.options[FeaturesDemo.selEventsQueue.options.length] = new Option("File Dialog Cancelled", "");
-	} catch (e) { Console.Writeln("Error displaying file cancel information: " + e); }
+	} catch (ex) { this.debugMessage(ex); }
 }
 
 function fileCancelled(fileObj) {
@@ -69,7 +69,7 @@ function fileCancelled(fileObj) {
 		FeaturesDemo.selEventsQueue.options[FeaturesDemo.selEventsQueue.options.length] = new Option("File Cancelled " + fileObj.id, "");
 		FeaturesDemo.selEventsFile.options[FeaturesDemo.selEventsFile.options.length] = new Option("File Cancelled " + fileObj.id, "");
 	}
-	catch (e) { Console.Writeln("File Cancelled: " + e); }
+	catch (ex) { this.debugMessage(ex); }
 }
 
 function uploadError(error_code, fileObj, message) {
@@ -111,6 +111,6 @@ function uploadError(error_code, fileObj, message) {
 		var error_string = error_name + ":File ID: " + (typeof(fileObj) == "object" && fileObj != null ? fileObj.id : "na") + ":" + message;
 		FeaturesDemo.selEventsError.options[FeaturesDemo.selEventsError.options.length] = new Option(error_string, "");
 
-	} catch (e) { Console.Writeln("uploadError: " + e);}
+	} catch (ex) { this.debugMessage(ex);}
 }
 

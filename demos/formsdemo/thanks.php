@@ -1,6 +1,14 @@
 <?php
 session_start();
 
+$used_degraded = false;
+
+// Check for a degraded file upload
+if ($_SESSION["resume_name"] == "" && isset($_FILES["resume_degraded"])) {
+    $_SESSION["resume_name"] = $_FILES["resume_degraded"]["name"];
+    $used_degraded = true;
+}
+
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" >
@@ -12,7 +20,7 @@ session_start();
 </head>
 <body>
 	<div class="title"><a class="likeParent" href="../index.php">SWFUpload (Revision 5) Classic Form Demo</a></div>
-	
+
 <?php
 if (!isset($_SESSION["resume_name"]) || $_SESSION["resume_name"] == "") {
 ?>
@@ -49,11 +57,15 @@ if (!isset($_SESSION["resume_name"]) || $_SESSION["resume_name"] == "") {
 			<tr>
 				<td>References:
 				</td>
-				<td><?php htmlspecialchars($_POST["references"]); ?>
+				<td><?php echo htmlspecialchars($_POST["references"]); ?>
 				</td>
 			</tr>
 		</table>
 	</div>
+    <?php if ($used_degraded) { ?>
+    <div class="content">You used the degraded form.</div>
+    <?php } ?>
+    <hr width="90%" />
 	<div class="content">
 		Thank you for your submission.
 	</div>

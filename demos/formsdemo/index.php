@@ -40,6 +40,7 @@
 				flash_url : "../swfuploadr52_0002/swfupload.swf",	// Relative to this file
 
 				// UI settings
+                ui_function: myShowUI,
 				ui_container_id : "flashUI",
 				degraded_container_id : "degradedUI",
 
@@ -52,22 +53,32 @@
             swf_upload_control.addSetting("progress_target", "fsUploadProgress")
 
         }
-	     // Called by the submit button to start the upload
-		 function doSubmit() {
+
+        function myShowUI() {
+            document.getElementById("btnSubmit").onclick = doSubmit;
+            this.showUI();  // Let SWFUpload finish loading the UI.
+
+        }
+
+        // Called by the submit button to start the upload
+		function doSubmit() {
 			try {
 				var btnBrowse = document.getElementById("btnBrowse");
 				btnBrowse.disabled = true;
 
-				swf_upload_control.StartUpload();
-			} catch (ex) {}
-	     }
+				swf_upload_control.startUpload();
+			} catch (ex) {
+
+            }
+            return false;
+	    }
 
 		 // Called by the queue complete handler to submit the form
-	     function uploadDone() {
+	    function uploadDone() {
 			try {
 				document.forms[0].submit();
 			} catch (ex) {}
-	     }
+	    }
 	</script>
 
 </head>
@@ -122,7 +133,7 @@
 							<div id="degradedUI">
 								<!-- This is the standard UI.  This UI is shown by default but when SWFUpload loads it will be
 								hidden and the "flashUI" will be shown -->
-								<input type="file" name="resume" /> (10 MB max)<br/>
+								<input type="file" name="resume_degraded" id="resume_degraded" /> (10 MB max)<br/>
 							</div>
 							<div id="flashContainer"><!-- This is where the flash embed/object tag will go once SWFUpload has loaded --></div>
 						</td>
@@ -137,7 +148,7 @@
 					</tr>
 				</table>
 				<br />
-				<input type="submit" value="Submit Application" onclick="doSubmit(); return false;" />
+				<input type="submit" value="Submit Application" id="btnSubmit" />
 			</fieldset>
 		</div>
 	</form>
