@@ -119,11 +119,15 @@ select {
 
 
 #btnRemoveFileParam,
+#btnRemoveFileQueryParam,
 #btnRemoveCookie,
 #btnRemoveParam,
+#btnRemoveQueryParam,
 #btnAddFileParam,
+#btnAddFileQueryParam,
 #btnAddCookie,
-#btnAddParam
+#btnAddParam,
+#btnAddQueryParam
 {
 	position: absolute;
 
@@ -137,20 +141,25 @@ select {
 	background-position: center;
 }
 #btnAddFileParam,
+#btnAddFileQueryParam,
 #btnAddCookie,
-#btnAddParam
+#btnAddParam,
+#btnAddQueryParam
 {
 	background-image: url(../images/add.png);
 }
 #btnRemoveFileParam,
+#btnRemoveFileQueryParam,
 #btnRemoveCookie,
-#btnRemoveParam
+#btnRemoveParam,
+#btnRemoveQueryParam
 {
 	background-image: url(../images/delete.png);
 }
 
 #selCookies,
-#selParams
+#selParams,
+#selQueryParams
 {
 	width: 235px;
 }
@@ -162,7 +171,9 @@ select {
 	width: 232px;
 }
 #txtAddParamName,
-#txtAddParamValue
+#txtAddParamValue,
+#txtAddQueryParamName,
+#txtAddQueryParamValue
 {
 	width: 111px;
 }
@@ -187,4 +198,10 @@ select {
 	height: 400px;
 	background-color: #F0F0F0;
 	border: solid 1px #C0C0C0;
+}
+
+#divServerData {
+	width: 900px;
+	height: 400px;
+	overflow: scroll;
 }

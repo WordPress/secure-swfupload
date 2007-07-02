@@ -16,8 +16,6 @@ var FeaturesDemo = {
 		FeaturesDemo.btnCancelQueue.onclick = function() { try { FeaturesDemo.cancelQueue(); } catch (ex) {} return false; };
 		FeaturesDemo.btnAddFileParam.onclick = function() { try { FeaturesDemo.addFileParam(); } catch (ex) {} return false; };
 		FeaturesDemo.btnRemoveFileParam.onclick = function() { try { FeaturesDemo.removeFileParam(); } catch (ex) {} return false; };
-		FeaturesDemo.btnRemoveCookie.onclick = function() { try { FeaturesDemo.removeCookie(); } catch (ex) {} return false; };
-		FeaturesDemo.btnAddCookie.onclick = function() { try { FeaturesDemo.addCookie(); } catch (ex) {} return false; };
 		FeaturesDemo.btnAddParam.onclick = function() { try { FeaturesDemo.addParam(); } catch (ex) {} return false; };
 		FeaturesDemo.btnRemoveParam.onclick = function() { try { FeaturesDemo.removeParam(); } catch (ex) {} return false; };
 		FeaturesDemo.btnUpdateDynamicSettings.onclick = function() { try { FeaturesDemo.updateDynamicSettings(); } catch (ex) {} return false; };
@@ -41,10 +39,6 @@ var FeaturesDemo = {
 		FeaturesDemo.btnAddFileParam = document.getElementById("btnAddFileParam");
 		FeaturesDemo.txtRemoveFileParamName = document.getElementById("txtRemoveFileParamName");
 		FeaturesDemo.btnRemoveFileParam = document.getElementById("btnRemoveFileParam");
-		FeaturesDemo.selCookies = document.getElementById("selCookies");
-		FeaturesDemo.btnRemoveCookie = document.getElementById("btnRemoveCookie");
-		FeaturesDemo.txtAddCookieName = document.getElementById("txtAddCookieName");
-		FeaturesDemo.btnAddCookie = document.getElementById("btnAddCookie");
 		FeaturesDemo.selParams = document.getElementById("selParams");
 		FeaturesDemo.btnRemoveParam = document.getElementById("btnRemoveParam");
 		FeaturesDemo.txtAddParamName = document.getElementById("txtAddParamName");
@@ -54,6 +48,7 @@ var FeaturesDemo = {
 		FeaturesDemo.btnUpdateDynamicSettings = document.getElementById("btnUpdateDynamicSettings");
 		FeaturesDemo.txtFlashHTML = document.getElementById("txtFlashHTML");
 		FeaturesDemo.txtControlID = document.getElementById("txtControlID");
+		FeaturesDemo.txtFilePostName = document.getElementById("txtFilePostName");
 		FeaturesDemo.txtFileTypes = document.getElementById("txtFileTypes");
 		FeaturesDemo.txtFileTypesDescription = document.getElementById("txtFileTypesDescription");
 		FeaturesDemo.txtFileSizeLimit = document.getElementById("txtFileSizeLimit");
@@ -68,12 +63,14 @@ var FeaturesDemo = {
 		FeaturesDemo.txtUIContainerID = document.getElementById("txtUIContainerID");
 		FeaturesDemo.txtDegradedContainerID = document.getElementById("txtDegradedContainerID");
 		FeaturesDemo.cbBeginUploadOnQueue = document.getElementById("cbBeginUploadOnQueue");
+		FeaturesDemo.cbFileValidation = document.getElementById("cbFileValidation");
 		FeaturesDemo.cbDebug = document.getElementById("cbDebug");
 		FeaturesDemo.btnReloadSWFUpload = document.getElementById("btnReloadSWFUpload");
 		FeaturesDemo.selEventsQueue = document.getElementById("selEventsQueue");
 		FeaturesDemo.selEventsFile = document.getElementById("selEventsFile");
 		FeaturesDemo.selEventsError = document.getElementById("selEventsError");
 		FeaturesDemo.SWFUpload_Console = document.getElementById("SWFUpload_Console");
+		FeaturesDemo.divServerData = document.getElementById("divServerData");
 
 		FeaturesDemo.is_cached = true;
 	},
@@ -82,14 +79,13 @@ var FeaturesDemo = {
 		FeaturesDemo.txtAddFileParamName.value = "";
 		FeaturesDemo.txtAddFileParamValue.value = "";
 		FeaturesDemo.txtRemoveFileParamName.value = "";
-		FeaturesDemo.selCookies.options.length = 0;
-		FeaturesDemo.txtAddCookieName.value = "";
 		FeaturesDemo.selParams.options.length = 0;
 		FeaturesDemo.txtAddParamName.value = "";
 		FeaturesDemo.txtAddParamValue.value = "";
 		FeaturesDemo.txtUploadTarget.value = "";
 		FeaturesDemo.txtFlashHTML.value = "";
 		FeaturesDemo.txtControlID.value = "";
+		FeaturesDemo.txtFilePostName.value = "";
 		FeaturesDemo.txtFileTypes.value = "";
 		FeaturesDemo.txtFileTypesDescription.value = "";
 		FeaturesDemo.txtFileSizeLimit.value = "";
@@ -104,28 +100,31 @@ var FeaturesDemo = {
 		FeaturesDemo.txtUIContainerID.value = "";
 		FeaturesDemo.txtDegradedContainerID.value = "";
 		FeaturesDemo.cbBeginUploadOnQueue.checked = false;
+		FeaturesDemo.cbFileValidation.checked = false;
 		FeaturesDemo.cbDebug.checked = false;
 		FeaturesDemo.selEventsQueue.options.length = 0;
 		FeaturesDemo.selEventsFile.options.length = 0;
 		FeaturesDemo.selEventsError.options.length = 0;
 		FeaturesDemo.SWFUpload_Console.value = "";
+		FeaturesDemo.divServerData.innerHTML = "";
 	},
 	loadAll: function() {
-		//box2.options[i/2] = new Option(list[i],list[i+1]);
-		var cookie_array = FeaturesDemo.SU.getSetting("upload_cookies");
-		for (var i=0; i < cookie_array.length; i++) {
-			FeaturesDemo.selCookies.options[i] = new Option(cookie_array[i], cookie_array[i]);
-		}
-
-		var param_obj = FeaturesDemo.SU.getSetting("upload_params");
+		var param_obj = FeaturesDemo.SU.getSetting("post_params");
 		var counter = 0;
 		for (var key in param_obj) {
 			FeaturesDemo.selParams.options[counter++] = new Option(key, param_obj[key]);
 		}
 
+		param_obj = FeaturesDemo.SU.getSetting("query_params");
+		var counter = 0;
+		for (var key in param_obj) {
+			FeaturesDemo.selQueryParams.options[counter++] = new Option(key, param_obj[key]);
+		}
+
 		FeaturesDemo.txtUploadTarget.value = FeaturesDemo.SU.getSetting("upload_target_url");
 		FeaturesDemo.txtFlashHTML.value = FeaturesDemo.SU.getFlashHTML();
 		FeaturesDemo.txtControlID.value = FeaturesDemo.SU.getSetting("control_id");
+		FeaturesDemo.txtFilePostName.value = FeaturesDemo.SU.getSetting("file_post_name");
 		FeaturesDemo.txtFileTypes.value = FeaturesDemo.SU.getSetting("file_types");
 		FeaturesDemo.txtFileTypesDescription.value = FeaturesDemo.SU.getSetting("file_types_description");
 		FeaturesDemo.txtFileSizeLimit.value = FeaturesDemo.SU.getSetting("file_size_limit");
@@ -140,6 +139,7 @@ var FeaturesDemo = {
 		FeaturesDemo.txtUIContainerID.value = FeaturesDemo.SU.getSetting("ui_container_id");
 		FeaturesDemo.txtDegradedContainerID.value = FeaturesDemo.SU.getSetting("degraded_container_id");
 		FeaturesDemo.cbBeginUploadOnQueue.checked = FeaturesDemo.SU.getSetting("begin_upload_on_queue");
+		FeaturesDemo.cbFileValidation.checked = FeaturesDemo.SU.getSetting("validate_files");
 		FeaturesDemo.cbDebug.checked = FeaturesDemo.SU.getSetting("debug_enabled");
 	},
 
@@ -187,12 +187,12 @@ var FeaturesDemo = {
 		var name = FeaturesDemo.txtAddFileParamName.value;
 		var value = FeaturesDemo.txtAddFileParamValue.value;
 
-		if (name == "") {
+		if (name === "") {
 			alert("Please enter a Param name.");
 			return;
 		}
 
-		if (FeaturesDemo.SU.addFileParam(file_id, name, value)) {
+		if (FeaturesDemo.SU.addFilePostParam(file_id, name, value)) {
 			FeaturesDemo.txtAddFileParamName.value = "";
 			FeaturesDemo.txtAddFileParamValue.value = "";
 			alert("Param added.");
@@ -201,7 +201,7 @@ var FeaturesDemo = {
 		}
 	},
 	removeFileParam: function() {
-		if (FeaturesDemo.selQueue.selectedIndex == -1) {
+		if (FeaturesDemo.selQueue.selectedIndex === -1) {
 			alert("Please select a file from the queue.");
 			return;
 		}
@@ -213,31 +213,12 @@ var FeaturesDemo = {
 			return;
 		}
 
-		if (FeaturesDemo.SU.removeFileParam(file_id, name)) {
+		if (FeaturesDemo.SU.removeFilePostParam(file_id, name)) {
 			FeaturesDemo.txtRemoveFileParamName.value = "";
 			alert("Param removed.");
 		} else {
 			alert("Param not removed.");
 		}
-	},
-	removeCookie: function() {
-		if (FeaturesDemo.selCookies.selectedIndex == -1) {
-			alert("Please select a cookie.");
-			return;
-		}
-
-		FeaturesDemo.selCookies.options[FeaturesDemo.selCookies.selectedIndex] = null;
-	},
-	addCookie: function() {
-		var name = FeaturesDemo.txtAddCookieName.value;
-
-		if (name == "") {
-			alert("Please enter a Cookie name.");
-			return;
-		}
-
-		FeaturesDemo.selCookies.options[FeaturesDemo.selCookies.options.length] = new Option(name, name);
-		FeaturesDemo.txtAddCookieName.value = "";
 	},
 	addParam: function () {
 		var name = FeaturesDemo.txtAddParamName.value;
@@ -261,33 +242,19 @@ var FeaturesDemo = {
 		FeaturesDemo.selParams.options[FeaturesDemo.selParams.selectedIndex] = null;
 	},
 	updateDynamicSettings: function() {
-		// Build the cookie array
-		var cookies_array = FeaturesDemo.getCookiesArray();
-		if (!FeaturesDemo.SU.setUploadCookies(cookies_array)) {
-			alert("Could not set cookies.");
-			return;
-		}
-
 		// Build the param object
 		var params = FeaturesDemo.getParamsObject();
-		if (!FeaturesDemo.SU.setUploadParams(params)) {
-			alert("Could not set params.");
+		if (!FeaturesDemo.SU.setPostParams(params)) {
+			alert("Could not set post params.");
 			return;
 		}
 
 		// We ignore any changes to the upload_target_url
 		FeaturesDemo.txtUploadTarget.value = FeaturesDemo.SU.getSetting("upload_target_url");
 
-		FeaturesDemo.SU.updateUploadStrings();
+		FeaturesDemo.SU.setUploadSettings();
 
 		alert("Dynamic Settings updated.");
-	},
-	getCookiesArray: function() {
-		var cookies_array = new Array();
-		for (var i=0; i<FeaturesDemo.selCookies.options.length; i++) {
-			cookies_array.push(FeaturesDemo.selCookies.options[i].value);
-		}
-		return cookies_array;
 	},
 	getParamsObject: function() {
 		var params = new Object();
@@ -306,14 +273,15 @@ var FeaturesDemo = {
 
 		var settings = {
 			upload_target_url: FeaturesDemo.SU.getSetting("upload_target_url"),
-			upload_cookies: FeaturesDemo.getCookiesArray(),
-			upload_params: FeaturesDemo.getParamsObject(),
-			file_size_limit : FeaturesDemo.txtFileSizeLimit.value,	// 100MB
+			post_params: FeaturesDemo.getParamsObject(),
+			file_size_limit : FeaturesDemo.txtFileSizeLimit.value,
+			file_post_name : FeaturesDemo.txtFilePostName.value,
 			file_types : FeaturesDemo.txtFileTypes.value,
 			file_types_description : FeaturesDemo.txtFileTypesDescription.value,
 			file_upload_limit : FeaturesDemo.txtFileUploadLimit.value,
 			file_queue_limit : FeaturesDemo.txtFileQueueLimit.value,
 			begin_upload_on_queue : FeaturesDemo.cbBeginUploadOnQueue.checked,
+			validate_files : FeaturesDemo.cbFileValidation.checked,
 			file_queued_handler : fileQueued,
 			file_progress_handler : fileProgress,
 			file_cancelled_handler : fileCancelled,

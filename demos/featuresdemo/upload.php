@@ -1,10 +1,53 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" >
-<head>
-    <title>SWFUpload Revision 5 Demo</title>
-</head>
-<body>
-	<p>Upload Page</p>
-	<p>This date doesn't do anything.  We don't want your files.</p>
-</body>
-</html>
+<?php
+	session_start();
+	
+	// I would handle the upload here if I wanted to do anything with it.
+	
+?>
+<p>Upload Page</p>
+<p>This file doesn't do anything.  We don't want your files.</p>
+
+<p>Here is the list of cookies that the agent sent:</p>
+<ul>
+	<?php
+		foreach ($_COOKIE as $name => $value) {
+			echo "<li>";
+			echo htmlspecialchars($name) . "=" . htmlspecialchars($value);
+			echo "</li>\n";
+		}
+	?>
+</ul>
+<p>Here is the list of query values:</p>
+<ul>
+	<?php
+		foreach ($_GET as $name => $value) {
+			echo "<li>";
+			echo htmlspecialchars($name) . "=" . htmlspecialchars($value);
+			echo "</li>\n";
+		}
+	?>
+</ul>
+<p>Here is the list of post values:</p>
+<ul>
+	<?php
+		foreach ($_POST as $name => $value) {
+			echo "<li>";
+			echo htmlspecialchars($name) . "=" . htmlspecialchars($value);
+			echo "</li>\n";
+		}
+	?>
+</ul>
+<p>Here is the list of the files uploaded:</p>
+<ul>
+	<?php
+		foreach ($_FILES as $name => $value) {
+			echo "<li>";
+			echo htmlspecialchars($name) . "=" . htmlspecialchars($value["name"]);
+			echo "</li>\n";
+		}
+	?>
+</ul>
+
+<p>Here is the current session id:</p>
+<p><?php echo htmlspecialchars(session_id()); ?></p>
+<p>Compare this to the session id displayed near the top of the Features Demo page. The Flash Player plug-in does not send the correct cookies in some browsers.</p>

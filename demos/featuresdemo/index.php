@@ -1,14 +1,14 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <?php
 	session_start();
 ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" >
 <head>
-    <title>SWFUpload Revision 5 Demo</title>
+    <title>SWFUpload Revision 6 Demo</title>
 
 	<link href="../css/default.css" rel="stylesheet" type="text/css" />
 	<link href="css/featuresdemo.css" rel="stylesheet" type="text/css" />
-	<script type="text/javascript" src="../swfuploadr52_0002/swfupload.js"></script>
+	<script type="text/javascript" src="../swfuploadr6_0011/swfupload.js"></script>
 	<script type="text/javascript" src="js/featuresdemo.js"></script>
 	<script type="text/javascript" src="js/handlers.js"></script>
 	<script type="text/javascript">
@@ -20,9 +20,9 @@
 			// Instantiate a SWFUpload Instance
 			suo = new SWFUpload({
 				// Backend Settings
-				upload_target_url: "../featuresdemo/upload.php",	// Relative to the SWF file
-				upload_cookies: ["PHPSESSID"],
-				upload_params: { "Bob": "Dole"},
+				upload_target_url: "../featuresdemo/upload.php?id=bob",	// Relative to the SWF file
+				post_params: { "post_name1": "post_value1", "post_name2": "post_value2" },
+				file_post_name: "This is totally the file",
 
 				// File Upload Settings
 				file_size_limit : "102400",	// 100MB
@@ -30,9 +30,11 @@
 				file_types_description : "All Files",
 				file_upload_limit : "10",
 				begin_upload_on_queue : false,
+				validate_files : true,
 
 				// Event Handler Settings
 				file_queued_handler : fileQueued,
+				file_validation_handler : fileValidation,
 				file_progress_handler : fileProgress,
 				file_cancelled_handler : fileCancelled,
 				file_complete_handler : fileComplete,
@@ -42,7 +44,7 @@
 				error_handler : uploadError,
 
 				// Flash Settings
-				flash_url : "../swfuploadr52_0002/swfupload.swf",	// Relative to this file
+				flash_url : "../swfuploadr6_0011/swfupload.swf",	// Relative to this file
 
 				// UI Settings
 				ui_function : FeaturesDemo.showUI,
@@ -58,7 +60,7 @@
 
 </head>
 <body>
-	<div class="title"><a class="likeParent" href="../index.php">SWFUpload (Revision 5) Features Demo</a></div>
+	<div class="title"><a class="likeParent" href="../index.php">SWFUpload (Revision 6) Features Demo</a></div>
 	<form>
 		<div class="content">
 			<div id="divSWFUpload" style="display: none;">
@@ -66,7 +68,9 @@
 				<br />
 				Some settings are not allowed to be changed because it is either not technically possible or because it would break the demo. The
 				unchangeable settings are: flash_url, upload_target_url, ui_function, ui_container_id, and degraded_container_id.  Changes to
-				these text boxes will be ignored.
+				these text boxes will be ignored.<br />
+				<br />
+				Your PHP Session ID: <?php echo session_id(); ?>
 				<table class="layout">
 					<tr>
 						<td style="width: 316px;">
@@ -106,7 +110,7 @@
 									</td><td class="btn-right"></td></tr></table>
 								</div>
 								<div>
-									<label for="txtAddFileParamName">File Param</label>
+									<label for="txtAddFileParamName">File Post Param</label>
 									<div style="margin-left: 5px;">
 										<input id="txtAddFileParamName" type="text" class="textbox" style="width: 100px;" />
 										<input id="txtAddFileParamValue" type="text" class="textbox" style="width: 100px;" />
@@ -122,16 +126,7 @@
 						<td style="width: 316px;">
 							<fieldset>
 								<legend>Dynamic Settings</legend>
-								<label>upload_cookies</label>
-								<div>
-									<select id="selCookies" size="5"></select>
-									<button id="btnRemoveCookie" type="button"></button>
-								</div>
-								<div>
-									<input id="txtAddCookieName" type="text" class="textbox" />
-									<button id="btnAddCookie" type="button"></button>
-								</div>
-								<label>upload_params</label>
+								<label>post_params</label>
 								<div>
 									<select id="selParams" size="5"></select>
 									<button id="btnRemoveParam" type="button"></button>
@@ -155,7 +150,7 @@
 								<legend>Instance Information</legend>
 								<div>
 									<label for="txtFlashHTML">Flash HTML</label>
-									<textarea id="txtFlashHTML" wrap="soft"></textarea>
+									<textarea id="txtFlashHTML" wrap="soft" style="height: 150px;"></textarea>
 								</div>
 								<div>
 									<label for="txtControlID">control_id</label>
@@ -166,6 +161,10 @@
 						<td style="width: 316px;">
 							<fieldset id="fsStaticSettings">
 								<legend>Static Settings</legend>
+								<div>
+									<label for="txtFilePostName">file_post_name</label>
+									<input id="txtFilePostName" type="text" class="textbox" />
+								</div>
 								<div>
 									<label for="txtFileTypes">file_types</label>
 									<input id="txtFileTypes" type="text" class="textbox" />
@@ -223,6 +222,10 @@
 									<label for="cbBeginUploadOnQueue">begin_upload_on_queue</label>
 								</div>
 								<div class="checkbox">
+									<input id="cbFileValidation" type="checkbox" />
+									<label for="cbFileValidation">file_validation</label>
+								</div>
+								<div class="checkbox">
 									<input id="cbDebug" type="checkbox" />
 									<label for="cbDebug">debug</label>
 								</div>
@@ -267,6 +270,10 @@
 								<div>
 									<textarea id="SWFUpload_Console" wrap="off"></textarea>
 								</div>
+							</fieldset>
+							<fieldset>
+								<legend>Server Data</legend>
+								<div id="divServerData"></div>
 							</fieldset>
 						</td>
 					</tr>
