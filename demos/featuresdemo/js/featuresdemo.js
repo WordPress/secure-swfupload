@@ -192,7 +192,7 @@ var FeaturesDemo = {
 			return;
 		}
 
-		if (FeaturesDemo.SU.addFilePostParam(file_id, name, value)) {
+		if (FeaturesDemo.SU.addFileParam(file_id, name, value)) {
 			FeaturesDemo.txtAddFileParamName.value = "";
 			FeaturesDemo.txtAddFileParamValue.value = "";
 			alert("Param added.");
@@ -213,7 +213,7 @@ var FeaturesDemo = {
 			return;
 		}
 
-		if (FeaturesDemo.SU.removeFilePostParam(file_id, name)) {
+		if (FeaturesDemo.SU.removeFileParam(file_id, name)) {
 			FeaturesDemo.txtRemoveFileParamName.value = "";
 			alert("Param removed.");
 		} else {

@@ -22,7 +22,7 @@
 				// Backend Settings
 				upload_target_url: "../featuresdemo/upload.php?id=bob",	// Relative to the SWF file
 				post_params: { "post_name1": "post_value1", "post_name2": "post_value2" },
-				file_post_name: "This is totally the file",
+				file_post_name: "Filedata",
 
 				// File Upload Settings
 				file_size_limit : "102400",	// 100MB
