@@ -4,7 +4,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" >
 <head>
-    <title>SWFUpload Revision 5 Demo</title>
+    <title>SWFUpload Revision 6 Demo</title>
 
 	<link href="../css/default.css" rel="stylesheet" type="text/css" />
 
@@ -12,7 +12,9 @@
 <body>
 	<div class="title">SWFUpload (Revision 5) Demos</div>
 
-	<form action="upload.php?PHPSESSID=<?php echo session_id(); ?>&file_id=SWFUpload_0_0" method="post" enctype="multipart/form-data">
+	<form action="upload.php" method="post" enctype="multipart/form-data">
+		<input type="hidden" id="PHPSESSID" value="<?php echo session_id(); ?>" />
+		<input type="hidden" id="file_id" value="SWFUpload_0_0" />
 		<input type="file" id="Filedata" name="Filedata" /><br />
 		<input type="submit" value="Submit" />
 	</form>
