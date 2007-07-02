@@ -5,6 +5,13 @@
  * http://www.opensource.org/licenses/mit-license.php
  *
  * See Changelog.txt for version history
+ * 
+ * + Added ServerData event callback
+ * = Changed upload_params to query_params
+ * + Added post_params
+ * + Added PreuploadValidation callback
+ * + Added automatic cookie transmission to workaround the Flash browser bug
+ * ? Added custom file post name setting
  */
 
 /* *********** */
@@ -57,6 +64,7 @@ SWFUpload.ERROR_CODE_UPLOAD_LIMIT_EXCEEDED    = -70;
 SWFUpload.ERROR_CODE_UPLOAD_FAILED            = -80;
 SWFUpload.ERROR_CODE_QUEUE_LIMIT_EXCEEDED     = -90;
 SWFUpload.ERROR_CODE_SPECIFIED_FILE_NOT_FOUND = -100;
+SWFUpload.ERROR_CODE_INVALID_FILETYPE         = -110;
 
 /* ***************** */
 /* Instance Thingies */
@@ -74,12 +82,15 @@ SWFUpload.prototype.initSettings = function (init_settings) {
 
     // Upload backend settings
     this.addSetting("upload_target_url", init_settings.upload_target_url, "");
-    this.addSetting("upload_cookies",    init_settings.upload_cookies,    []);
-    this.addSetting("upload_params",     init_settings.upload_params,     {});
+    this.addSetting("file_post_name",    init_settings.file_post_name,    "Filedata");
+    this.addSetting("post_params",       init_settings.post_params,       {});
 
-    // Upload settings
+    // Flags
     this.addSetting("begin_upload_on_queue",  init_settings.begin_upload_on_queue,  true);
-    this.addSetting("file_types",             init_settings.file_types,             "*.gif;*.jpg;*.png");
+    this.addSetting("validate_files",         init_settings.validate_files,         false);
+
+    // File Settings
+	this.addSetting("file_types",             init_settings.file_types,             "*.gif;*.jpg;*.png");
     this.addSetting("file_types_description", init_settings.file_types_description, "Common Web Image Formats (gif, jpg, png)");
     this.addSetting("file_size_limit",        init_settings.file_size_limit,        "1024");
     this.addSetting("file_upload_limit",      init_settings.file_upload_limit,      "0");
@@ -100,6 +111,7 @@ SWFUpload.prototype.initSettings = function (init_settings) {
     this.flashReady      = this.retrieveSetting(init_settings.flash_ready_handler,      this.flashReady);
     this.dialogCancelled = this.retrieveSetting(init_settings.dialog_cancelled_handler, this.dialogCancelled);
     this.fileQueued      = this.retrieveSetting(init_settings.file_queued_handler,      this.fileQueued);
+    this.fileValidation  = this.retrieveSetting(init_settings.file_validation_handler,  this.fileValidation);
     this.fileProgress    = this.retrieveSetting(init_settings.file_progress_handler,    this.fileProgress);
     this.fileCancelled   = this.retrieveSetting(init_settings.file_cancelled_handler,   this.fileCancelled);
     this.fileComplete    = this.retrieveSetting(init_settings.file_complete_handler,    this.fileComplete);
@@ -122,7 +134,7 @@ SWFUpload.prototype.loadFlash = function () {
     container.style.height = this.getSetting("flash_height");
 
     flash_container_id = this.getSetting("flash_container_id");
-    if (flash_container_id !== "") {
+    if (typeof(flash_container_id) === "string" && flash_container_id !== "") {
         target_element = document.getElementById(flash_container_id);
     }
     // If the target wasn't found use the "BODY" element
@@ -131,13 +143,13 @@ SWFUpload.prototype.loadFlash = function () {
     }
     // If all else fails then give up
     if (typeof(target_element) === "undefined" || target_element === null) {
-        this.debugMessage("Could not find an element to add the Flash too. Failed to find element for \"flash_container_id\" or the BODY element.");
+        this.debugMessage('Could not find an element to add the Flash too. Failed to find element for "flash_container_id" or the BODY element.');
         return false;
     }
 
     target_element.appendChild(container);
 
-    container.innerHTML = html;
+    container.innerHTML = html;	// Using innerHTML is non-standard but well supported and is easier than building a DOM object for the embed/object tags
 
     this.movieElement = document.getElementById(this.movieName);    // Save a reference to the flash node so we can make calls to it.
 
@@ -145,6 +157,7 @@ SWFUpload.prototype.loadFlash = function () {
     if (typeof(window[this.movieName]) === "undefined" || window[this.moveName] !== this.movieElement) {
         window[this.movieName] = this.movieElement;
     }
+	
 };
 
 // Generates the embed/object tags needed to embed the flash in to the document
@@ -188,14 +201,16 @@ SWFUpload.prototype.getFlashHTML = function () {
 SWFUpload.prototype.getFlashVars = function () {
     // Add the cookies to the backend string
     var upload_target_url = this.getSetting("upload_target_url");
-    var query_string = this.buildQueryString();
+    var param_string = this.buildParamString();
 
     // Build the parameter string
     var html = "";
     html += "controlID=" + encodeURIComponent(this.getSetting("control_id"));
     html += "&uploadTargetURL=" + encodeURIComponent(upload_target_url);
-    html += "&uploadQueryString=" + encodeURIComponent(query_string);
+    html += "&params=" + encodeURIComponent(param_string);
+	html += "&filePostName=" + encodeURIComponent(this.getSetting("file_post_name"));
     html += "&beginUploadOnQueue=" + encodeURIComponent(this.getSetting("begin_upload_on_queue"));
+    html += "&fileValidation=" + encodeURIComponent(this.getSetting("file_validation"));
     html += "&fileTypes=" + encodeURIComponent(this.getSetting("file_types"));
     html += "&fileTypesDescription=" + encodeURIComponent(this.getSetting("file_types_description"));
     html += "&fileSizeLimit=" + encodeURIComponent(this.getSetting("file_size_limit"));
@@ -206,35 +221,23 @@ SWFUpload.prototype.getFlashVars = function () {
     return html;
 };
 
-SWFUpload.prototype.buildQueryString = function () {
-    var upload_cookies = this.getSetting("upload_cookies");
-    var upload_params = this.getSetting("upload_params");
-    var query_string_pairs = [];
+SWFUpload.prototype.buildParamString = function () {
+    var post_params = this.getSetting("post_params");
+    var param_string_pairs = [];
     var i, value, name;
 
-    // Retrieve the cookies
-    if (typeof(upload_cookies) === "object" && typeof(upload_cookies.length) === "number") {
-        for (i = 0; i < upload_cookies.length; i++) {
-            if (typeof(upload_cookies[i]) === "string" && upload_cookies[i] !== "") {
-                value = this.getCookie(upload_cookies[i]);
-                if (value !== "") {
-                    query_string_pairs.push(encodeURIComponent(upload_cookies[i]) + "=" + encodeURIComponent(value));
-                }
-            }
-        }
-    }
     // Retrieve the user defined parameters
-    if (typeof(upload_params) === "object") {
-        for (name in upload_params) {
-            if (upload_params.hasOwnProperty(name)) {
-                if (typeof(upload_params[name]) === "string" /*&& upload_params[name] != ""*/) {
-                    query_string_pairs.push(encodeURIComponent(name) + "=" + encodeURIComponent(upload_params[name]));
+    if (typeof(post_params) === "object") {
+        for (name in post_params) {
+            if (post_params.hasOwnProperty(name)) {
+                if (typeof(post_params[name]) === "string" /*&& upload_params[name] != ""*/) {
+                    param_string_pairs.push(encodeURIComponent(name) + "=" + encodeURIComponent(post_params[name]));
                 }
             }
         }
     }
 
-    return query_string_pairs.join("&");
+    return param_string_pairs.join("&");
 };
 
 // This private method "loads" the UI.  If a target was specified then it is assumed that "display: none" was set and
@@ -305,17 +308,34 @@ SWFUpload.prototype.displayDebugInfo = function () {
 
     debug_message += "----- DEBUG OUTPUT ----\nID: " + this.movieElement.id + "\n";
 
-    // It's bad to use the for..in with an associative array, but oh well
-    for (key in this.settings) {
-        if (this.settings.hasOwnProperty(key)) {
-            debug_message += key + ": " + this.settings[key] + "\n";
-        }
-    }
-
+	debug_message += this.outputObject(this.settings);
+	
     debug_message += "----- DEBUG OUTPUT END ----\n";
     debug_message += "\n";
 
     this.debugMessage(debug_message);
+};
+SWFUpload.prototype.outputObject = function (object, prefix) {
+	var output = "";
+	
+	if (typeof(prefix) !== "string") {
+		prefix = "";
+	}
+	if (typeof(object) !== "object") {
+		return "";
+	}
+	
+    for (key in object) {
+        if (object.hasOwnProperty(key)) {
+            if (typeof(object[key]) === "object") {
+				output += (prefix + key + ": { \n" + this.outputObject(object[key], "\t" + prefix) + prefix + "}" + "\n");
+			} else {
+				output += (prefix + key + ": " + object[key] + "\n");
+			}
+        }
+    }
+	
+	return output;
 };
 
 // Sets the UploadTargetURL. To commit the change you must call UpdateUploadStrings.
@@ -326,18 +346,10 @@ SWFUpload.prototype.setUploadTargetURL = function (url) {
         return false;
     }
 };
-// Sets the upload_cookies array. To commit the change you must call UpdateUploadStrings.
-SWFUpload.prototype.setUploadCookies = function (cookie_name_array) {
-    if (typeof(cookie_name_array) === "object" && typeof(cookie_name_array.length) === "number") {
-        return this.addSetting("upload_cookies", cookie_name_array, []);
-    } else {
-        return false;
-    }
-};
 // Sets the upload params object. To commit the change you must call UpdateUploadStrings.
-SWFUpload.prototype.setUploadParams = function (param_object) {
+SWFUpload.prototype.setPostParams = function (param_object) {
     if (typeof(param_object) === "object") {
-        return this.addSetting("upload_params", param_object, []);
+        return this.addSetting("post_params", param_object, {});
     } else {
         return false;
     }
@@ -425,26 +437,26 @@ SWFUpload.prototype.stopUpload = function () {
 
 };
 
-// Updates the upload url strings in the Flash Movie
-// This must be called in order for calls to SetUploadTargetURL, SetUploadCookies, and SetUploadQueryString to take effect.
-SWFUpload.prototype.updateUploadStrings = function () {
-    if (typeof(this.movieElement) !== "undefined" && typeof(this.movieElement.SetUploadStrings) === "function") {
+// Updates the upload url and post parameters in the Flash Movie
+// This must be called in order for changes made to the upload_target_url and post_params to take effect.
+SWFUpload.prototype.setUploadSettings = function () {
+    if (typeof(this.movieElement) !== "undefined" && typeof(this.movieElement.SetUploadSettings) === "function") {
         try {
-            this.movieElement.SetUploadStrings(this.getSetting("upload_target_url"), this.buildQueryString());
+            this.movieElement.SetUploadSettings(this.getSetting("upload_target_url"), this.getSetting("post_params"));
         }
         catch (ex) {
             this.debugMessage("Could not call SetUploadStrings");
         }
     } else {
-        this.debugMessage("Could not find Flash element");
+        this.debugMessage("Could not find Flash element in setUploadSettings");
     }
 
 };
 
-SWFUpload.prototype.addFileParam = function (file_id, name, value) {
-    if (typeof(this.movieElement) !== "undefined" && typeof(this.movieElement.AddFileParam) === "function") {
+SWFUpload.prototype.addFilePostParam = function (file_id, name, value) {
+    if (typeof(this.movieElement) !== "undefined" && typeof(this.movieElement.AddFilePostParam) === "function") {
         try {
-            return this.movieElement.AddFileParam(file_id, encodeURIComponent(name), encodeURIComponent(value));
+            return this.movieElement.AddFilePostParam(file_id, name, value);
         }
         catch (ex) {
             this.debugMessage("Could not call addFileParam");
@@ -454,10 +466,10 @@ SWFUpload.prototype.addFileParam = function (file_id, name, value) {
     }
 };
 
-SWFUpload.prototype.removeFileParam = function (file_id, name) {
-    if (typeof(this.movieElement) !== "undefined" && typeof(this.movieElement.RemoveFileParam) === "function") {
+SWFUpload.prototype.removeFilePostParam = function (file_id, name) {
+    if (typeof(this.movieElement) !== "undefined" && typeof(this.movieElement.RemoveFilePostParam) === "function") {
         try {
-            return this.movieElement.RemoveFileParam(file_id, encodeURIComponent(name));
+            return this.movieElement.RemoveFilePostParam(file_id, name);
         }
         catch (ex) {
             this.debugMessage("Could not call addFileParam");
@@ -478,6 +490,8 @@ SWFUpload.prototype.flashReady = function () {
     var ui_function;
     try {
         this.debugMessage("Flash called back and is ready.");
+		
+		this.setUploadSettings();	// Send all the parameters
 
         ui_function = this.getSetting("ui_function");
         if (typeof(ui_function) === "function") {
@@ -495,9 +509,18 @@ SWFUpload.prototype.dialogCancelled = function () {
     this.debugMessage("browse Dialog Cancelled.");
 };
 
-// Called once for file the user selects
+// Called once for each file the user selects
 SWFUpload.prototype.fileQueued = function (file) {
     this.debugMessage("File Queued: " + file.id);
+};
+
+// Called before a file is queued if the validateFiles setting is true.  This function
+// must return true or false to indicate to flash whether the file should be
+// uploaded.
+SWFUpload.prototype.fileValidation = function (file) {
+    this.debugMessage("File Validation: " + file.id);
+	
+	return true;
 };
 
 // Called during upload as the file progresses
@@ -511,8 +534,11 @@ SWFUpload.prototype.fileCancelled = function (file) {
 };
 
 // Called when a file upload has completed
-SWFUpload.prototype.fileComplete = function (file) {
+SWFUpload.prototype.fileComplete = function (file, server_data) {
     this.debugMessage("File Complete: " + file.id);
+	if (typeof(server_data) !== "undefined") {
+		this.debugMessage("Upload Response Data: " + server_data);
+	}
 };
 
 // Called when at least 1 file has been uploaded and there are no files remaining in the queue.
@@ -564,40 +590,15 @@ SWFUpload.prototype.error = function (errcode, file, msg) {
         case SWFUpload.ERROR_CODE_SPECIFIED_FILE_NOT_FOUND:
             this.debugMessage("Error Code: File ID specified for upload was not found, Message: " + msg);
             break;
+		case SWFUpload.ERROR_CODE_INVALID_FILETYPE:
+			this.debugMessage("Error Code: File extension is not allowed, Message: " + msg);
+			break;
         default:
             this.debugMessage("Error Code: Unhandled error occured. Errorcode: " + errcode);
         }
     } catch (ex) {
         this.debugMessage(ex);
     }
-};
-
-/* **********************************
-    Utility Functions
-   ********************************** */
-// Gets a cookie (http://www.w3schools.com/js/js_cookies.asp)
-SWFUpload.prototype.getCookie = function (cookie_name) {
-    var cookie_start, cookie_end;
-    try {
-        if (document.cookie.length > 0 && cookie_name !== "")
-        {
-            cookie_start = document.cookie.indexOf(cookie_name + "=");
-            if (cookie_start !== -1)
-            {
-                cookie_start = cookie_start + cookie_name.length + 1;
-                cookie_end = document.cookie.indexOf(";", cookie_start);
-                if (cookie_end === -1) {
-                    cookie_end = document.cookie.length;
-                }
-
-                return unescape(document.cookie.substring(cookie_start, cookie_end));
-            }
-        }
-    } catch (ex) {
-        this.debugMessage(ex);
-    }
-
-    return "";
 };
 
 /* **********************************

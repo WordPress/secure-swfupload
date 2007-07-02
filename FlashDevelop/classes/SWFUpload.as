@@ -1,534 +1,657 @@
-/*
-* Development note:  This code needs a security audit.  E.g. If someone sets the control id string as some javascript it
-* could make funny things happen with the callbacks.
-*
-* */
+package {
+	/*
+	* Development note:  This code needs a security audit.  E.g. If someone sets the control id string as some javascript it
+	* could make funny things happen with the callbacks.
+	*
+	* */
+
+	import flash.display.Sprite;
+	import flash.net.FileReferenceList;
+	import flash.net.FileReference;
+	import flash.net.FileFilter;
+	import flash.net.URLRequest;
+	import flash.net.URLRequestHeader;
+	import flash.net.URLRequestMethod;
+	import flash.net.URLVariables;
+	import flash.events.*;
+	import flash.external.ExternalInterface;
+	import FileItem;
+
+	public class SWFUpload extends Sprite {
+		public static function main():void
+		{
+			var SWFUpload:SWFUpload = new SWFUpload();
+		}
 
 
-// Allow all domain
-import flash.net.FileReferenceList;
-import flash.net.FileReference;
-import flash.external.ExternalInterface;
+		private var fileBrowser:FileReferenceList = new FileReferenceList();
 
-class SWFUpload {
-	static function main()
-	{
-		_root.onEnterFrame = function() {
-			if (this.getBytesLoaded() / this.getBytesTotal() > 0.99) {
-				var SWFUpload:SWFUpload = new SWFUpload();
-				_root.onEnterFrame = function() { };
-				_root.stop();
+		private var file_queue:Array = new Array();		// holds a list of all items that are to be uploaded.
+		private var current_file_item:FileItem = null;	// the item that is currently being uploaded.
+		private var single_upload:Boolean = false;		// Indicates whether a single file is being upload or the entire queue
+		private var completed_uploads:Number = 0;		// Tracks the uploads that have been completed (no errors, not cancelled, not too big)
+		private var queued_uploads:Number = 0;			// Tracks the FileItems that are waiting to be uploaded.
+		private var valid_file_extensions:Array = new Array();// Holds the parsed valid extensions.
+		
+		// Callbacks
+		private var flashReady_Callback:String;
+		private var dialogCancelled_Callback:String;
+		private var fileQueued_Callback:String;
+		private var fileValidation_Callback:String;
+		private var fileProgress_Callback:String;
+		private var fileCancelled_Callback:String;
+		private var fileComplete_Callback:String;
+		private var queueComplete_Callback:String;
+		private var queueStopped_Callback:String;
+		private var error_Callback:String;
+		private var debug_Callback:String;
+
+		// Values passed in from the HTML
+		private var controlID:String;
+		private var uploadTargetURL:String;
+		private var filePostName:String;
+		private var uploadPostObject:Object;
+		private var fileTypes:String;
+		private var fileTypesDescription:String;
+		private var fileSizeLimit:Number;
+		private var fileUploadLimit:Number = 0;
+		private var fileQueueLimit:Number = 0;
+		private var beginUploadOnQueue:Boolean;
+		private var fileValidation:Boolean;
+		private var debugEnabled:Boolean;
+
+		// Error code "constants"
+		private var ERROR_CODE_HTTP_ERROR:Number 				= -10;
+		private var ERROR_CODE_MISSING_UPLOAD_TARGET:Number 	= -20;
+		private var ERROR_CODE_IO_ERROR:Number 					= -30;
+		private var ERROR_CODE_SECURITY_ERROR:Number 			= -40;
+		private var ERROR_CODE_FILE_EXCEEDS_SIZE_LIMIT:Number 	= -50;
+		private var ERROR_CODE_ZERO_BYTE_FILE:Number 			= -60;
+		private var ERROR_CODE_UPLOAD_LIMIT_EXCEEDED:Number		= -70;
+		private var ERROR_CODE_UPLOAD_FAILED:Number 			= -80;
+		private var ERROR_CODE_QUEUE_LIMIT_EXCEEDED:Number 		= -90;
+		private var ERROR_CODE_SPECIFIED_FILE_NOT_FOUND:Number 	= -100;
+		private var ERROR_CODE_INVALID_FILETYPE:Number          = -110;
+
+		public function SWFUpload() {
+			//flash.system.Security.allowDomain("*");	// Allow any domain to use this SWF to upload files
+
+			// Setup file FileReferenceList events
+			this.fileBrowser.addEventListener(Event.SELECT, this.Select_Handler);
+			this.fileBrowser.addEventListener(Event.CANCEL,  this.DialogCancelled_Handler);
+
+			// Get the control ID
+			this.controlID = root.loaderInfo.parameters.controlID;
+
+			// Configure the callbacks
+			this.flashReady_Callback = "SWFUpload.instances[\"" + this.controlID + "\"].flashReady";
+			this.dialogCancelled_Callback = "SWFUpload.instances[\"" + this.controlID + "\"].dialogCancelled";
+			this.fileQueued_Callback = "SWFUpload.instances[\"" + this.controlID + "\"].fileQueued";
+			this.fileValidation_Callback = "SWFUpload.instances[\"" + this.controlID + "\"].fileValidation";
+			this.fileProgress_Callback = "SWFUpload.instances[\"" + this.controlID + "\"].fileProgress";
+			this.fileCancelled_Callback = "SWFUpload.instances[\"" + this.controlID + "\"].fileCancelled";
+			this.fileComplete_Callback = "SWFUpload.instances[\"" + this.controlID + "\"].fileComplete";
+			this.queueComplete_Callback = "SWFUpload.instances[\"" + this.controlID + "\"].queueComplete";
+			this.queueStopped_Callback = "SWFUpload.instances[\"" + this.controlID + "\"].queueStopped";
+			this.error_Callback = "SWFUpload.instances[\"" + this.controlID + "\"].error";
+			this.debug_Callback = "SWFUpload.instances[\"" + this.controlID + "\"].debug";
+
+			// Get the Flash Vars
+			this.uploadTargetURL = root.loaderInfo.parameters.uploadTargetURL;
+			this.filePostName = root.loaderInfo.parameters.filePostName;
+			this.fileTypes = root.loaderInfo.parameters.fileTypes;
+			this.fileTypesDescription = root.loaderInfo.parameters.fileTypesDescription + " (" + this.fileTypes + ")";
+
+			
+			if (!this.filePostName) {
+				this.filePostName = "Filedata";
 			}
-		};
-	}
+			if (!this.fileTypes) {
+				this.fileTypes = "*.*";
+			}
+			if (!this.fileTypesDescription) {
+				this.fileTypesDescription = "All Files";
+			}
+			
+			this.LoadFileExensions(this.fileTypes);
 
-
-	var fileBrowser:FileReferenceList = new FileReferenceList();
-
-	var file_queue:Array = new Array();		// holds a list of all items that are to be uploaded.
-	var current_file_item:FileItem = null;	// the item that is currently being uploaded.
-	var single_upload:Boolean = false;		// Indicates whether a single file is being upload or the entire queue
-	var completed_uploads:Number = 0;		// Tracks the uploads that have been completed (no errors, not cancelled, not too big)
-	var queued_uploads:Number = 0;			// Tracks the FileItems that are waiting to be uploaded.
-
-	var file_reference_listener:Object;		// Holds the callbacks used by the FileReference objects
-
-	// Callbacks
-	var flashReady_Callback:String;
-	var dialogCancelled_Callback:String;
-	var fileQueued_Callback:String;
-	var fileProgress_Callback:String;
-	var fileCancelled_Callback:String;
-	var fileComplete_Callback:String;
-	var queueComplete_Callback:String;
-	var queueStopped_Callback:String;
-	var error_Callback:String;
-	var debug_Callback:String;
-
-	// Values passed in from the HTML
-	var controlID:String;
-	var uploadTargetURL:String;
-	var uploadQueryString:String;
-	var fileTypes:String;
-	var fileTypesDescription:String;
-	var fileSizeLimit:Number;
-	var fileUploadLimit:Number = 0;
-	var fileQueueLimit:Number = 0;
-	var beginUploadOnQueue:Boolean;
-	var debugEnabled:Boolean;
-
-	// Error code "constants"
-	var ERROR_CODE_HTTP_ERROR:Number 				= -10;
-	var ERROR_CODE_MISSING_UPLOAD_TARGET:Number 	= -20;
-	var ERROR_CODE_IO_ERROR:Number 					= -30;
-	var ERROR_CODE_SECURITY_ERROR:Number 			= -40;
-	var ERROR_CODE_FILE_EXCEEDS_SIZE_LIMIT:Number 	= -50;
-	var ERROR_CODE_ZERO_BYTE_FILE:Number 			= -60;
-	var ERROR_CODE_UPLOAD_LIMIT_EXCEEDED:Number		= -70;
-	var ERROR_CODE_UPLOAD_FAILED:Number 			= -80;
-	var ERROR_CODE_QUEUE_LIMIT_EXCEEDED:Number 		= -90;
-	var ERROR_CODE_SPECIFIED_FILE_NOT_FOUND:Number 	= -100;
-
-	function SWFUpload() {
-		System.security.allowDomain("*");	// Allow any domain to use this SWF to upload files
-
-		// Setup file FileReference Listener. This is attached to all FileReference objects (ie, every file the user uploads)
-		this.file_reference_listener = new Object();
-		this.file_reference_listener.onCancel = 		Delegate.Create(this, this.DialogCancelled_Handler);
-		this.file_reference_listener.onProgress = 		Delegate.Create(this, this.FileProgress_Handler);
-		this.file_reference_listener.onComplete = 		Delegate.Create(this, this.FileComplete_Handler);
-		this.file_reference_listener.onHTTPError = 		Delegate.Create(this, this.HTTPError_Handler);
-		this.file_reference_listener.onIOError = 		Delegate.Create(this, this.IOError_Handler);
-		this.file_reference_listener.onSecurityError = 	Delegate.Create(this, this.SecurityError_Handler);
-		this.file_reference_listener.onSelect = 		Delegate.Create(this, this.Select_Handler);
-
-		// Add the event listener to the FileBrowser
-		this.fileBrowser.addListener(this.file_reference_listener);
-
-		// Get the control ID
-		this.controlID = _root.controlID;
-
-		// Configure the callbacks
-		this.flashReady_Callback = "SWFUpload.instances[\"" + this.controlID + "\"].flashReady";
-		this.dialogCancelled_Callback = "SWFUpload.instances[\"" + this.controlID + "\"].dialogCancelled";
-		this.fileQueued_Callback = "SWFUpload.instances[\"" + this.controlID + "\"].fileQueued";
-		this.fileProgress_Callback = "SWFUpload.instances[\"" + this.controlID + "\"].fileProgress";
-		this.fileCancelled_Callback = "SWFUpload.instances[\"" + this.controlID + "\"].fileCancelled";
-		this.fileComplete_Callback = "SWFUpload.instances[\"" + this.controlID + "\"].fileComplete";
-		this.queueComplete_Callback = "SWFUpload.instances[\"" + this.controlID + "\"].queueComplete";
-		this.queueStopped_Callback = "SWFUpload.instances[\"" + this.controlID + "\"].queueStopped";
-		this.error_Callback = "SWFUpload.instances[\"" + this.controlID + "\"].error";
-		this.debug_Callback = "SWFUpload.instances[\"" + this.controlID + "\"].debug";
-
-		// Get the Flash Vars
-		this.uploadTargetURL = _root.uploadTargetURL;
-		this.uploadQueryString = _root.uploadQueryString;
-		this.fileTypes = _root.fileTypes;
-		this.fileTypesDescription = _root.fileTypesDescription + " (" + this.fileTypes + ")";
-
-		try {
-			this.beginUploadOnQueue = _root.beginUploadOnQueue == "true" ? true : false;
-		} catch (ex:Object) {
-			this.beginUploadOnQueue = false;
-		}
-		try {
-			this.debugEnabled = _root.debugEnabled == "true" ? true : false;
-		} catch (ex:Object) {
-			this.debugEnabled = false;
-		}
-
-		try {
-			this.fileSizeLimit = Number(_root.fileSizeLimit);
-		} catch (ex:Object) {
-			this.fileSizeLimit = 0;
-		}
-
-		try {
-			this.fileUploadLimit = Number(_root.fileUploadLimit);
-		} catch (ex:Object) {
-			this.fileUploadLimit = 0;
-		}
-
-		try {
-			this.fileQueueLimit = Number(_root.fileQueueLimit);
-		} catch (ex:Object) {
-			this.fileQueueLimit = 0;
-		}
-
-		// There is no sense in allowing more files to be queued than is allowed to be uploaded
-		if (this.fileQueueLimit > this.fileUploadLimit) this.fileQueueLimit = this.fileUploadLimit;
-
-		var callbacks_set:Boolean = true;
-		callbacks_set = callbacks_set && ExternalInterface.addCallback("Browse", this, this.SelectFiles);
-		callbacks_set = callbacks_set && ExternalInterface.addCallback("StartUpload", this, this.StartUpload);
-		callbacks_set = callbacks_set && ExternalInterface.addCallback("StopUpload", this, this.StopUpload);
-		callbacks_set = callbacks_set && ExternalInterface.addCallback("CancelUpload", this, this.CancelUpload);
-		callbacks_set = callbacks_set && ExternalInterface.addCallback("CancelQueue", this, this.CancelQueue);
-		callbacks_set = callbacks_set && ExternalInterface.addCallback("SetUploadStrings", this, this.SetUploadStrings);
-		callbacks_set = callbacks_set && ExternalInterface.addCallback("AddFileParam", this, this.AddFileParam);
-		callbacks_set = callbacks_set && ExternalInterface.addCallback("RemoveFileParam", this, this.RemoveFileParam);
-		if (!callbacks_set)	this.Debug("Callbacks where not set.");
-
-		this.Debug("SWFUpload Init Complete");
-		this.PrintDebugInfo();
-
-		/* This bit is the crux of "Flash Feature Detection" and should always be last.  If anything before
-		   this point fails (e.g. the flash player does not support it) then an error will occur which prevents
-		   this method from calling back to the Javascript.  Errors are not reported back to the browser
-		   and so silently fails. Thus, the script will only work if the Flash Player supports the
-		   necessary features. */
-		ExternalInterface.call(this.flashReady_Callback);
-
-	}
-
-	/* *****************************************
-	* FileReference Event Handlers
-	* *************************************** */
-	function DialogCancelled_Handler():Void {
-		this.Debug("onCancel: File Dialog window cancelled.");
-
-		ExternalInterface.call(this.dialogCancelled_Callback);
-	}
-
-	function FileProgress_Handler(file:FileReference, bytesLoaded:Number, bytesTotal:Number):Void {
-		this.Debug("onProgress: File ID: " + this.current_file_item.id + ". Bytes: " + bytesLoaded + ". Total: " + bytesTotal);
-
-		ExternalInterface.call(this.fileProgress_Callback, this.current_file_item.ToJavaScriptObject(), bytesLoaded, bytesTotal);
-	}
-
-	function FileComplete_Handler(file:FileReference):Void {
-		this.Debug("onComplete: File ID: " + this.current_file_item.id + ". Upload Complete. Calling uploadComplete.");
-
-		this.completed_uploads++;
-
-		ExternalInterface.call(this.fileComplete_Callback, this.current_file_item.ToJavaScriptObject());
-
-		this.UploadComplete();
-	}
-
-	function HTTPError_Handler(file:FileReference, httpError:Number):Void {
-		this.Debug("onHTTPError: File ID: " + this.current_file_item.id + ". HTTP Error: " + httpError + ".");
-
-		ExternalInterface.call(this.error_Callback, this.ERROR_CODE_HTTP_ERROR, this.current_file_item.ToJavaScriptObject(), httpError);
-
-		this.UploadComplete();
-	}
-	function IOError_Handler(file:FileReference):Void {
-
-		if(!this.uploadTargetURL.length) {
-			this.Debug("onIOError: File ID: " + this.current_file_item.id + ". Upload Backend string is empty.");
-			ExternalInterface.call(this.error_Callback, this.ERROR_CODE_MISSING_UPLOAD_TARGET, this.current_file_item.ToJavaScriptObject(), "No backend file specified");
-		} else {
-			this.Debug("onIOError: File ID: " + this.current_file_item.id + ". IO Error.");
-				ExternalInterface.call(this.error_Callback, this.ERROR_CODE_IO_ERROR, this.current_file_item.ToJavaScriptObject(), "IO Error");
-		}
-
-		this.UploadComplete();
-	}
-
-	function SecurityError_Handler(file:FileReference, errorString:String):Void {
-		this.Debug("onSecurityError: File Number: " + this.current_file_item.id + ". Error:" + errorString);
-		ExternalInterface.call(this.error_Callback, this.ERROR_CODE_SECURITY_ERROR, this.current_file_item.ToJavaScriptObject(), "Security Error");
-
-		this.UploadComplete();
-	}
-
-	function Select_Handler(fileRefList:FileReferenceList) {
-		this.Debug("Files Selected. Processing file list");
-		var file_reference_list:Array = fileRefList.fileList;
-
-		// Determine how many files may be queued
-		var queue_slots_remaining:Number = this.fileUploadLimit - (this.completed_uploads + this.queued_uploads);
-		queue_slots_remaining = (queue_slots_remaining > this.fileQueueLimit && this.fileQueueLimit > 0) ? this.fileQueueLimit : queue_slots_remaining;
-
-		// Check if the number of files selected is greater than the number allowed to queue up.
-		if (file_reference_list.length > queue_slots_remaining && (this.fileUploadLimit != 0 || this.fileQueueLimit > 0)) {
-			this.Debug("onSelect: Selected Files exceed remaining Queue size.");
-			ExternalInterface.call(this.error_Callback, this.ERROR_CODE_QUEUE_LIMIT_EXCEEDED, null, queue_slots_remaining);
-		} else {
-			// Process each selected file
-			for (var i:Number = 0; i < file_reference_list.length; i++) {
-				var file_item:FileItem = new FileItem(file_reference_list[i], this.controlID);
-
-				// Check the size, if it's within the limit add it to the upload list.
-				var size_result:Number = this.CheckFileSize(file_item);
-				if(size_result == 0) {
-					this.Debug("onSelect: File within size limit. Adding to queue and making callback.");
-					file_item.file_reference.addListener(this.file_reference_listener);
-					this.file_queue.push(file_item);
-					this.queued_uploads++;
-					ExternalInterface.call(this.fileQueued_Callback, file_item.ToJavaScriptObject());
-
-					// If it's too large then still reserve it's space (it needs a file id) and send the external notice
-				} else if (size_result > 0) {
-					this.Debug("onSelect: File exceeds size limit. Making error callback.");
-					ExternalInterface.call(this.error_Callback, this.ERROR_CODE_FILE_EXCEEDS_SIZE_LIMIT, file_item.ToJavaScriptObject(), "File size exceeds allowed limit.");
-				} else if (size_result < 0) {
-					this.Debug("onSelect: File is zero bytes. Making error callback.");
-					ExternalInterface.call(this.error_Callback, this.ERROR_CODE_ZERO_BYTE_FILE, file_item.ToJavaScriptObject(), "File is zero bytes and cannot be uploaded.");
-				}
+			try {
+				this.fileValidation = root.loaderInfo.parameters.fileValidation == "true" ? true : false;
+			} catch (ex:Object) {
+				this.fileValidation = false;
+			}
+			
+			try {
+				this.beginUploadOnQueue = root.loaderInfo.parameters.beginUploadOnQueue == "true" ? true : false;
+			} catch (ex:Object) {
+				this.beginUploadOnQueue = false;
+			}
+			try {
+				this.debugEnabled = root.loaderInfo.parameters.debugEnabled == "true" ? true : false;
+			} catch (ex:Object) {
+				this.debugEnabled = false;
 			}
 
-			// If we are currently uploading files
-			if (this.beginUploadOnQueue && this.queued_uploads > 0) {
-				this.Debug("onSelect: Uploads set to begin immediately. Calling StartUpload.");
-				this.StartUpload();
+			try {
+				this.fileSizeLimit = Number(root.loaderInfo.parameters.fileSizeLimit);
+			} catch (ex:Object) {
+				this.fileSizeLimit = 0;
 			}
-		}
-	}
 
-	/* ****************************************************************
-		Externally exposed functions
-	****************************************************************** */
+			try {
+				this.fileUploadLimit = Number(root.loaderInfo.parameters.fileUploadLimit);
+			} catch (ex:Object) {
+				this.fileUploadLimit = 0;
+			}
 
-	// Opens a file browser dialog.  Once files are selected the "onselect" event is triggered.
-	function SelectFiles():Void {
-		var allowed_file_types:String = "*.*";
-		var allowed_file_types_description:String = "All Files";
-		if (this.fileTypes.length > 0) allowed_file_types = this.fileTypes;
-		if (this.fileTypesDescription.length > 0)  allowed_file_types_description = this.fileTypesDescription;
+			try {
+				this.fileQueueLimit = Number(root.loaderInfo.parameters.fileQueueLimit);
+			} catch (ex:Object) {
+				this.fileQueueLimit = 0;
+			}
 
-		this.fileBrowser.browse([{description: allowed_file_types_description, extension: allowed_file_types}]);
+			// There is no sense in allowing more files to be queued than is allowed to be uploaded
+			if (this.fileQueueLimit > this.fileUploadLimit) this.fileQueueLimit = this.fileUploadLimit;
 
-		this.Debug("UploadFile: Browsing files. " + allowed_file_types);
-	}
+			try {
+				ExternalInterface.addCallback("Browse", this.SelectFiles);
+				ExternalInterface.addCallback("StartUpload", this.StartUpload);
+				ExternalInterface.addCallback("StopUpload", this.StopUpload);
+				ExternalInterface.addCallback("CancelUpload", this.CancelUpload);
+				ExternalInterface.addCallback("CancelQueue", this.CancelQueue);
+				ExternalInterface.addCallback("SetUploadSettings", this.SetUploadSettings);
+				ExternalInterface.addCallback("AddFilePostParam", this.AddFilePostParam);
+				ExternalInterface.addCallback("RemoveFilePostParam", this.RemoveFilePostParam);
+			} catch (ex:Error) {
+				this.Debug("Callbacks where not set.");
+			}
 
+			this.Debug("SWFUpload Init Complete");
+			this.PrintDebugInfo();
 
-	// Starts uploading.  If a file_id is given then only that file is uploaded, otherwise the entire queue is uploaded.
-	// If the file_id is not found no upload begins and an error is called back
-	function StartUpload(file_id:String):Void {
-		if (this.current_file_item == null) {
-			this.Debug("StartUpload(): Starting Upload. File ID: " + file_id);
-			this.StartFile(file_id);
-		} else {
-			this.Debug("StartUpload(): Upload run already in progress");
-		}
-	}
-
-	// Cancel the current upload and stops.  Doesn't advance the upload pointer. Starting again will re-upload the current file.
-	function StopUpload():Void {
-		if (this.current_file_item != null) {
-			// Cancel the upload and re-queue the FileItem
-			this.current_file_item.file_reference.cancel();
-			this.file_queue.unshift(this.current_file_item);
-			ExternalInterface.call(this.queueStopped_Callback, this.current_file_item.ToJavaScriptObject());
-
-			this.current_file_item = null;
-			this.Debug("StopUpload(): upload stopped.");
-		} else {
-			this.Debug("StopUpload(): Upload run not in progress");
-		}
-	}
-
-	// Cancels the upload specified by file_id
-	function CancelUpload(file_id:String):Void {
-		if (file_id) {
-			if (this.current_file_item.id == file_id) {
-				this.current_file_item.file_reference.cancel();
-				ExternalInterface.call(this.fileCancelled_Callback, this.current_file_item.ToJavaScriptObject());
-
-				this.Debug("CancelUpload(): Cancelling current upload");
-				this.UploadComplete(); // <-- this advanced the upload to the next file
+			// Do some feature detection
+			if (flash.net.FileReferenceList && flash.net.FileReference && flash.net.URLRequest && flash.external.ExternalInterface && flash.external.ExternalInterface.available) {
+				ExternalInterface.call(this.flashReady_Callback);
 			} else {
-				// Find the file in the queue
-				var file_index:Number = this.FindIndexInFileQueue(file_id);
-				if (file_index >= 0) {
-					// Remove the file from the queue
-					var file_item:FileItem = FileItem(this.file_queue[file_index]);
-					this.file_queue[file_index] = null;
-					this.queued_uploads--;
-
-					// Cancel the file (just for good measure) and make the callback
-					file_item.file_reference.cancel();
-					ExternalInterface.call(this.fileCancelled_Callback, file_item.ToJavaScriptObject());
-
-					// Get rid of the file object
-					delete file_item;
-					this.Debug("CancelUpload(): Cancelling queued upload");
-				}
+				this.Debug("Feature Detection Failed");				
 			}
+
 		}
 
-	}
+		/* *****************************************
+		* FileReference Event Handlers
+		* *************************************** */
+		private function DialogCancelled_Handler():void {
+			this.Debug("Event: DialogCancel: File Dialog window cancelled.");
 
-	function CancelQueue():Void {
-		this.Debug("CancelQueue(): Cancelling remaining queue.");
-
-		// Cancel the current upload
-		if (this.current_file_item != null) {
-			this.current_file_item.file_reference.cancel();
-			ExternalInterface.call(this.fileCancelled_Callback, this.current_file_item.ToJavaScriptObject());
+			ExternalInterface.call(this.dialogCancelled_Callback);
 		}
 
-		while (this.file_queue.length > 0) {
-			var file_item:FileItem = FileItem(this.file_queue.shift());
-			if (file_item != null) {
-				file_item.file_reference.cancel();	// Cancel the FileReference just for good measure
-				this.queued_uploads--;
+		private function FileProgress_Handler(event:ProgressEvent):void {
+			this.Debug("Event: Progress: File ID: " + this.current_file_item.id + ". Bytes: " + event.bytesLoaded + ". Total: " + event.bytesTotal);
 
-				ExternalInterface.call(this.fileCancelled_Callback, file_item.ToJavaScriptObject());
-				delete file_item;
-			}
+			ExternalInterface.call(this.fileProgress_Callback, this.current_file_item.ToJavaScriptObject(), event.bytesLoaded, event.bytesTotal);
 		}
 
-		// If we were uploading a file complete it's process
-		if (this.current_file_item != null) {
+		private function FileComplete_Handler(file:FileReference):void {
+			this.Debug("Event: Complete: File ID: " + this.current_file_item.id + ". Upload Complete. Calling uploadComplete.");
+
+			this.completed_uploads++;
+
+			ExternalInterface.call(this.fileComplete_Callback, this.current_file_item.ToJavaScriptObject());
+
 			this.UploadComplete();
 		}
-	}
+		
+		// Warning. This might not work.  Or we need to trigger the upload complete here depending on when this
+		// gets called
+		private function ServerData_Handler(event:DataEvent):void {
+			this.Debug("Event: UploadCompleteData: File ID: " + this.current_file_item.id + " Data: " + event.data);
+			
+			this.completed_uploads++;
 
-	function SetUploadStrings(url:String, query_string:String):Void {
-		this.uploadTargetURL = url;
-		this.uploadQueryString = query_string;
-	}
+			ExternalInterface.call(this.fileComplete_Callback, this.current_file_item.ToJavaScriptObject(), event.data);
 
-	function AddFileParam(file_id:String, name:String, value:String):Boolean {
-		var file_index:Number = this.FindIndexInFileQueue(file_id);
-		if (file_index >= 0) {
-			var file_item:FileItem = FileItem(this.file_queue[file_index]);
-			file_item.AddParam(name, value);
-			return true;
-		} else {
-			return false;
-		}
-	}
-	function RemoveFileParam(file_id:String, name:String):Boolean {
-		var file_index:Number = this.FindIndexInFileQueue(file_id);
-		if (file_index >= 0) {
-			var file_item:FileItem = FileItem(this.file_queue[file_index]);
-			file_item.RemoveParam(name);
-			return true;
-		} else {
-			return false;
-		}
-	}
-
-	/* *************************************************************
-		File processing and handling functions
-	*************************************************************** */
-	//
-	function StartFile(file_id:String):Void {
-		// Only upload a file uploads are being processed.
-		//   startFile could be called by a file cancellation even when we aren't currently uploading
-		if (this.current_file_item != null) {
-			this.Debug("StartFile(): Upload already in progress. Exiting.");
-			return;
+			this.UploadComplete();
+			
 		}
 
-		this.Debug("StartFile: File ID " + file_id);
+		private function HTTPError_Handler(event:HTTPStatusEvent):void {
+			this.Debug("Event: HTTPStatus: File ID: " + this.current_file_item.id + ". HTTP Status: " + event.status + ".");
 
-		// Get the next file to upload
-		if (!file_id) {
-			this.single_upload = false;
-			while (this.file_queue.length > 0 && this.current_file_item == null) {
-				// Check that File Reference is valid (if not make sure it's deleted and get the next one on the next loop)
-				this.current_file_item = FileItem(this.file_queue.shift());	// Cast back to a FileItem
-				if (typeof(this.current_file_item) == "undefined") {
-					this.current_file_item = null;
-					continue;
+			ExternalInterface.call(this.error_Callback, this.ERROR_CODE_HTTP_ERROR, this.current_file_item.ToJavaScriptObject(), event.status);
+
+			this.UploadComplete();
+		}
+		
+		// Note: Flash Player does not support Uploads that require authentication. Attempting this will trigger an IO Error
+		private function IOError_Handler(event:IOErrorEvent):void {
+			if(!this.uploadTargetURL.length) {
+				this.Debug("Event: IOError: File ID: " + this.current_file_item.id + ". Upload Backend string is empty.");
+				ExternalInterface.call(this.error_Callback, this.ERROR_CODE_MISSING_UPLOAD_TARGET, this.current_file_item.ToJavaScriptObject(), event.text);
+			} else {
+				this.Debug("Event: IOError: File ID: " + this.current_file_item.id + ". IO Error.");
+					ExternalInterface.call(this.error_Callback, this.ERROR_CODE_IO_ERROR, this.current_file_item.ToJavaScriptObject(), event.text);
+			}
+
+			this.UploadComplete();
+		}
+
+		private function SecurityError_Handler(event:SecurityErrorEvent):void {
+			this.Debug("Event: SecurityError: File Number: " + this.current_file_item.id + ". Error:" + event.text);
+			ExternalInterface.call(this.error_Callback, this.ERROR_CODE_SECURITY_ERROR, this.current_file_item.ToJavaScriptObject(), event.text);
+
+			this.UploadComplete();
+		}
+
+		private function Select_Handler(event:Event):void {
+			this.Debug("Event: Files Selected from Dialog. Processing file list");
+			var file_reference_list:Array = this.fileBrowser.fileList;
+
+			// Determine how many files may be queued
+			var queue_slots_remaining:Number = this.fileUploadLimit - (this.completed_uploads + this.queued_uploads);
+			queue_slots_remaining = (queue_slots_remaining > this.fileQueueLimit && this.fileQueueLimit > 0) ? this.fileQueueLimit : queue_slots_remaining;
+
+			// Check if the number of files selected is greater than the number allowed to queue up.
+			if (file_reference_list.length > queue_slots_remaining && (this.fileUploadLimit != 0 || this.fileQueueLimit > 0)) {
+				this.Debug("onSelect: Selected Files exceed remaining Queue size.");
+				ExternalInterface.call(this.error_Callback, this.ERROR_CODE_QUEUE_LIMIT_EXCEEDED, null, queue_slots_remaining);
+			} else {
+				// Process each selected file
+				for (var i:Number = 0; i < file_reference_list.length; i++) {
+					var file_item:FileItem = new FileItem(file_reference_list[i], this.controlID);
+
+					// Check the size, if it's within the limit add it to the upload list.
+					var size_result:Number = this.CheckFileSize(file_item);
+					var is_valid_filetype:Boolean = this.CheckFileType(file_item);
+					if(size_result == 0 && is_valid_filetype) {
+						this.Debug("onSelect: File within size limit and of valid type. Adding to queue and making callback.");
+						file_item.file_reference.addEventListener(ProgressEvent.PROGRESS, this.FileProgress_Handler);
+						file_item.file_reference.addEventListener(Event.COMPLETE, this.FileComplete_Handler);
+						file_item.file_reference.addEventListener(DataEvent.UPLOAD_COMPLETE_DATA, this.ServerData_Handler);
+						file_item.file_reference.addEventListener(IOErrorEvent.IO_ERROR, this.IOError_Handler);
+						file_item.file_reference.addEventListener(SecurityErrorEvent.SECURITY_ERROR, this.SecurityError_Handler);
+						file_item.file_reference.addEventListener(HTTPStatusEvent.HTTP_STATUS, this.HTTPError_Handler);
+						
+						this.file_queue.push(file_item);
+						this.queued_uploads++;
+						ExternalInterface.call(this.fileQueued_Callback, file_item.ToJavaScriptObject());
+
+					} 
+					else if (!is_valid_filetype) {
+						this.Debug("onSelect: File not of a valid type. Making error callback.");
+						ExternalInterface.call(this.error_Callback, this.ERROR_CODE_INVALID_FILETYPE, file_item.ToJavaScriptObject(), "File is not an allowed file type.");
+					}
+					else if (size_result > 0) {
+						this.Debug("onSelect: File exceeds size limit. Making error callback.");
+						ExternalInterface.call(this.error_Callback, this.ERROR_CODE_FILE_EXCEEDS_SIZE_LIMIT, file_item.ToJavaScriptObject(), "File size exceeds allowed limit.");
+					} else if (size_result < 0) {
+						this.Debug("onSelect: File is zero bytes. Making error callback.");
+						ExternalInterface.call(this.error_Callback, this.ERROR_CODE_ZERO_BYTE_FILE, file_item.ToJavaScriptObject(), "File is zero bytes and cannot be uploaded.");
+					} 
 				}
-				// Check that we haven't exceeded the upload_limit, if so handle the file and go to the next.
-				else if (completed_uploads >= this.fileUploadLimit && this.fileUploadLimit != 0) {
-					this.Debug("StartFile(): Upload limit reached. Making callback and skipping file. File ID: " + this.current_file_item.id);
-					ExternalInterface.call(this.error_Callback, this.ERROR_CODE_UPLOAD_LIMIT_EXCEEDED, this.current_file_item.ToJavaScriptObject(), "The upload limit has been reached.");
 
-					delete this.current_file_item;
-					this.current_file_item = null;
-					continue;
+				// If we are currently uploading files
+				if (this.beginUploadOnQueue && this.queued_uploads > 0) {
+					this.Debug("onSelect: Uploads set to begin immediately. Calling StartUpload.");
+					this.StartUpload();
 				}
 			}
-		} else {
-			this.single_upload = true;
+		}
+
+		/* ****************************************************************
+			Externally exposed functions
+		****************************************************************** */
+
+		// Opens a file browser dialog.  Once files are selected the "onselect" event is triggered.
+		private function SelectFiles():void {
+			var allowed_file_types:String = "*.*";
+			var allowed_file_types_description:String = "All Files";
+			if (this.fileTypes.length > 0) allowed_file_types = this.fileTypes;
+			if (this.fileTypesDescription.length > 0)  allowed_file_types_description = this.fileTypesDescription;
+
+			this.fileBrowser.browse([new FileFilter(allowed_file_types_description, allowed_file_types)]);
+
+			this.Debug("UploadFile: Browsing files. " + allowed_file_types);
+		}
+
+
+		// Starts uploading.  If a file_id is given then only that file is uploaded, otherwise the entire queue is uploaded.
+		// If the file_id is not found no upload begins and an error is called back
+		private function StartUpload(file_id:String = ""):void {
+			if (this.current_file_item == null) {
+				this.Debug("StartUpload(): Starting Upload. " + (file_id ?  "File ID:" + file_id : "Next file in queue"));
+				this.StartFile(file_id);
+			} else {
+				this.Debug("StartUpload(): Upload run already in progress");
+			}
+		}
+
+		// Cancel the current upload and stops.  Doesn't advance the upload pointer. Starting again will re-upload the current file.
+		private function StopUpload():void {
+			if (this.current_file_item != null) {
+				// Cancel the upload and re-queue the FileItem
+				this.current_file_item.file_reference.cancel();
+				this.file_queue.unshift(this.current_file_item);
+				ExternalInterface.call(this.queueStopped_Callback, this.current_file_item.ToJavaScriptObject());
+
+				this.current_file_item = null;
+				this.Debug("StopUpload(): upload stopped.");
+			} else {
+				this.Debug("StopUpload(): Upload run not in progress");
+			}
+		}
+
+		// Cancels the upload specified by file_id
+		private function CancelUpload(file_id:String):void {
+			if (file_id) {
+				if (this.current_file_item != null && this.current_file_item.id == file_id) {
+					this.current_file_item.file_reference.cancel();
+					ExternalInterface.call(this.fileCancelled_Callback, this.current_file_item.ToJavaScriptObject());
+
+					this.Debug("CancelUpload(): Cancelling current upload");
+					this.UploadComplete(); // <-- this advanced the upload to the next file
+				} else {
+					// Find the file in the queue
+					var file_index:Number = this.FindIndexInFileQueue(file_id);
+					if (file_index >= 0) {
+						// Remove the file from the queue
+						var file_item:FileItem = FileItem(this.file_queue[file_index]);
+						this.file_queue[file_index] = null;
+						this.queued_uploads--;
+
+						// Cancel the file (just for good measure) and make the callback
+						file_item.file_reference.cancel();
+						ExternalInterface.call(this.fileCancelled_Callback, file_item.ToJavaScriptObject());
+
+						// Get rid of the file object
+						file_item = null;
+						this.Debug("CancelUpload(): Cancelling queued upload");
+					}
+				}
+			}
+
+		}
+
+		private function CancelQueue():void {
+			this.Debug("CancelQueue(): Cancelling remaining queue.");
+
+			// Cancel the current upload
+			if (this.current_file_item != null) {
+				this.current_file_item.file_reference.cancel();
+				ExternalInterface.call(this.fileCancelled_Callback, this.current_file_item.ToJavaScriptObject());
+			}
+
+			while (this.file_queue.length > 0) {
+				var file_item:FileItem = FileItem(this.file_queue.shift());
+				if (file_item != null) {
+					file_item.file_reference.cancel();	// Cancel the FileReference just for good measure
+					this.queued_uploads--;
+
+					ExternalInterface.call(this.fileCancelled_Callback, file_item.ToJavaScriptObject());
+					file_item = null;
+				}
+			}
+
+			// If we were uploading a file complete it's process
+			if (this.current_file_item != null) {
+				this.UploadComplete();
+			}
+		}
+
+		private function SetUploadSettings(url:String, post_object:Object):void {
+			this.uploadTargetURL = url;
+			this.uploadPostObject = post_object;
+		}
+
+		private function AddFilePostParam(file_id:String, name:String, value:String):Boolean {
 			var file_index:Number = this.FindIndexInFileQueue(file_id);
 			if (file_index >= 0) {
-				this.current_file_item = FileItem(this.file_queue[file_index]);
-				this.file_queue[file_index] = null;
+				var file_item:FileItem = FileItem(this.file_queue[file_index]);
+				
+				file_item.AddPostParam(name, value);
+				return true;
 			} else {
-				this.Debug("StartFile(): File ID not found in queue: " + file_id);
-				ExternalInterface.call(this.error_Callback, this.ERROR_CODE_SPECIFIED_FILE_NOT_FOUND, null, "File ID not queued.");
+				return false;
 			}
 		}
-
-
-		// Start the upload if we found an item to upload and we haven't passed the upload limit
-		if (this.current_file_item != null) {
-			// Build the query string
-			var file_query_string:String = this.current_file_item.GetQueryString();
-
-			var query_string_array:Array = new Array();
-			if (this.uploadQueryString != "") query_string_array.push(this.uploadQueryString);
-			if (file_query_string != "") query_string_array.push(file_query_string);
-			var query_string:String = query_string_array.join("&");
-
-			// Combine the full URL
-			var upload_url:String = this.uploadTargetURL + (query_string != "" ? "?" : "") + query_string;
-
-			// Begin the upload
-			this.Debug("startFile(): File Reference found.  Starting upload to " + upload_url + ". File ID: " + this.current_file_item.id);
-			if (this.current_file_item.file_reference.upload(upload_url)) {
-				this.Debug("startFile(): Upload started.");
+		private function RemoveFilePostParam(file_id:String, name:String):Boolean {
+			var file_index:Number = this.FindIndexInFileQueue(file_id);
+			if (file_index >= 0) {
+				var file_item:FileItem = FileItem(this.file_queue[file_index]);
+				file_item.RemovePostParam(name);
+				return true;
 			} else {
-				this.Debug("startFile(): Upload Failed.");
-				ExternalInterface.call(this.error_Callback, this.ERROR_CODE_UPLOAD_FAILED, this.current_file_item.ToJavaScriptObject(), "Upload Failed.");
-				delete this.current_file_item;
-				this.current_file_item = null;
+				return false;
 			}
 		}
-		// Otherwise we've would have looped through all the FileItems. This means the queue is empty)
-		else {
-			this.Debug("startFile(): No File Reference found.  All uploads must be complete, cancelled, or errored out.");
-			this.Debug("startFile(): Ending upload run. Completed Uploads: " + this.completed_uploads);
+		
+		/* *************************************************************
+			File processing and handling functions
+		*************************************************************** */
+		//
+		private function StartFile(file_id:String = ""):void {
+			// Only upload a file uploads are being processed.
+			//   startFile could be called by a file cancellation even when we aren't currently uploading
+			if (this.current_file_item != null) {
+				this.Debug("StartFile(): Upload already in progress. Exiting.");
+				return;
+			}
 
-			if (this.completed_uploads > 0) {
-				this.Debug("startFile(): Queue is complete and at least one file has been uploaded.  Making QueueComplete callback.");
-				ExternalInterface.call(this.queueComplete_Callback,  this.completed_uploads);
+			this.Debug("StartFile: " + (file_id ? "File ID " + file_id : "Next file in queue"));
+
+			// Get the next file to upload
+			if (!file_id) {
+				this.single_upload = false;
+				while (this.file_queue.length > 0 && this.current_file_item == null) {
+					// Check that File Reference is valid (if not make sure it's deleted and get the next one on the next loop)
+					this.current_file_item = FileItem(this.file_queue.shift());	// Cast back to a FileItem
+					if (typeof(this.current_file_item) == "undefined") {
+						this.current_file_item = null;
+						continue;
+					}
+					// Check that we haven't exceeded the upload_limit, if so handle the file and go to the next.
+					else if (this.completed_uploads >= this.fileUploadLimit && this.fileUploadLimit != 0) {
+						this.Debug("StartFile(): Upload limit reached. Making callback and skipping file. File ID: " + this.current_file_item.id);
+						ExternalInterface.call(this.error_Callback, this.ERROR_CODE_UPLOAD_LIMIT_EXCEEDED, this.current_file_item.ToJavaScriptObject(), "The upload limit has been reached.");
+
+						this.current_file_item = null;
+						continue;
+					}
+				}
+			} else {
+				this.single_upload = true;
+				var file_index:Number = this.FindIndexInFileQueue(file_id);
+				if (file_index >= 0) {
+					this.current_file_item = FileItem(this.file_queue[file_index]);
+					this.file_queue[file_index] = null;
+				} else {
+					this.Debug("StartFile(): File ID not found in queue: " + file_id);
+					ExternalInterface.call(this.error_Callback, this.ERROR_CODE_SPECIFIED_FILE_NOT_FOUND, null, "File ID not queued.");
+				}
+			}
+
+
+			// Start the upload if we found an item to upload
+			if (this.current_file_item != null) {
+				// Build the URLRequest
+				var request:URLRequest = this.BuildRequest();
+				
+				// Begin the upload
+				this.Debug("startFile(): File Reference found.  Starting upload to " + request.url + ". File ID: " + this.current_file_item.id);
+				try {
+					// Validate the file
+					if (!this.fileValidation) {
+							this.current_file_item.file_reference.upload(request, this.filePostName, false);
+					} else {
+						if (ExternalInterface.call(this.fileValidation_Callback, this.current_file_item.ToJavaScriptObject())) {
+							this.Debug("startFile(): File Validated.");
+							this.current_file_item.file_reference.upload(request, this.filePostName, false);
+						} else {
+							this.Debug("startFile(): Did not validate.");
+							this.StopUpload();
+						}
+					}
+				}
+				catch (ex:Error) {
+					this.Debug("startFile(): Upload Failed.");
+					ExternalInterface.call(this.error_Callback, this.ERROR_CODE_UPLOAD_FAILED, this.current_file_item.ToJavaScriptObject(), ex.message);
+					this.current_file_item = null;
+				}
+			}
+			// Otherwise we've would have looped through all the FileItems. This means the queue is empty)
+			else {
+				this.Debug("startFile(): No File Reference found.  All uploads must be complete, cancelled, or errored out.");
+				this.Debug("startFile(): Ending upload run. Completed Uploads: " + this.completed_uploads);
+
+				if (this.completed_uploads > 0) {
+					this.Debug("startFile(): Queue is complete and at least one file has been uploaded.  Making QueueComplete callback.");
+					ExternalInterface.call(this.queueComplete_Callback,  this.completed_uploads);
+				}
 			}
 		}
-	}
 
 
-	// Completes the file upload by deleting it's reference, advancing the pointer, and starting the next upload.
-	function UploadComplete() {
-		this.Debug("UploadComplete(): Upload complete. Removing File Reference and starting the next upload.");
+		// Completes the file upload by deleting it's reference, advancing the pointer, and starting the next upload.
+		private function UploadComplete():void {
+			this.Debug("UploadComplete(): Upload complete. Removing File Reference and starting the next upload.");
 
-		// Remove the pointer, the space in the array still exists
-		delete this.current_file_item;
-		this.current_file_item = null;
-		this.queued_uploads--;
+			// Remove the pointer, the space in the array still exists
+			this.current_file_item = null;
+			this.queued_uploads--;
 
-		// Start the next file upload
-		if (!this.single_upload) {
-			this.StartFile();
+			// Start the next file upload
+			if (!this.single_upload) {
+				this.StartFile();
+			}
 		}
-	}
 
 
-	/* *************************************************************
-		Utility Functions
-	*************************************************************** */
-	// Check the size of the file against the allowed file size. If it is less the return TRUE. If it is too large return FALSE
-	function CheckFileSize(file_item:FileItem):Number {
-		if (file_item.file_reference.size == 0) {
+		/* *************************************************************
+			Utility Functions
+		*************************************************************** */
+		// Check the size of the file against the allowed file size. If it is less the return TRUE. If it is too large return FALSE
+		private function CheckFileSize(file_item:FileItem):Number {
+			if (file_item.file_reference.size == 0) {
+				return -1;
+			} else if (this.fileSizeLimit != 0 && file_item.file_reference.size > (this.fileSizeLimit * 1000)) {
+				return 1;
+			} else {
+				return 0;
+			}
+		}
+		
+		private function CheckFileType(file_item:FileItem):Boolean {
+			// If no extensions are defined then a *.* was passed and the check is unnecessary
+			if (this.valid_file_extensions.length == 0) {
+				return true;				
+			}
+			
+			var fileRef:FileReference = file_item.file_reference;
+			var last_dot_index:Number = fileRef.name.lastIndexOf(".");
+			var extension:String = "";
+			if (last_dot_index >= 0) {
+				extension = fileRef.name.substr(last_dot_index + 1).toLowerCase();
+			}
+			
+			var is_valid_filetype:Boolean = false;
+			for (var i:Number=0; i < this.valid_file_extensions.length; i++) {
+				if (String(this.valid_file_extensions[i]) == extension) {
+					is_valid_filetype = true;
+					break;
+				}
+			}
+			
+			return is_valid_filetype;
+		}
+
+		private function BuildRequest():URLRequest {
+			// Build the Post values
+			var key:String;
+			var post:URLVariables = new URLVariables();
+			for (key in this.uploadPostObject) {
+				this.Debug("Global Post Item: " + key + "=" + this.uploadPostObject[key]);				
+				if (this.uploadPostObject.hasOwnProperty(key)) {
+					post[key] = this.uploadPostObject[key];
+				}
+			}
+			var file_post:Object = this.current_file_item.GetPostObject();
+			for (key in file_post) {
+				this.Debug("File Post Item: " + key + "=" + this.uploadPostObject[key]);				
+				if (file_post.hasOwnProperty(key)) {
+					post[key] = file_post[key];
+				}
+			}
+			
+			// Create the request object
+			var request:URLRequest = new URLRequest();
+			request.method = URLRequestMethod.POST;
+			request.url = this.uploadTargetURL;
+			request.data = post;
+			
+			return request;
+		}
+		
+		private function Debug(msg:String):void {
+			if (this.debugEnabled) {
+				var lines:Array = msg.split("\n");
+				for (var i:Number=0; i < lines.length; i++) {
+					lines[i] = "SWF DEBUG: " + lines[i];
+				}
+				ExternalInterface.call(this.debug_Callback, lines.join("\n"));
+			}
+		}
+
+		private function PrintDebugInfo():void {
+			var debug_info:String = "\n----- SWF DEBUG OUTPUT ----\n";
+			debug_info += "ControlID:              " + this.controlID + "\n";
+			debug_info += "Upload Target URL:      " + this.uploadTargetURL + "\n";
+			debug_info += "Begin Upload on Queue:  " + this.beginUploadOnQueue + "\n";
+			debug_info += "Validate Files:         " + this.fileValidation + "\n";
+			debug_info += "File Types String:      " + this.fileTypes + "\n";
+			debug_info += "Parsed File Types:      " + this.valid_file_extensions.toString() + "\n";
+			debug_info += "File Types Description: " + this.fileTypesDescription + "\n";
+			debug_info += "File Size Limit:        " + this.fileSizeLimit + "\n";
+			debug_info += "File Upload Limit:      " + this.fileUploadLimit + "\n";
+			debug_info += "File Queue Limit:       " + this.fileQueueLimit + "\n";
+			debug_info += "----- END SWF DEBUG OUTPUT ----\n";
+
+			this.Debug(debug_info);
+		}
+
+		private function FindIndexInFileQueue(file_id:String):Number {
+			for (var i:Number = 0; i<this.file_queue.length; i++) {
+				var item:FileItem = this.file_queue[i];
+				if (item != null && item.id == file_id) return i;
+			}
+
 			return -1;
-		} else if (this.fileSizeLimit != 0 && file_item.file_reference.size > (this.fileSizeLimit * 1000)) {
-			return 1;
-		} else {
-			return 0;
 		}
-	}
+		
+		// Parse the file extensions in to an array so we can validate them agains
+		// the files selected later.
+		private function LoadFileExensions(filetypes:String):void {
+			var extensions:Array = filetypes.split(";");
 
-	function Debug(msg:String):Void {
-		if (this.debugEnabled) {
-			var lines:Array = msg.split("\n");
-			for (var i:Number=0; i < lines.length; i++) {
-				lines[i] = "SWF DEBUG: " + lines[i];
+			for (var i:Number=0; i < extensions.length; i++) {
+				var extension:String = String(extensions[i]);
+				var dot_index:Number = extension.lastIndexOf(".");
+				
+				if (dot_index >= 0) {
+					extension = extension.substr(dot_index + 1).toLowerCase();
+				} else {
+					extension = extension.toLowerCase();
+				}
+				
+				// If one of the extensions is * then we allow all files
+				if (extension == "*") {
+					this.valid_file_extensions = new Array();
+					break;
+				}
+				
+				this.valid_file_extensions.push(extension);
 			}
-			ExternalInterface.call(this.debug_Callback, lines.join("\n"));
-		}
-	}
-
-	function PrintDebugInfo():Void {
-		var debug_info:String = "\n----- SWF DEBUG OUTPUT ----\n";
-		debug_info += "ControlID:              " + this.controlID + "\n";
-		debug_info += "Upload Target URL:      " + this.uploadTargetURL + "\n";
-		debug_info += "Upload Query String:    " + this.uploadQueryString + "\n";
-		debug_info += "Begin Upload on Queue:  " + this.beginUploadOnQueue + "\n";
-		debug_info += "File Types:             " + this.fileTypes + "\n";
-		debug_info += "File Types Description: " + this.fileTypesDescription + "\n";
-		debug_info += "File Size Limit:        " + this.fileSizeLimit + "\n";
-		debug_info += "File Upload Limit:      " + this.fileUploadLimit + "\n";
-		debug_info += "File Queue Limit:       " + this.fileQueueLimit + "\n";
-		debug_info += "----- END SWF DEBUG OUTPUT ----\n";
-
-		this.Debug(debug_info);
-	}
-
-	function FindIndexInFileQueue(file_id:String):Number {
-		for (var i:Number = 0; i<this.file_queue.length; i++) {
-			if (FileItem(this.file_queue[i]).id == file_id) return i;
 		}
 
-		return null;
 	}
-
 }

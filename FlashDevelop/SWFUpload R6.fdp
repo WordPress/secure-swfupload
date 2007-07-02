@@ -16,17 +16,17 @@
   </output>
   <!-- Build options -->
   <build>
-    <option verbose="False" />
+    <option verbose="True" />
     <option strict="True" />
     <option infer="False" />
     <option useMain="True" />
     <option useMX="False" />
     <option warnUnusedImports="True" />
-    <option traceMode="Disable" />
+    <option traceMode="FlashOut" />
     <option traceFunction="" />
     <option libraryPrefix="" />
     <option excludeFile="" />
-    <option groupClasses="False" />
+    <option groupClasses="True" />
     <option frame="1" />
     <option keep="False" />
   </build>
@@ -48,7 +48,7 @@
   <postBuildCommand alwaysRun="False" />
   <!-- Other project options -->
   <options>
-    <option showHiddenPaths="False" />
+    <option showHiddenPaths="True" />
     <option testMovie="NewTab" />
   </options>
 </project>
