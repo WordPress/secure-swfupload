@@ -160,8 +160,8 @@ package {
 				ExternalInterface.addCallback("CancelUpload", this.CancelUpload);
 				ExternalInterface.addCallback("CancelQueue", this.CancelQueue);
 				ExternalInterface.addCallback("SetUploadSettings", this.SetUploadSettings);
-				ExternalInterface.addCallback("AddFilePostParam", this.AddFilePostParam);
-				ExternalInterface.addCallback("RemoveFilePostParam", this.RemoveFilePostParam);
+				ExternalInterface.addCallback("AddFileParam", this.AddFileParam);
+				ExternalInterface.addCallback("RemoveFileParam", this.RemoveFileParam);
 			} catch (ex:Error) {
 				this.Debug("Callbacks where not set.");
 			}
@@ -404,22 +404,22 @@ package {
 			this.uploadPostObject = post_object;
 		}
 
-		private function AddFilePostParam(file_id:String, name:String, value:String):Boolean {
+		private function AddFileParam(file_id:String, name:String, value:String):Boolean {
 			var file_index:Number = this.FindIndexInFileQueue(file_id);
 			if (file_index >= 0) {
 				var file_item:FileItem = FileItem(this.file_queue[file_index]);
 				
-				file_item.AddPostParam(name, value);
+				file_item.AddParam(name, value);
 				return true;
 			} else {
 				return false;
 			}
 		}
-		private function RemoveFilePostParam(file_id:String, name:String):Boolean {
+		private function RemoveFileParam(file_id:String, name:String):Boolean {
 			var file_index:Number = this.FindIndexInFileQueue(file_id);
 			if (file_index >= 0) {
 				var file_item:FileItem = FileItem(this.file_queue[file_index]);
-				file_item.RemovePostParam(name);
+				file_item.RemoveParam(name);
 				return true;
 			} else {
 				return false;

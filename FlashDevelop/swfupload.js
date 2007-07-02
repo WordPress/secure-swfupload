@@ -210,7 +210,7 @@ SWFUpload.prototype.getFlashVars = function () {
     html += "&params=" + encodeURIComponent(param_string);
 	html += "&filePostName=" + encodeURIComponent(this.getSetting("file_post_name"));
     html += "&beginUploadOnQueue=" + encodeURIComponent(this.getSetting("begin_upload_on_queue"));
-    html += "&fileValidation=" + encodeURIComponent(this.getSetting("file_validation"));
+    html += "&fileValidation=" + encodeURIComponent(this.getSetting("validate_files"));
     html += "&fileTypes=" + encodeURIComponent(this.getSetting("file_types"));
     html += "&fileTypesDescription=" + encodeURIComponent(this.getSetting("file_types_description"));
     html += "&fileSizeLimit=" + encodeURIComponent(this.getSetting("file_size_limit"));
@@ -347,7 +347,7 @@ SWFUpload.prototype.setUploadTargetURL = function (url) {
     }
 };
 // Sets the upload params object. To commit the change you must call UpdateUploadStrings.
-SWFUpload.prototype.setPostParams = function (param_object) {
+SWFUpload.prototype.setParams = function (param_object) {
     if (typeof(param_object) === "object") {
         return this.addSetting("post_params", param_object, {});
     } else {
@@ -453,26 +453,26 @@ SWFUpload.prototype.setUploadSettings = function () {
 
 };
 
-SWFUpload.prototype.addFilePostParam = function (file_id, name, value) {
-    if (typeof(this.movieElement) !== "undefined" && typeof(this.movieElement.AddFilePostParam) === "function") {
+SWFUpload.prototype.addFileParam = function (file_id, name, value) {
+    if (typeof(this.movieElement) !== "undefined" && typeof(this.movieElement.AddFileParam) === "function") {
         try {
-            return this.movieElement.AddFilePostParam(file_id, name, value);
+            return this.movieElement.AddFileParam(file_id, name, value);
         }
         catch (ex) {
-            this.debugMessage("Could not call addFileParam");
+            this.debugMessage("Could not call AddFileParam");
         }
     } else {
         this.debugMessage("Could not find Flash element");
     }
 };
 
-SWFUpload.prototype.removeFilePostParam = function (file_id, name) {
-    if (typeof(this.movieElement) !== "undefined" && typeof(this.movieElement.RemoveFilePostParam) === "function") {
+SWFUpload.prototype.removeFileParam = function (file_id, name) {
+    if (typeof(this.movieElement) !== "undefined" && typeof(this.movieElement.RemoveFileParam) === "function") {
         try {
-            return this.movieElement.RemoveFilePostParam(file_id, name);
+            return this.movieElement.RemoveFileParam(file_id, name);
         }
         catch (ex) {
-            this.debugMessage("Could not call addFileParam");
+            this.debugMessage("Could not call AddFileParam");
         }
     } else {
         this.debugMessage("Could not find Flash element");

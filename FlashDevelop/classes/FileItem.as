@@ -17,11 +17,11 @@ package {
 			
 		}
 		
-		public function AddPostParam(name:String, value:String):void {
+		public function AddParam(name:String, value:String):void {
 			this.postObject[name] = value;
 		}
 		
-		public function RemovePostParam(name:String):void {
+		public function RemoveParam(name:String):void {
 			delete this.postObject[name];
 		}
 		
