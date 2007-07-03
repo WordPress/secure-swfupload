@@ -147,16 +147,20 @@ SWFUpload.prototype.loadFlash = function () {
         return false;
     }
 
-    target_element.appendChild(container);
-
+	// Prepare the flash and DOM to be loaded into the document
+	// Note: this.movieElement must be set before adding the flash to the document or you can experience a race
+	// condition where the flash loads so fast that when it calls back this.movieName hasn't been assigned yet and you
+	// get an error.
+	
     container.innerHTML = html;	// Using innerHTML is non-standard but well supported and is easier than building a DOM object for the embed/object tags
-
-    this.movieElement = document.getElementById(this.movieName);    // Save a reference to the flash node so we can make calls to it.
-
+    this.movieElement = container.firstChild;    // Save a reference to the flash node so we can make calls to it.
     // Fix IEs "Flash can't callback when in a form" issue (http://www.extremefx.com.ar/blog/fixing-flash-external-interface-inside-form-on-internet-explorer)
     if (typeof(window[this.movieName]) === "undefined" || window[this.moveName] !== this.movieElement) {
         window[this.movieName] = this.movieElement;
     }
+
+	// Add the flash to the document
+    target_element.appendChild(container);
 	
 };
 
