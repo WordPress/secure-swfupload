@@ -1,10 +1,18 @@
- * SWFUpload 0.8.3 Revision 5.2 by Jacob Roberts, April 2007, linebyline.blogspot.com
- * -------- -------- -------- -------- -------- -------- -------- --------
- * SWFUpload 0.7: Flash upload dialog - http://profandesign.se/swfupload/
- * SWFUpload is (c) 2006 Lars Huring and Mammon Media and is released under the MIT License:
- * http://www.opensource.org/licenses/mit-license.php
- * -------- -------- -------- -------- -------- -------- -------- --------
+ * SWFUpload 0.8.3 Revision 6 by Jacob Roberts, July 2007, linebyline.blogspot.com
 
+ * --------- Revision 6 -----------
+ * + Ported to ActionScript 3.  Revision 6 requires Flash Player 9.
+ * = Fixed bug caused when cancelling single files. Would break any function that searched for a file_id.
+ * - Removed the automatic cookie sending setting. Devs should just pass the value they want to send in the post_params
+ * - Removed the query params settings (global and file specific).  All params should be sent in the post_params
+ * + Added post_params which adds post values to the file upload post.
+ * + Added validate_files setting flag which causes the fileValidation event to be called before each file is uploaded.
+ * + Added fileValidation event. Return false if validation fails and true if validation is successful.
+ * + Added server_data parameter to the fileComplete event which returns any text that the upload script returns.
+ * = Updated all demos to work with Revision 6
+ * + Added in-code file extension validation.  Before a file is queued the extension is checked against the valid extensions.
+ *     Files the have invalid extensions cause the error event to be raised.
+ * + Added 'file_post_name' setting that allows the post variable name containing the file data to be named something other than 'Filedata'
 
  * --------- Revision 5.2 -----------
  * = A little more code cleaning and variable renaming
@@ -16,6 +24,7 @@
  * + Added per file query_string params
  * + Added files queued limit.  Sometimes you may want the user to only queue one file at a time (or something)
  * + Fixed limits so a zero(0) value means unlimited.
+ 
  * --------- Revision 5 -------------
  * = More code cleaning.  Ported SWF to FlashDevelop. (Since my Flash Studio trial expired)
  *    The port to FlashDevelop is a big deal.  It significantly changes the code structure
@@ -38,6 +47,7 @@
  * + Added SetUploadTargetURL function that allows you to "dynamically" change the upload target
  * + Added error code for zero byte file uploads which always return an IO error. The files are now rejected
  *    instead of being uploaded.
+ 
  * --------- Revision 4 -------------
  * = Cleaned up code.  Added comments. Reorganized. Added more try..catches. Removed old unused methods.
  * - Removed the 'create_ui' setting.  The UI is now completely up to the developer.
@@ -75,8 +85,13 @@
  *        = This fixes ASP.Net not allowing the flash to be added to the Form
  * + Added error checking to the callSWF method
  *
- *
- *
+
+
+ * -------- -------- -------- -------- -------- -------- -------- --------
+ * SWFUpload 0.7: Flash upload dialog - http://profandesign.se/swfupload/
+ * SWFUpload is (c) 2006 Lars Huring and Mammon Media and is released under the MIT License:
+ * http://www.opensource.org/licenses/mit-license.php
+ * -------- -------- -------- -------- -------- -------- -------- --------
 
  * SWFUpload 0.7: Flash upload dialog - http://profandesign.se/swfupload/
  *
