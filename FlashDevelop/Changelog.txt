@@ -13,6 +13,7 @@
  * + Added in-code file extension validation.  Before a file is queued the extension is checked against the valid extensions.
  *     Files the have invalid extensions cause the error event to be raised.
  * + Added 'file_post_name' setting that allows the post variable name containing the file data to be named something other than 'Filedata'
+ * = Fixed a race condition in loadFlash where a cached flash movie would execute before this.movieElement could be assigned and loading would fail.
 
  * --------- Revision 5.2 -----------
  * = A little more code cleaning and variable renaming
