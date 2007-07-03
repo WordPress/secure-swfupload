@@ -23,7 +23,7 @@ function uploadProgress(fileObj, bytesLoaded) {
 	} catch (ex) { this.debugMessage(ex); }
 }
 
-function uploadComplete(fileObj) {
+function uploadComplete(fileObj, server_data) {
 	try {
 
 
@@ -104,6 +104,10 @@ function uploadError(error_code, fileObj, message) {
 			case SWFUpload.ERROR_CODE_UPLOAD_LIMIT_EXCEEDED:
 				progress.SetStatus("Upload limit exceeded.");
 				this.debugMessage("Error Code: Upload Limit Exceeded, File name: " + file.name + ", File size: " + file.size + ", Message: " + message);
+				break;
+			case SWFUpload.ERROR_CODE_INVALID_FILETYPE:
+				progress.SetStatus("Invalid File Type.");
+				this.debugMessage("Error Code: Invalid File Type, File name: " + file.name + ", File size: " + file.size + ", Message: " + message);
 				break;
 			default:
 				progress.SetStatus("Unhandled Error");

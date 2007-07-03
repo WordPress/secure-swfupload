@@ -26,7 +26,7 @@ function fileProgress(fileObj, bytesLoaded) {
 	} catch (ex) { this.debugMessage(ex); }
 }
 
-function fileComplete(fileObj) {
+function fileComplete(fileObj, server_data) {
 	try {
 		AddImage("thumbnail.php?id=" + fileObj.id + "&rnd=" + Math.floor(Math.random()*1000000));
 

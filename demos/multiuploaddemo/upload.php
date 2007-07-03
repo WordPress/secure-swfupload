@@ -1,5 +1,5 @@
 <?php
-	$session_id = isset($_GET["PHPSESSID"]) ? $_GET["PHPSESSID"] : false;
+	$session_id = isset($_POST["PHPSESSID"]) ? $_POST["PHPSESSID"] : false;
 	if ($session_id) {
 		session_id($session_id);
 	}
@@ -19,7 +19,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" >
 <head>
-    <title>SWFUpload Revision 5 Demo</title>
+    <title>SWFUpload Revision 6 Demo</title>
 </head>
 <body>
 	<p>Upload Page</p>

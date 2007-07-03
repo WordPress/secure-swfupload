@@ -5,10 +5,10 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" >
 <head>
-    <title>SWFUpload Revision 5 Demo</title>
+    <title>SWFUpload Revision 6 Demo</title>
 
 	<link href="../css/default.css" rel="stylesheet" type="text/css" />
-	<script type="text/javascript" src="../swfuploadr52_0002/swfupload.js"></script>
+	<script type="text/javascript" src="../swfuploadr6_0011/swfupload.js"></script>
 	<script type="text/javascript" src="js/handlers.js"></script>
 	<script type="text/javascript">
 		var swf_upload_control;
@@ -17,7 +17,8 @@
             swf_upload_control = new SWFUpload({
 				// Backend settings
 				upload_target_url: "../formsdemo/upload.php",	// Relative to the SWF file
-				upload_cookies: ["PHPSESSID"],
+				file_post_name: "resume_file",
+				post_params: { "PHPSESSID" : "<?php echo session_id(); ?>"},
 
 				// Flash file settings
 				file_size_limit : "10240",	// 10 MB
@@ -26,9 +27,11 @@
 				file_upload_limit : "1",
 				//file_queue_limit : "1", // this isn't needed because the upload_limit will automatically place a queue limit
 				begin_upload_on_queue : false,
+				validate_files: false,
 
 				// Event handler settings
 				file_queued_handler : fileQueued,
+				file_validation_handler : fileValidation,
 				file_progress_handler : fileProgress,
 				file_cancelled_handler : uploadCancelled,
 				file_complete_handler : fileComplete,
@@ -37,7 +40,7 @@
 
 				// Flash Settings
 				flash_container_element : "flashContainer",
-				flash_url : "../swfuploadr52_0002/swfupload.swf",	// Relative to this file
+				flash_url : "../swfuploadr6_0011/swfupload.swf",	// Relative to this file
 
 				// UI settings
                 ui_function: myShowUI,
@@ -83,7 +86,7 @@
 
 </head>
 <body>
-	<div class="title"><a class="likeParent" href="../index.php">SWFUpload (Revision 5) Classic Form Demo</a></div>
+	<div class="title"><a class="likeParent" href="../index.php">SWFUpload (Revision 6) Classic Form Demo</a></div>
 
 	<form id="form1" action="thanks.php" enctype="multipart/form-data" method="post">
 		<div class="content">

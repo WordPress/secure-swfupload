@@ -53,7 +53,7 @@
 
 </head>
 <body>
-	<div id="title" class="title"><a class="likeParent" href="../index.php">SWFUpload (Revision 5) Application Demo</a></div>
+	<div id="title" class="title"><a class="likeParent" href="../index.php">SWFUpload (Revision 6) Application Demo</a></div>
 	<div id="swfu_container" style="display: none; margin: 0px 10px;">
 		<div>
 			<form>

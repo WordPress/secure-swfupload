@@ -1,18 +1,19 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <?php
 	session_start();
-	$upload_path = str_replace("\\", "/", realpath(dirname($_SERVER['SCRIPT_FILENAME']))) . "/uploads/";
+
 	if (count($_FILES)) {
-        // Handle degraded form uploads here
+        // Handle degraded form uploads here.  Degraded form uploads are POSTed to index.php.  SWFUpload uploads
+		// are POSTed to upload.php
 	}
 
 ?>
 <html xmlns="http://www.w3.org/1999/xhtml" >
 <head>
-    <title>SWFUpload Revision 5 Demo</title>
+    <title>SWFUpload Revision 6 Demo</title>
 
 	<link href="../css/default.css" rel="stylesheet" type="text/css" />
-	<script type="text/javascript" src="../swfuploadr52_0002/swfupload.js"></script>
+	<script type="text/javascript" src="../swfuploadr6_0011/swfupload.js"></script>
 	<script type="text/javascript" src="js/handlers.js"></script>
 	<script type="text/javascript">
 		var upload1, upload2;
@@ -21,8 +22,7 @@
 			upload1 = new SWFUpload({
 				// Backend Settings
 				upload_target_url: "../multiuploaddemo/upload.php",	// Relative to the SWF file
-				upload_cookies: ["PHPSESSID"],
-				upload_params: { test_param: "this is it & this is it \" ' http://www.yahoo.com\\" },
+				post_params: {"PHPSESSID" : "<?php echo session_id(); ?>"},
 
 				// File Upload Settings
 				file_size_limit : "102400",	// 100MB
@@ -41,7 +41,7 @@
 				error_handler : uploadError,
 
 				// Flash Settings
-				flash_url : "../swfuploadr52_0002/swfupload.swf",	// Relative to this file
+				flash_url : "../swfuploadr6_0011/swfupload.swf",	// Relative to this file
 
 				// UI Settings
 				ui_container_id : "flashUI1",
@@ -55,8 +55,7 @@
 			upload2 = new SWFUpload({
 				// Backend Settings
 				upload_target_url: "../multiuploaddemo/upload.php",	// Relative to the SWF file
-				upload_cookies: ["PHPSESSID"],
-				upload_params: { test_param: "none&bob=john", test_param2: "this is test param 2" },
+				post_params: {"PHPSESSID" : "<?php echo session_id(); ?>"},
 
 				// File Upload Settings
 				file_size_limit : "100",	// 100 kb
@@ -75,7 +74,7 @@
 				error_handler : uploadError,
 
 				// Flash Settings
-				flash_url : "../swfuploadr52_0002/swfupload.swf",	// Relative to this file
+				flash_url : "../swfuploadr6_0011/swfupload.swf",	// Relative to this file
 
 				// UI Settings
 				ui_container_id : "flashUI2",
@@ -91,7 +90,7 @@
 
 </head>
 <body>
-	<div class="title"><a class="likeParent" href="../index.php">SWFUpload (Revision 5) Multi-Upload Demo</a></div>
+	<div class="title"><a class="likeParent" href="../index.php">SWFUpload (Revision 6) Multi-Upload Demo</a></div>
 	<form id="form1" action="index.php" method="post" enctype="multipart/form-data">
 		<div class="content">
 			<table>

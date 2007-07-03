@@ -6,6 +6,12 @@ function fileBrowse() {
 	this.browse();
 }
 
+function fileValidation(fileObj) {
+	// Validation is disabled in this demo, but if it were enabled
+	// all files would validate because this returns true
+	return true;
+}
+
 function fileQueued(fileObj) {
 	try {
 		var txtFileName = document.getElementById("txtFileName");
@@ -25,7 +31,7 @@ function fileProgress(fileObj, bytesLoaded) {
 	} catch (e) { /*Console.Writeln("Upload Progress: " + fileObj.name + " " + percent);*/ }
 }
 
-function fileComplete(fileObj) {
+function fileComplete(fileObj, server_data) {
 	try {
 
 
@@ -86,6 +92,11 @@ function uploadError(error_code, fileObj, message) {
 			case SWFUpload.ERROR_CODE_UPLOAD_LIMIT_EXCEEDED:
 				alert("You may only upload 1 file.");
 				this.debugMessage("Error Code: Upload Limit Exceeded, File name: " + file.name + ", File size: " + file.size + ", Message: " + message);
+				return;
+				break;
+			case SWFUpload.ERROR_CODE_INVALID_FILETYPE:
+				alert("The file you choose is not an allowed file type.");
+				this.debugMessage("Error Code: Invalid File Type, File name: " + file.name + ", File size: " + file.size + ", Message: " + message);
 				return;
 				break;
 			default:

@@ -10,7 +10,7 @@
 
 </head>
 <body>
-	<div class="title">SWFUpload (Revision 5) Demos</div>
+	<div class="title">SWFUpload (Revision 6) Demos</div>
 
 	<form action="upload.php" method="post" enctype="multipart/form-data">
 		<input type="hidden" id="PHPSESSID" value="<?php echo session_id(); ?>" />
