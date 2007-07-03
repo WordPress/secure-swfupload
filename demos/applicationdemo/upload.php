@@ -1,9 +1,9 @@
 <?php
 	$php_session_id = isset($_POST["PHPSESSID"]) ? $_POST["PHPSESSID"] : false;
-	$file_id = isset($_POST["file_id"]) ? $_POST["file_id"] : false;
-	if ($php_session_id === false || $file_id === false) {
+
+	if ($php_session_id === false) {
 		header("HTTP/1.0 500 Internal Server Error");
-		echo "Could not find session or file id";
+		echo "Could not find session";
 		exit(0);
 	}
 
@@ -72,7 +72,9 @@
 	$imagevariable = ob_get_contents();
 	ob_end_clean();
 
+	$file_id = md5($_FILES["Filedata"]["tmp_name"] + rand()*100000);
+	
 	$_SESSION["file_info"][$file_id] = $imagevariable;
 
+	echo $file_id;	// Return the file id to the script
 ?>
-<p>Thumbnail Upload Page</p>

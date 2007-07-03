@@ -1,9 +1,5 @@
 function fileQueued(fileObj) {
 	try {
-		this.addFileParam(fileObj.id, "file_id", fileObj.id);
-		//var progress = new FileProgress(fileObj, this.getSetting("upload_target"));
-		//progress.SetStatus("Uploading...");
-		//progress.ToggleCancel(true, this);
 
 	} catch (ex) { this.debugMessage(ex); }
 
@@ -28,7 +24,9 @@ function fileProgress(fileObj, bytesLoaded) {
 
 function fileComplete(fileObj, server_data) {
 	try {
-		AddImage("thumbnail.php?id=" + fileObj.id + "&rnd=" + Math.floor(Math.random()*1000000));
+		// upload.php returns the thumbnail id in the server_data, use that to retrieve the thumbnail for display
+		
+		AddImage("thumbnail.php?id=" + server_data);
 
 		var progress = new FileProgress(fileObj,  this.getSetting("upload_target"));
 		//progress.SetComplete();
