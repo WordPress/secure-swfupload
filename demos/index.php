@@ -20,10 +20,10 @@
 	</ul>
 	
 	<ul>
-		<li><a href="http://linebyline.blogspot.com">Revision 5 developed by Jake Roberts</a></li>
+		<li><a href="http://linebyline.blogspot.com">Revision 6 developed by Jake Roberts</a></li>
 		<li><a href="http://swfupload.mammon.se">Original SWFUpload Website</a></li>
-		<li><a href="swfupload_vr52.zip">Download the Revision 5.2 Source and Demos</a></li>
-		<li><a href="swfupload_vr52.applicationdemo.asp.net.2.0.zip">Download the Revision 5.2 &quot;Application Demo&quot; for ASP.Net 2.0</a></li>
+		<li><a href="swfupload_vr6.zip">Download the Revision 6 Source and Demos</a></li>
+		<li><a href="swfupload_vr6.applicationdemo.asp.net.2.0.zip">Download the Revision 6 &quot;Application Demo&quot; for ASP.Net 2.0</a></li>
 	</ul>
 </body>
 </html>
