@@ -2,10 +2,11 @@
 
  * --------- Revision 6 -----------
  * - Removed the call to setUploadSettings in flashReady.  This was a left over call that is unnecessary.
+ * + Finished the parsing of post params during the init stage. This ommision was hidden by the call to setUploadSettings.
  * - Removed the flash_target_id setting.  The Flash file should only ever be added to the body tag.
  * + Fixed (hopefully for good) another SWF race condition.  IE executes the SWF very very early.  The this.movieElement value should never be referenced.
  *     The movie Element should always be retrieved using this.getMovieElement().
-
+ 
  * --------- Revision 6 -----------
  * + Ported to ActionScript 3.  Revision 6 requires Flash Player 9.
  * = Fixed bug caused when cancelling single files. Would break any function that searched for a file_id.
