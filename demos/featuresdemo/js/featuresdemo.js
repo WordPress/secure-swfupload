@@ -244,7 +244,7 @@ var FeaturesDemo = {
 	updateDynamicSettings: function() {
 		// Build the param object
 		var params = FeaturesDemo.getParamsObject();
-		if (!FeaturesDemo.SU.setPostParams(params)) {
+		if (!FeaturesDemo.SU.setParams(params)) {
 			alert("Could not set post params.");
 			return;
 		}
