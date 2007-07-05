@@ -39,7 +39,6 @@
 				error_handler : uploadError,
 
 				// Flash Settings
-				flash_container_element : "flashContainer",
 				flash_url : "../swfuploadr6_0011/swfupload.swf",	// Relative to this file
 
 				// UI settings
@@ -138,7 +137,6 @@
 								hidden and the "flashUI" will be shown -->
 								<input type="file" name="resume_degraded" id="resume_degraded" /> (10 MB max)<br/>
 							</div>
-							<div id="flashContainer"><!-- This is where the flash embed/object tag will go once SWFUpload has loaded --></div>
 						</td>
 					</tr>
 					<tr>

@@ -38,7 +38,6 @@
 
 				// Flash Settings
 				flash_url : "../swfuploadr6_0011/swfupload.swf",	// Relative to this file
-				flash_container_id : "theflashgohere",
 
 				// UI Settings
 				ui_container_id : "swfu_container",
@@ -73,6 +72,5 @@
 	<div id="degraded_container">
 		SWFUpload has not loaded.  It may take a few moments.  SWFUpload requires JavaScript and Flash Player 8 or later.
 	</div>
-	<div id="theflashgohere"></div>
 </body>
 </html>
