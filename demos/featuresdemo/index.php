@@ -266,12 +266,6 @@
 								</table>
 							</fieldset>
 							<fieldset>
-								<legend>Debug</legend>
-								<div>
-									<textarea id="SWFUpload_Console" wrap="off"></textarea>
-								</div>
-							</fieldset>
-							<fieldset>
 								<legend>Server Data</legend>
 								<div id="divServerData"></div>
 							</fieldset>
@@ -283,6 +277,12 @@
 				This demo requires JavaScript and Flash Player 8 or higher.  If your browser meets these requirements and SWFUpload has not loaded please report a bug.
 			</div>
 		</div>
+							<fieldset>
+								<legend>Debug</legend>
+								<div>
+									<textarea id="SWFUpload_Console" wrap="off"></textarea>
+								</div>
+							</fieldset>
 	</form>
 </body>
 </html>

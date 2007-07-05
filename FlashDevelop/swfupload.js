@@ -98,7 +98,6 @@ SWFUpload.prototype.initSettings = function (init_settings) {
 
     // Flash Settings
     this.addSetting("flash_url",          init_settings.flash_url,          "swfupload.swf");
-    this.addSetting("flash_container_id", init_settings.flash_container_id, "");
     this.addSetting("flash_width",        init_settings.flash_width,        "1px");
     this.addSetting("flash_height",       init_settings.flash_height,       "1px");
     this.addSetting("flash_color",        init_settings.flash_color,        "#FFFFFF");
@@ -125,48 +124,32 @@ SWFUpload.prototype.initSettings = function (init_settings) {
 // It then adds the flash to the "target" or to the body and stores a
 // reference to the flash element in "movieElement".
 SWFUpload.prototype.loadFlash = function () {
-    var html, container, target_element, flash_container_id;
-    html = this.getFlashHTML();
+    var html, target_element, container;
 
-    // Build the DOM nodes to hold the flash;
-    container = document.createElement("div");
-    container.style.width = this.getSetting("flash_width");
-    container.style.height = this.getSetting("flash_height");
-
-    flash_container_id = this.getSetting("flash_container_id");
-    if (typeof(flash_container_id) === "string" && flash_container_id !== "") {
-        target_element = document.getElementById(flash_container_id);
-    }
-    // If the target wasn't found use the "BODY" element
-    if (typeof(target_element) === "undefined" || target_element === null) {
-        target_element = document.getElementsByTagName("body")[0];
-    }
-    // If all else fails then give up
+	// Make sure an element with the ID we are going to use doesn't already exist
+	if (document.getElementById(this.movieName) !== null) {
+		return false;
+	}
+		
+	// Get the body tag where we will be adding the flash movie
+	target_element = document.getElementsByTagName("body")[0];
     if (typeof(target_element) === "undefined" || target_element === null) {
         this.debugMessage('Could not find an element to add the Flash too. Failed to find element for "flash_container_id" or the BODY element.');
         return false;
     }
 
-	// Prepare the flash and DOM to be loaded into the document
-	// Note: this.movieElement must be set before adding the flash to the document or you can experience a race
-	// condition where the flash loads so fast that when it calls back this.movieName hasn't been assigned yet and you
-	// get an error.
+	// Append the container and load the flash
+	container = document.createElement("div");
+	container.style.width = this.getSetting("flash_width");
+	container.style.height = this.getSetting("flash_height");
 	
-    container.innerHTML = html;	// Using innerHTML is non-standard but well supported and is easier than building a DOM object for the embed/object tags
-    this.movieElement = container.firstChild;    // Save a reference to the flash node so we can make calls to it.
-    // Fix IEs "Flash can't callback when in a form" issue (http://www.extremefx.com.ar/blog/fixing-flash-external-interface-inside-form-on-internet-explorer)
-    if (typeof(window[this.movieName]) === "undefined" || window[this.moveName] !== this.movieElement) {
-        window[this.movieName] = this.movieElement;
-    }
-
-	// Add the flash to the document
-    target_element.appendChild(container);
-	
+	target_element.appendChild(container);
+	container.innerHTML = this.getFlashHTML();	// Using innerHTML is non-standard but the only sensible way to dynamically add Flash in IE (and maybe other browsers)
 };
 
 // Generates the embed/object tags needed to embed the flash in to the document
 SWFUpload.prototype.getFlashHTML = function () {
-    var html = "";
+	var html = "";
 
     // Create Mozilla Embed HTML
     if (navigator.plugins && navigator.mimeTypes && navigator.mimeTypes.length) {
@@ -179,10 +162,10 @@ SWFUpload.prototype.getFlashHTML = function () {
 
         html += '" />';
 
-    // Create IE Object HTML
+		// Create IE Object HTML
     } else {
 
-        // Build the basic Object tag
+		// Build the basic Object tag
         html = '<object id="' + this.movieName + '" classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000" width="' + this.getSetting("flash_width") + '" height="' + this.getSetting("flash_height") + '">';
         html += '<param name="movie" value="' + this.getSetting("flash_url") + '">';
 
@@ -190,12 +173,9 @@ SWFUpload.prototype.getFlashHTML = function () {
         html += '<param name="quality" value="high" />';
         html += '<param name="menu" value="false" />';
 
-        html += '<param name="flashvars" value="';
-
-        html += this.getFlashVars();
-
-        html += '" /></object>';
-    }
+        html += '<param name="flashvars" value="' + this.getFlashVars() + '" />';
+		html += '</object>';
+	}
 
     return html;
 };
@@ -224,6 +204,20 @@ SWFUpload.prototype.getFlashVars = function () {
 
     return html;
 };
+
+SWFUpload.prototype.getMovieElement = function () {
+	if (typeof(this.movieElement) === "undefined" || this.movieElement === null) {
+		this.movieElement = document.getElementById(this.movieName);
+		
+		// Fix IEs "Flash can't callback when in a form" issue (http://www.extremefx.com.ar/blog/fixing-flash-external-interface-inside-form-on-internet-explorer)
+		// Removed because Revision 6 always adds the flash to the body (inside a containing div)
+		//if (typeof(window[this.movieName]) === "undefined" || window[this.moveName] !== this.movieElement) {
+		//	window[this.movieName] = this.movieElement;
+		//}
+	}
+	
+	return this.movieElement;	
+}
 
 SWFUpload.prototype.buildParamString = function () {
     var post_params = this.getSetting("post_params");
@@ -310,7 +304,7 @@ SWFUpload.prototype.retrieveSetting = function (value, default_value) {
 SWFUpload.prototype.displayDebugInfo = function () {
     var key, debug_message = "";
 
-    debug_message += "----- DEBUG OUTPUT ----\nID: " + this.movieElement.id + "\n";
+    debug_message += "----- DEBUG OUTPUT ----\nID: " + this.getMovieElement().id + "\n";
 
 	debug_message += this.outputObject(this.settings);
 	
@@ -366,9 +360,10 @@ SWFUpload.prototype.setParams = function (param_object) {
    ***************************** */
 
 SWFUpload.prototype.browse = function () {
-    if (typeof(this.movieElement) !== "undefined" && typeof(this.movieElement.Browse) === "function") {
+    var movie_element = this.getMovieElement();
+	if (movie_element !== null && typeof(movie_element.Browse) === "function") {
         try {
-            this.movieElement.Browse();
+            movie_element.Browse();
         }
         catch (ex) {
             this.debugMessage("Could not call browse: " + ex);
@@ -383,9 +378,10 @@ SWFUpload.prototype.browse = function () {
 // The file_id is optional.  If specified only that file will be uploaded.  If not specified SWFUpload will
 // begin to process the queue.
 SWFUpload.prototype.startUpload = function (file_id) {
-    if (typeof(this.movieElement) !== "undefined" && typeof(this.movieElement.StartUpload) === "function") {
+    var movie_element = this.getMovieElement();
+    if (movie_element !== null && typeof(movie_element.StartUpload) === "function") {
         try {
-            this.movieElement.StartUpload(file_id);
+            movie_element.StartUpload(file_id);
         }
         catch (ex) {
             this.debugMessage("Could not call StartUpload: " + ex);
@@ -398,9 +394,10 @@ SWFUpload.prototype.startUpload = function (file_id) {
 
 // Cancels the current uploading item.  If no item is uploading then nothing happens.
 SWFUpload.prototype.cancelUpload = function (file_id) {
-    if (typeof(this.movieElement) !== "undefined" && typeof(this.movieElement.CancelUpload) === "function") {
+    var movie_element = this.getMovieElement();
+    if (movie_element !== null && typeof(movie_element.CancelUpload) === "function") {
         try {
-            this.movieElement.CancelUpload(file_id);
+            movie_element.CancelUpload(file_id);
         }
         catch (ex) {
             this.debugMessage("Could not call CancelUpload");
@@ -413,9 +410,10 @@ SWFUpload.prototype.cancelUpload = function (file_id) {
 
 // Cancels all the files in the queue.  Including any current uploads.
 SWFUpload.prototype.cancelQueue = function () {
-    if (typeof(this.movieElement) !== "undefined" && typeof(this.movieElement.CancelQueue) === "function") {
+    var movie_element = this.getMovieElement();
+    if (movie_element !== null && typeof(movie_element.CancelQueue) === "function") {
         try {
-            this.movieElement.CancelQueue();
+            movie_element.CancelQueue();
         }
         catch (ex) {
             this.debugMessage("Could not call CancelQueue");
@@ -428,9 +426,10 @@ SWFUpload.prototype.cancelQueue = function () {
 
 // Stops the current upload.  The file is re-queued.  If nothing is currently uploading then nothing happens.
 SWFUpload.prototype.stopUpload = function () {
-    if (typeof(this.movieElement) !== "undefined" && typeof(this.movieElement.StopUpload) === "function") {
+    var movie_element = this.getMovieElement();
+    if (movie_element !== null && typeof(movie_element.StopUpload) === "function") {
         try {
-            this.movieElement.StopUpload();
+            movie_element.StopUpload();
         }
         catch (ex) {
             this.debugMessage("Could not call StopUpload");
@@ -444,9 +443,10 @@ SWFUpload.prototype.stopUpload = function () {
 // Updates the upload url and post parameters in the Flash Movie
 // This must be called in order for changes made to the upload_target_url and post_params to take effect.
 SWFUpload.prototype.setUploadSettings = function () {
-    if (typeof(this.movieElement) !== "undefined" && typeof(this.movieElement.SetUploadSettings) === "function") {
+    var movie_element = this.getMovieElement();
+    if (movie_element !== null && typeof(movie_element.SetUploadSettings) === "function") {
         try {
-            this.movieElement.SetUploadSettings(this.getSetting("upload_target_url"), this.getSetting("post_params"));
+            movie_element.SetUploadSettings(this.getSetting("upload_target_url"), this.getSetting("post_params"));
         }
         catch (ex) {
             this.debugMessage("Could not call SetUploadStrings");
@@ -458,9 +458,10 @@ SWFUpload.prototype.setUploadSettings = function () {
 };
 
 SWFUpload.prototype.addFileParam = function (file_id, name, value) {
-    if (typeof(this.movieElement) !== "undefined" && typeof(this.movieElement.AddFileParam) === "function") {
+    var movie_element = this.getMovieElement();
+    if (movie_element !== null && typeof(movie_element.AddFileParam) === "function") {
         try {
-            return this.movieElement.AddFileParam(file_id, name, value);
+            return movie_element.AddFileParam(file_id, name, value);
         }
         catch (ex) {
             this.debugMessage("Could not call AddFileParam");
@@ -471,9 +472,10 @@ SWFUpload.prototype.addFileParam = function (file_id, name, value) {
 };
 
 SWFUpload.prototype.removeFileParam = function (file_id, name) {
-    if (typeof(this.movieElement) !== "undefined" && typeof(this.movieElement.RemoveFileParam) === "function") {
+    var movie_element = this.getMovieElement();
+    if (movie_element !== null && typeof(movie_element.RemoveFileParam) === "function") {
         try {
-            return this.movieElement.RemoveFileParam(file_id, name);
+            return movie_element.RemoveFileParam(file_id, name);
         }
         catch (ex) {
             this.debugMessage("Could not call AddFileParam");
@@ -493,10 +495,8 @@ SWFUpload.prototype.removeFileParam = function (file_id, name) {
 SWFUpload.prototype.flashReady = function () {
     var ui_function;
     try {
-        this.debugMessage("Flash called back and is ready.");
+		this.debugMessage("Flash called back and is ready.");
 		
-		this.setUploadSettings();	// Send all the parameters
-
         ui_function = this.getSetting("ui_function");
         if (typeof(ui_function) === "function") {
             ui_function.apply(this);
