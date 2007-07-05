@@ -101,6 +101,7 @@ package {
 			this.filePostName = root.loaderInfo.parameters.filePostName;
 			this.fileTypes = root.loaderInfo.parameters.fileTypes;
 			this.fileTypesDescription = root.loaderInfo.parameters.fileTypesDescription + " (" + this.fileTypes + ")";
+			this.loadPostParams(root.loaderInfo.parameters.params);
 
 			
 			if (!this.filePostName) {
@@ -114,7 +115,7 @@ package {
 			}
 			
 			this.LoadFileExensions(this.fileTypes);
-
+			
 			try {
 				this.fileValidation = root.loaderInfo.parameters.fileValidation == "true" ? true : false;
 			} catch (ex:Object) {
@@ -651,6 +652,23 @@ package {
 				
 				this.valid_file_extensions.push(extension);
 			}
+		}
+		
+		private function loadPostParams(param_string:String):void {
+			var post_object:Object = {};
+
+			if (param_string != null) {
+				var name_value_pairs:Array = param_string.split("&");
+				
+				for (var i:Number = 0; i < name_value_pairs.length; i++) {
+					var name_value:String = String(name_value_pairs[i]);
+					var index_of_equals:Number = name_value.indexOf("=");
+					if (index_of_equals > 0) {
+						post_object[name_value.substring(0, index_of_equals - 1)] = name_value.substr(index_of_equals + 1);
+					}
+				}
+			}
+			this.uploadPostObject = post_object;
 		}
 
 	}
