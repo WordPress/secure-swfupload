@@ -1,6 +1,12 @@
  * SWFUpload 0.8.3 Revision 6 by Jacob Roberts, July 2007, linebyline.blogspot.com
 
  * --------- Revision 6 -----------
+ * - Removed the call to setUploadSettings in flashReady.  This was a left over call that is unnecessary.
+ * - Removed the flash_target_id setting.  The Flash file should only ever be added to the body tag.
+ * + Fixed (hopefully for good) another SWF race condition.  IE executes the SWF very very early.  The this.movieElement value should never be referenced.
+ *     The movie Element should always be retrieved using this.getMovieElement().
+
+ * --------- Revision 6 -----------
  * + Ported to ActionScript 3.  Revision 6 requires Flash Player 9.
  * = Fixed bug caused when cancelling single files. Would break any function that searched for a file_id.
  * - Removed the automatic cookie sending setting. Devs should just pass the value they want to send in the post_params
@@ -33,8 +39,7 @@
  *    version from swfupload.mammon.se: Doesn't start when reloading in IE.  Doesn't start
  *    in Firefox if the SWF file is visible because of a page scroll.
  *    + I fixed the Firefox issue by removing the wmode attribute from the embed object.
- *    + I cannot reproduce the IE issue on my local machine (although I can reproduce it
- *       at swfupload.mammon.se)
+ *    + I cannot reproduce the IE issue on my local machine (although I can reproduce it at swfupload.mammon.se)
  * + Event Handlers are now attached to the SWFUpload javascript object.  The SWF file
  *    now calls the handlers in the context of the SWFUpload object which means the "this"
  *    object inside the handler refers to the proper SWFUpload instance.
