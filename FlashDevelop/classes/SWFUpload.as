@@ -615,6 +615,10 @@ package {
 			debug_info += "File Size Limit:        " + this.fileSizeLimit + "\n";
 			debug_info += "File Upload Limit:      " + this.fileUploadLimit + "\n";
 			debug_info += "File Queue Limit:       " + this.fileQueueLimit + "\n";
+			debug_info += "Post Params:\n";
+			for (var key:String in this.uploadPostObject) {
+				debug_info += "                        " + key + "=" + this.uploadPostObject[key] + "\n";
+			}
 			debug_info += "----- END SWF DEBUG OUTPUT ----\n";
 
 			this.Debug(debug_info);
@@ -664,7 +668,7 @@ package {
 					var name_value:String = String(name_value_pairs[i]);
 					var index_of_equals:Number = name_value.indexOf("=");
 					if (index_of_equals > 0) {
-						post_object[name_value.substring(0, index_of_equals - 1)] = name_value.substr(index_of_equals + 1);
+						post_object[decodeURIComponent(name_value.substring(0, index_of_equals))] = decodeURIComponent(name_value.substr(index_of_equals + 1));
 					}
 				}
 			}
