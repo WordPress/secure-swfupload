@@ -5,7 +5,7 @@
  * http://www.opensource.org/licenses/mit-license.php
  *
  * See Changelog.txt for version history
- * 
+ *
  * + Added ServerData event callback
  * = Changed upload_params to query_params
  * + Added post_params
@@ -87,10 +87,11 @@ SWFUpload.prototype.initSettings = function (init_settings) {
 
     // Flags
     this.addSetting("begin_upload_on_queue",  init_settings.begin_upload_on_queue,  true);
+    this.addSetting("use_server_data_event",  init_settings.use_server_data_event,  false);
     this.addSetting("validate_files",         init_settings.validate_files,         false);
 
     // File Settings
-	this.addSetting("file_types",             init_settings.file_types,             "*.gif;*.jpg;*.png");
+    this.addSetting("file_types",             init_settings.file_types,             "*.gif;*.jpg;*.png");
     this.addSetting("file_types_description", init_settings.file_types_description, "Common Web Image Formats (gif, jpg, png)");
     this.addSetting("file_size_limit",        init_settings.file_size_limit,        "1024");
     this.addSetting("file_upload_limit",      init_settings.file_upload_limit,      "0");
@@ -126,30 +127,30 @@ SWFUpload.prototype.initSettings = function (init_settings) {
 SWFUpload.prototype.loadFlash = function () {
     var html, target_element, container;
 
-	// Make sure an element with the ID we are going to use doesn't already exist
-	if (document.getElementById(this.movieName) !== null) {
-		return false;
-	}
-		
-	// Get the body tag where we will be adding the flash movie
-	target_element = document.getElementsByTagName("body")[0];
+    // Make sure an element with the ID we are going to use doesn't already exist
+    if (document.getElementById(this.movieName) !== null) {
+        return false;
+    }
+
+    // Get the body tag where we will be adding the flash movie
+    target_element = document.getElementsByTagName("body")[0];
     if (typeof(target_element) === "undefined" || target_element === null) {
         this.debugMessage('Could not find an element to add the Flash too. Failed to find element for "flash_container_id" or the BODY element.');
         return false;
     }
 
-	// Append the container and load the flash
-	container = document.createElement("div");
-	container.style.width = this.getSetting("flash_width");
-	container.style.height = this.getSetting("flash_height");
-	
-	target_element.appendChild(container);
-	container.innerHTML = this.getFlashHTML();	// Using innerHTML is non-standard but the only sensible way to dynamically add Flash in IE (and maybe other browsers)
+    // Append the container and load the flash
+    container = document.createElement("div");
+    container.style.width = this.getSetting("flash_width");
+    container.style.height = this.getSetting("flash_height");
+
+    target_element.appendChild(container);
+    container.innerHTML = this.getFlashHTML();  // Using innerHTML is non-standard but the only sensible way to dynamically add Flash in IE (and maybe other browsers)
 };
 
 // Generates the embed/object tags needed to embed the flash in to the document
 SWFUpload.prototype.getFlashHTML = function () {
-	var html = "";
+    var html = "";
 
     // Create Mozilla Embed HTML
     if (navigator.plugins && navigator.mimeTypes && navigator.mimeTypes.length) {
@@ -162,10 +163,10 @@ SWFUpload.prototype.getFlashHTML = function () {
 
         html += '" />';
 
-		// Create IE Object HTML
+        // Create IE Object HTML
     } else {
 
-		// Build the basic Object tag
+        // Build the basic Object tag
         html = '<object id="' + this.movieName + '" classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000" width="' + this.getSetting("flash_width") + '" height="' + this.getSetting("flash_height") + '">';
         html += '<param name="movie" value="' + this.getSetting("flash_url") + '">';
 
@@ -174,8 +175,8 @@ SWFUpload.prototype.getFlashHTML = function () {
         html += '<param name="menu" value="false" />';
 
         html += '<param name="flashvars" value="' + this.getFlashVars() + '" />';
-		html += '</object>';
-	}
+        html += '</object>';
+    }
 
     return html;
 };
@@ -192,8 +193,9 @@ SWFUpload.prototype.getFlashVars = function () {
     html += "controlID=" + encodeURIComponent(this.getSetting("control_id"));
     html += "&uploadTargetURL=" + encodeURIComponent(upload_target_url);
     html += "&params=" + encodeURIComponent(param_string);
-	html += "&filePostName=" + encodeURIComponent(this.getSetting("file_post_name"));
+    html += "&filePostName=" + encodeURIComponent(this.getSetting("file_post_name"));
     html += "&beginUploadOnQueue=" + encodeURIComponent(this.getSetting("begin_upload_on_queue"));
+    html += "&useServerDataEvent=" + encodeURIComponent(this.getSetting("use_server_data_event"));
     html += "&fileValidation=" + encodeURIComponent(this.getSetting("validate_files"));
     html += "&fileTypes=" + encodeURIComponent(this.getSetting("file_types"));
     html += "&fileTypesDescription=" + encodeURIComponent(this.getSetting("file_types_description"));
@@ -206,18 +208,18 @@ SWFUpload.prototype.getFlashVars = function () {
 };
 
 SWFUpload.prototype.getMovieElement = function () {
-	if (typeof(this.movieElement) === "undefined" || this.movieElement === null) {
-		this.movieElement = document.getElementById(this.movieName);
-		
-		// Fix IEs "Flash can't callback when in a form" issue (http://www.extremefx.com.ar/blog/fixing-flash-external-interface-inside-form-on-internet-explorer)
-		// Removed because Revision 6 always adds the flash to the body (inside a containing div)
-		//if (typeof(window[this.movieName]) === "undefined" || window[this.moveName] !== this.movieElement) {
-		//	window[this.movieName] = this.movieElement;
-		//}
-	}
-	
-	return this.movieElement;	
-}
+    if (typeof(this.movieElement) === "undefined" || this.movieElement === null) {
+        this.movieElement = document.getElementById(this.movieName);
+
+        // Fix IEs "Flash can't callback when in a form" issue (http://www.extremefx.com.ar/blog/fixing-flash-external-interface-inside-form-on-internet-explorer)
+        // Removed because Revision 6 always adds the flash to the body (inside a containing div)
+        //if (typeof(window[this.movieName]) === "undefined" || window[this.moveName] !== this.movieElement) {
+        //  window[this.movieName] = this.movieElement;
+        //}
+    }
+
+    return this.movieElement;
+};
 
 SWFUpload.prototype.buildParamString = function () {
     var post_params = this.getSetting("post_params");
@@ -306,51 +308,34 @@ SWFUpload.prototype.displayDebugInfo = function () {
 
     debug_message += "----- DEBUG OUTPUT ----\nID: " + this.getMovieElement().id + "\n";
 
-	debug_message += this.outputObject(this.settings);
-	
+    debug_message += this.outputObject(this.settings);
+
     debug_message += "----- DEBUG OUTPUT END ----\n";
     debug_message += "\n";
 
     this.debugMessage(debug_message);
 };
 SWFUpload.prototype.outputObject = function (object, prefix) {
-	var output = "";
-	
-	if (typeof(prefix) !== "string") {
-		prefix = "";
-	}
-	if (typeof(object) !== "object") {
-		return "";
-	}
-	
+    var output = "", key;
+
+    if (typeof(prefix) !== "string") {
+        prefix = "";
+    }
+    if (typeof(object) !== "object") {
+        return "";
+    }
+
     for (key in object) {
         if (object.hasOwnProperty(key)) {
             if (typeof(object[key]) === "object") {
-				output += (prefix + key + ": { \n" + this.outputObject(object[key], "\t" + prefix) + prefix + "}" + "\n");
-			} else {
-				output += (prefix + key + ": " + object[key] + "\n");
-			}
+                output += (prefix + key + ": { \n" + this.outputObject(object[key], "\t" + prefix) + prefix + "}" + "\n");
+            } else {
+                output += (prefix + key + ": " + object[key] + "\n");
+            }
         }
     }
-	
-	return output;
-};
 
-// Sets the UploadTargetURL. To commit the change you must call UpdateUploadStrings.
-SWFUpload.prototype.setUploadTargetURL = function (url) {
-    if (typeof(url) === "string") {
-        return this.addSetting("upload_target_url", url, "");
-    } else {
-        return false;
-    }
-};
-// Sets the upload params object. To commit the change you must call UpdateUploadStrings.
-SWFUpload.prototype.setParams = function (param_object) {
-    if (typeof(param_object) === "object") {
-        return this.addSetting("post_params", param_object, {});
-    } else {
-        return false;
-    }
+    return output;
 };
 
 /* *****************************
@@ -361,7 +346,7 @@ SWFUpload.prototype.setParams = function (param_object) {
 
 SWFUpload.prototype.browse = function () {
     var movie_element = this.getMovieElement();
-	if (movie_element !== null && typeof(movie_element.Browse) === "function") {
+    if (movie_element !== null && typeof(movie_element.Browse) === "function") {
         try {
             movie_element.Browse();
         }
@@ -440,22 +425,6 @@ SWFUpload.prototype.stopUpload = function () {
 
 };
 
-// Updates the upload url and post parameters in the Flash Movie
-// This must be called in order for changes made to the upload_target_url and post_params to take effect.
-SWFUpload.prototype.setUploadSettings = function () {
-    var movie_element = this.getMovieElement();
-    if (movie_element !== null && typeof(movie_element.SetUploadSettings) === "function") {
-        try {
-            movie_element.SetUploadSettings(this.getSetting("upload_target_url"), this.getSetting("post_params"));
-        }
-        catch (ex) {
-            this.debugMessage("Could not call SetUploadStrings");
-        }
-    } else {
-        this.debugMessage("Could not find Flash element in setUploadSettings");
-    }
-
-};
 
 SWFUpload.prototype.addFileParam = function (file_id, name, value) {
     var movie_element = this.getMovieElement();
@@ -486,6 +455,175 @@ SWFUpload.prototype.removeFileParam = function (file_id, name) {
 
 };
 
+SWFUpload.prototype.setUploadTargetURL = function (url) {
+    var movie_element = this.getMovieElement();
+    if (movie_element !== null && typeof(movie_element.SetUploadTargetURL) === "function") {
+        try {
+            this.addSetting("upload_target_url", url);
+            movie_element.SetUploadTargetURL(this.getSetting("upload_target_url"));
+        }
+        catch (ex) {
+            this.debugMessage("Could not call SetUploadTargetURL");
+        }
+    } else {
+        this.debugMessage("Could not find Flash element in SetUploadTargetURL");
+    }
+};
+
+SWFUpload.prototype.setPostParams = function (param_object) {
+    var movie_element = this.getMovieElement();
+    if (movie_element !== null && typeof(movie_element.SetPostParams) === "function") {
+        try {
+            this.addSetting("post_params", param_object);
+            movie_element.SetPostParams(this.getSetting("post_params"));
+        }
+        catch (ex) {
+            this.debugMessage("Could not call SetPostParams");
+        }
+    } else {
+        this.debugMessage("Could not find Flash element in SetPostParams");
+    }
+};
+
+SWFUpload.prototype.setFileTypes = function (types, description) {
+    var movie_element = this.getMovieElement();
+    if (movie_element !== null && typeof(movie_element.SetFileTypes) === "function") {
+        try {
+            this.addSetting("file_types", types);
+            this.addSetting("file_types_description", description);
+            movie_element.SetFileTypes(this.getSetting("file_types"), this.getSetting("file_types_description"));
+        }
+        catch (ex) {
+            this.debugMessage("Could not call SetFileTypes");
+        }
+    } else {
+        this.debugMessage("Could not find Flash element in SetFileTypes");
+    }
+};
+
+SWFUpload.prototype.setFileSizeLimit = function (file_size_limit) {
+    var movie_element = this.getMovieElement();
+    if (movie_element !== null && typeof(movie_element.SetFileSizeLimit) === "function") {
+        try {
+            this.addSetting("file_size_limit", file_size_limit);
+            movie_element.SetFileSizeLimit(this.getSetting("file_size_limit"));
+        }
+        catch (ex) {
+            this.debugMessage("Could not call SetFileSizeLimit");
+        }
+    } else {
+        this.debugMessage("Could not find Flash element in SetFileSizeLimit");
+    }
+};
+
+SWFUpload.prototype.setFileUploadLimit = function (file_upload_limit) {
+    var movie_element = this.getMovieElement();
+    if (movie_element !== null && typeof(movie_element.SetFileUploadLimit) === "function") {
+        try {
+            this.addSetting("file_upload_limit", file_upload_limit);
+            movie_element.SetFileUploadLimit(this.getSetting("file_upload_limit"));
+        }
+        catch (ex) {
+            this.debugMessage("Could not call SetFileUploadLimit");
+        }
+    } else {
+        this.debugMessage("Could not find Flash element in SetFileUploadLimit");
+    }
+};
+
+SWFUpload.prototype.setFileQueueLimit = function (file_queue_limit) {
+    var movie_element = this.getMovieElement();
+    if (movie_element !== null && typeof(movie_element.SetFileQueueLimit) === "function") {
+        try {
+            this.addSetting("file_queue_limit", file_queue_limit);
+            movie_element.SetFileQueueLimit(this.getSetting("file_queue_limit"));
+        }
+        catch (ex) {
+            this.debugMessage("Could not call SetFileQueueLimit");
+        }
+    } else {
+        this.debugMessage("Could not find Flash element in SetFileQueueLimit");
+    }
+};
+
+SWFUpload.prototype.setBeginUploadOnQueue = function (begin_upload_on_queue) {
+    var movie_element = this.getMovieElement();
+    if (movie_element !== null && typeof(movie_element.SetBeginUploadOnQueue) === "function") {
+        try {
+            this.addSetting("begin_upload_on_queue", begin_upload_on_queue);
+            movie_element.SetBeginUploadOnQueue(this.getSetting("begin_upload_on_queue"));
+        }
+        catch (ex) {
+            this.debugMessage("Could not call SetBeginUploadOnQueue");
+        }
+    } else {
+        this.debugMessage("Could not find Flash element in SetBeginUploadOnQueue");
+    }
+};
+
+SWFUpload.prototype.setUseServerDataEvent = function (use_server_data_event) {
+    var movie_element = this.getMovieElement();
+    if (movie_element !== null && typeof(movie_element.SetUseServerDataEvent) === "function") {
+        try {
+            this.addSetting("use_server_data_event", use_server_data_event);
+            movie_element.SetUseServerDataEvent(this.getSetting("use_server_data_event"));
+        }
+        catch (ex) {
+            this.debugMessage("Could not call SetUseServerDataEvent");
+        }
+    } else {
+        this.debugMessage("Could not find Flash element in SetUseServerDataEvent");
+    }
+};
+
+SWFUpload.prototype.setValidateFiles = function (validate_files) {
+    var movie_element = this.getMovieElement();
+    if (movie_element !== null && typeof(movie_element.SetValidateFiles) === "function") {
+        try {
+            this.addSetting("validate_files", validate_files);
+            movie_element.SetValidateFiles(this.getSetting("validate_files"));
+        }
+        catch (ex) {
+            this.debugMessage("Could not call SetValidateFiles");
+        }
+    } else {
+        this.debugMessage("Could not find Flash element in SetValidateFiles");
+    }
+};
+
+SWFUpload.prototype.setFilePostName = function (file_post_name) {
+    var movie_element = this.getMovieElement();
+    if (movie_element !== null && typeof(movie_element.SetFilePostName) === "function") {
+        try {
+            this.addSetting("file_post_name", file_post_name);
+            movie_element.SetFilePostName(this.getSetting("file_post_name"));
+        }
+        catch (ex) {
+            this.debugMessage("Could not call SetFilePostName");
+        }
+    } else {
+        this.debugMessage("Could not find Flash element in SetFilePostName");
+    }
+};
+
+SWFUpload.prototype.setDebugEnabled = function (debug_enabled) {
+    var movie_element = this.getMovieElement();
+    if (movie_element !== null && typeof(movie_element.SetDebugEnabled) === "function") {
+        try {
+            this.addSetting("debug_enabled", debug_enabled);
+            this.debug_enabled = this.getSetting("debug_enabled");
+            movie_element.SetDebugEnabled(this.getSetting("debug_enabled"));
+        }
+        catch (ex) {
+            this.debugMessage("Could not call SetDebugEnabled");
+        }
+    } else {
+        this.debugMessage("Could not find Flash element in SetDebugEnabled");
+    }
+};
+
+
+
 /* *******************************
     Default Event Handlers
 ******************************* */
@@ -495,8 +633,8 @@ SWFUpload.prototype.removeFileParam = function (file_id, name) {
 SWFUpload.prototype.flashReady = function () {
     var ui_function;
     try {
-		this.debugMessage("Flash called back and is ready.");
-		
+        this.debugMessage("Flash called back and is ready.");
+
         ui_function = this.getSetting("ui_function");
         if (typeof(ui_function) === "function") {
             ui_function.apply(this);
@@ -523,8 +661,8 @@ SWFUpload.prototype.fileQueued = function (file) {
 // uploaded.
 SWFUpload.prototype.fileValidation = function (file) {
     this.debugMessage("File Validation: " + file.id);
-	
-	return true;
+
+    return true;
 };
 
 // Called during upload as the file progresses
@@ -540,9 +678,9 @@ SWFUpload.prototype.fileCancelled = function (file) {
 // Called when a file upload has completed
 SWFUpload.prototype.fileComplete = function (file, server_data) {
     this.debugMessage("File Complete: " + file.id);
-	if (typeof(server_data) !== "undefined") {
-		this.debugMessage("Upload Response Data: " + server_data);
-	}
+    if (typeof(server_data) !== "undefined") {
+        this.debugMessage("Upload Response Data: " + server_data);
+    }
 };
 
 // Called when at least 1 file has been uploaded and there are no files remaining in the queue.
@@ -594,9 +732,9 @@ SWFUpload.prototype.error = function (errcode, file, msg) {
         case SWFUpload.ERROR_CODE_SPECIFIED_FILE_NOT_FOUND:
             this.debugMessage("Error Code: File ID specified for upload was not found, Message: " + msg);
             break;
-		case SWFUpload.ERROR_CODE_INVALID_FILETYPE:
-			this.debugMessage("Error Code: File extension is not allowed, Message: " + msg);
-			break;
+        case SWFUpload.ERROR_CODE_INVALID_FILETYPE:
+            this.debugMessage("Error Code: File extension is not allowed, Message: " + msg);
+            break;
         default:
             this.debugMessage("Error Code: Unhandled error occured. Errorcode: " + errcode);
         }

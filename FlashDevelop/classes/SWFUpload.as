@@ -10,7 +10,6 @@ package {
 	import flash.net.FileReference;
 	import flash.net.FileFilter;
 	import flash.net.URLRequest;
-	import flash.net.URLRequestHeader;
 	import flash.net.URLRequestMethod;
 	import flash.net.URLVariables;
 	import flash.events.*;
@@ -57,6 +56,7 @@ package {
 		private var fileUploadLimit:Number = 0;
 		private var fileQueueLimit:Number = 0;
 		private var beginUploadOnQueue:Boolean;
+		private var useServerDataEvent:Boolean;
 		private var fileValidation:Boolean;
 		private var debugEnabled:Boolean;
 
@@ -128,6 +128,11 @@ package {
 				this.beginUploadOnQueue = false;
 			}
 			try {
+				this.useServerDataEvent = root.loaderInfo.parameters.useServerDataEvent == "true" ? true : false;
+			} catch (ex:Object) {
+				this.useServerDataEvent = false;
+			}
+			try {
 				this.debugEnabled = root.loaderInfo.parameters.debugEnabled == "true" ? true : false;
 			} catch (ex:Object) {
 				this.debugEnabled = false;
@@ -135,18 +140,21 @@ package {
 
 			try {
 				this.fileSizeLimit = Number(root.loaderInfo.parameters.fileSizeLimit);
+				if (this.fileSizeLimit < 0) this.fileSizeLimit = 0;
 			} catch (ex:Object) {
 				this.fileSizeLimit = 0;
 			}
 
 			try {
 				this.fileUploadLimit = Number(root.loaderInfo.parameters.fileUploadLimit);
+				if (this.fileUploadLimit < 0) this.fileUploadLimit = 0;
 			} catch (ex:Object) {
 				this.fileUploadLimit = 0;
 			}
 
 			try {
 				this.fileQueueLimit = Number(root.loaderInfo.parameters.fileQueueLimit);
+				if (this.fileQueueLimit < 0) this.fileQueueLimit = 0;
 			} catch (ex:Object) {
 				this.fileQueueLimit = 0;
 			}
@@ -160,9 +168,20 @@ package {
 				ExternalInterface.addCallback("StopUpload", this.StopUpload);
 				ExternalInterface.addCallback("CancelUpload", this.CancelUpload);
 				ExternalInterface.addCallback("CancelQueue", this.CancelQueue);
-				ExternalInterface.addCallback("SetUploadSettings", this.SetUploadSettings);
 				ExternalInterface.addCallback("AddFileParam", this.AddFileParam);
 				ExternalInterface.addCallback("RemoveFileParam", this.RemoveFileParam);
+
+				ExternalInterface.addCallback("SetUploadTargetURL", this.SetUploadTargetURL);
+				ExternalInterface.addCallback("SetPostParams", this.SetPostParams);
+				ExternalInterface.addCallback("SetFileTypes", this.SetFileTypes);
+				ExternalInterface.addCallback("SetFileSizeLimit", this.SetFileSizeLimit);
+				ExternalInterface.addCallback("SetFileUploadLimit", this.SetFileUploadLimit);
+				ExternalInterface.addCallback("SetFileQueueLimit", this.SetFileQueueLimit);
+				ExternalInterface.addCallback("SetBeginUploadOnQueue", this.SetBeginUploadOnQueue);
+				ExternalInterface.addCallback("SetUseServerDataEvent", this.SetUseServerDataEvent);
+				ExternalInterface.addCallback("SetValidateFiles", this.SetValidateFiles);
+				ExternalInterface.addCallback("SetFilePostName", this.SetFilePostName);
+				ExternalInterface.addCallback("SetDebugEnabled", this.SetDebugEnabled);
 			} catch (ex:Error) {
 				this.Debug("Callbacks where not set.");
 			}
@@ -182,7 +201,7 @@ package {
 		/* *****************************************
 		* FileReference Event Handlers
 		* *************************************** */
-		private function DialogCancelled_Handler():void {
+		private function DialogCancelled_Handler(event:Event):void {
 			this.Debug("Event: DialogCancel: File Dialog window cancelled.");
 
 			ExternalInterface.call(this.dialogCancelled_Callback);
@@ -194,7 +213,7 @@ package {
 			ExternalInterface.call(this.fileProgress_Callback, this.current_file_item.ToJavaScriptObject(), event.bytesLoaded, event.bytesTotal);
 		}
 
-		private function FileComplete_Handler(file:FileReference):void {
+		private function FileComplete_Handler(event:Event):void {
 			this.Debug("Event: Complete: File ID: " + this.current_file_item.id + ". Upload Complete. Calling uploadComplete.");
 
 			this.completed_uploads++;
@@ -204,8 +223,6 @@ package {
 			this.UploadComplete();
 		}
 		
-		// Warning. This might not work.  Or we need to trigger the upload complete here depending on when this
-		// gets called
 		private function ServerData_Handler(event:DataEvent):void {
 			this.Debug("Event: UploadCompleteData: File ID: " + this.current_file_item.id + " Data: " + event.data);
 			
@@ -267,13 +284,6 @@ package {
 					var is_valid_filetype:Boolean = this.CheckFileType(file_item);
 					if(size_result == 0 && is_valid_filetype) {
 						this.Debug("onSelect: File within size limit and of valid type. Adding to queue and making callback.");
-						file_item.file_reference.addEventListener(ProgressEvent.PROGRESS, this.FileProgress_Handler);
-						file_item.file_reference.addEventListener(Event.COMPLETE, this.FileComplete_Handler);
-						file_item.file_reference.addEventListener(DataEvent.UPLOAD_COMPLETE_DATA, this.ServerData_Handler);
-						file_item.file_reference.addEventListener(IOErrorEvent.IO_ERROR, this.IOError_Handler);
-						file_item.file_reference.addEventListener(SecurityErrorEvent.SECURITY_ERROR, this.SecurityError_Handler);
-						file_item.file_reference.addEventListener(HTTPStatusEvent.HTTP_STATUS, this.HTTPError_Handler);
-						
 						this.file_queue.push(file_item);
 						this.queued_uploads++;
 						ExternalInterface.call(this.fileQueued_Callback, file_item.ToJavaScriptObject());
@@ -333,6 +343,15 @@ package {
 			if (this.current_file_item != null) {
 				// Cancel the upload and re-queue the FileItem
 				this.current_file_item.file_reference.cancel();
+
+				// Remove the event handlers
+				this.current_file_item.file_reference.removeEventListener(ProgressEvent.PROGRESS, this.FileProgress_Handler);
+				this.current_file_item.file_reference.removeEventListener(IOErrorEvent.IO_ERROR, this.IOError_Handler);
+				this.current_file_item.file_reference.removeEventListener(SecurityErrorEvent.SECURITY_ERROR, this.SecurityError_Handler);
+				this.current_file_item.file_reference.removeEventListener(HTTPStatusEvent.HTTP_STATUS, this.HTTPError_Handler);
+				this.current_file_item.file_reference.removeEventListener(DataEvent.UPLOAD_COMPLETE_DATA, this.ServerData_Handler);
+				this.current_file_item.file_reference.removeEventListener(Event.COMPLETE, this.FileComplete_Handler);
+
 				this.file_queue.unshift(this.current_file_item);
 				ExternalInterface.call(this.queueStopped_Callback, this.current_file_item.ToJavaScriptObject());
 
@@ -400,11 +419,6 @@ package {
 			}
 		}
 
-		private function SetUploadSettings(url:String, post_object:Object):void {
-			this.uploadTargetURL = url;
-			this.uploadPostObject = post_object;
-		}
-
 		private function AddFileParam(file_id:String, name:String, value:String):Boolean {
 			var file_index:Number = this.FindIndexInFileQueue(file_id);
 			if (file_index >= 0) {
@@ -425,6 +439,62 @@ package {
 			} else {
 				return false;
 			}
+		}
+		
+		private function SetUploadTargetURL(url:String):void {
+			if (typeof(url) !== "undefined" && url !== "") {
+				this.uploadTargetURL = url;
+			}
+		}
+		
+		private function SetPostParams(post_object:Object):void {
+			if (typeof(post_object) !== "undefined" && post_object !== null) {
+				this.uploadPostObject = post_object;
+			}
+		}
+		
+		private function SetFileTypes(types:String, description:String):void {
+			this.fileTypes = types;
+			this.fileTypesDescription = description;
+			
+			this.LoadFileExensions(this.fileTypes);
+		}
+
+		private function SetFileSizeLimit(bytes:Number):void {
+			if (bytes < 0) bytes = 0;
+			this.fileSizeLimit = bytes;
+		}
+		
+		private function SetFileUploadLimit(file_upload_limit:Number):void {
+			if (file_upload_limit < 0) file_upload_limit = 0;
+			this.fileUploadLimit = file_upload_limit;
+		}
+		
+		private function SetFileQueueLimit(file_queue_limit:Number):void {
+			if (file_queue_limit < 0) file_queue_limit = 0;
+			this.fileQueueLimit = file_queue_limit;
+		}
+		
+		private function SetBeginUploadOnQueue(begin_upload_on_queue:Boolean):void {
+			this.beginUploadOnQueue = begin_upload_on_queue;
+		}
+		
+		private function SetUseServerDataEvent(use_server_data_event:Boolean):void {
+			this.useServerDataEvent = use_server_data_event;
+		}
+		
+		private function SetValidateFiles(validate_files:Boolean):void {
+			this.fileValidation = validate_files;
+		}
+		
+		private function SetFilePostName(file_post_name:String):void {
+			if (file_post_name != "") {
+				this.filePostName = file_post_name;
+			}
+		}
+		
+		private function SetDebugEnabled(debug_enabled:Boolean):void {
+			this.debugEnabled = debug_enabled;
 		}
 		
 		/* *************************************************************
@@ -481,12 +551,42 @@ package {
 				// Begin the upload
 				this.Debug("startFile(): File Reference found.  Starting upload to " + request.url + ". File ID: " + this.current_file_item.id);
 				try {
+
+					
 					// Validate the file
 					if (!this.fileValidation) {
-							this.current_file_item.file_reference.upload(request, this.filePostName, false);
+						// Set the event handlers
+						this.current_file_item.file_reference.addEventListener(ProgressEvent.PROGRESS, this.FileProgress_Handler);
+						this.current_file_item.file_reference.addEventListener(IOErrorEvent.IO_ERROR, this.IOError_Handler);
+						this.current_file_item.file_reference.addEventListener(SecurityErrorEvent.SECURITY_ERROR, this.SecurityError_Handler);
+						this.current_file_item.file_reference.addEventListener(HTTPStatusEvent.HTTP_STATUS, this.HTTPError_Handler);
+						
+						// Set the appropriate server data/file complete event handler
+						if (this.useServerDataEvent) {
+							this.current_file_item.file_reference.addEventListener(DataEvent.UPLOAD_COMPLETE_DATA, this.ServerData_Handler);
+						} else {
+							this.current_file_item.file_reference.addEventListener(Event.COMPLETE, this.FileComplete_Handler);
+						}
+						
+						// Upload the file
+						this.current_file_item.file_reference.upload(request, this.filePostName, false);
 					} else {
 						if (ExternalInterface.call(this.fileValidation_Callback, this.current_file_item.ToJavaScriptObject())) {
 							this.Debug("startFile(): File Validated.");
+							
+							// Set the event handlers
+							this.current_file_item.file_reference.addEventListener(ProgressEvent.PROGRESS, this.FileProgress_Handler);
+							this.current_file_item.file_reference.addEventListener(IOErrorEvent.IO_ERROR, this.IOError_Handler);
+							this.current_file_item.file_reference.addEventListener(SecurityErrorEvent.SECURITY_ERROR, this.SecurityError_Handler);
+							this.current_file_item.file_reference.addEventListener(HTTPStatusEvent.HTTP_STATUS, this.HTTPError_Handler);
+							// Set the appropriate server data/file complete event handler
+							if (this.useServerDataEvent) {
+								this.current_file_item.file_reference.addEventListener(DataEvent.UPLOAD_COMPLETE_DATA, this.ServerData_Handler);
+							} else {
+								this.current_file_item.file_reference.addEventListener(Event.COMPLETE, this.FileComplete_Handler);
+							}
+							
+							// Upload the file
 							this.current_file_item.file_reference.upload(request, this.filePostName, false);
 						} else {
 							this.Debug("startFile(): Did not validate.");
@@ -637,6 +737,7 @@ package {
 		// the files selected later.
 		private function LoadFileExensions(filetypes:String):void {
 			var extensions:Array = filetypes.split(";");
+			this.valid_file_extensions = new Array();
 
 			for (var i:Number=0; i < extensions.length; i++) {
 				var extension:String = String(extensions[i]);
