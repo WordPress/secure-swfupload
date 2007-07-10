@@ -24,6 +24,7 @@
 				file_types_description : "JPG Images",
 				file_upload_limit : "0",
 				begin_upload_on_queue : true,
+				use_server_data_event : true,
 				validate_files : false,
 
 				// Event Handler Settings
