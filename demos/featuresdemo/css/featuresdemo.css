@@ -8,6 +8,9 @@ table.layout {
 	width: 948px;
 	border-collapse: collapse;
 }
+table.layout td {
+	padding: 0px;
+}
 
 input.textbox {
 	margin: 4px 0px;
@@ -81,11 +84,13 @@ select {
 	padding: 0;
 }
 
+#divDynamicSettingForm div,
 #fsStaticSettings div {
 	position: relative;
 	clear: both;
 	margin: 2px 0px;
 }
+#divDynamicSettingForm label,
 #fsStaticSettings label {
 	display: block;
 	float: left;
@@ -95,6 +100,7 @@ select {
 	height: 25px;
 	line-height: 25px;
 }
+#divDynamicSettingForm input,
 #fsStaticSettings input {
 	width: 121px;
 	height: 15px;
@@ -102,6 +108,7 @@ select {
 	padding: 1px;
 	border: solid 1px #A7A6AA;
 }
+#divDynamicSettingForm div.checkbox label,
 #fsStaticSettings div.checkbox label {
 	display: inline;
 	float: none;
@@ -109,6 +116,7 @@ select {
 	overflow: hidden;
 	height: 25px;
 }
+#divDynamicSettingForm div.checkbox input,
 #fsStaticSettings div.checkbox input {
 	width: auto;
 	height: auto;

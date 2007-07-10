@@ -4,9 +4,14 @@ session_start();
 $used_degraded = false;
 
 // Check for a degraded file upload
-if ($_SESSION["resume_name"] == "" && isset($_FILES["resume_degraded"])) {
-    $_SESSION["resume_name"] = $_FILES["resume_degraded"]["name"];
+$resume_name = "";
+if (is_uploaded_file($_FILES["resume_degraded"]["tmp_name"])) {
+    $resume_name = $_FILES["resume_degraded"]["name"];
     $used_degraded = true;
+}
+
+if (isset($_POST["hidFileID"]) && $_POST["hidFileID"] != "" ) {
+	$resume_name = $_POST["hidFileID"];
 }
 
 ?>
@@ -22,7 +27,7 @@ if ($_SESSION["resume_name"] == "" && isset($_FILES["resume_degraded"])) {
 	<div class="title"><a class="likeParent" href="../index.php">SWFUpload (Revision 6) Classic Form Demo</a></div>
 
 <?php
-if (!isset($_SESSION["resume_name"]) || $_SESSION["resume_name"] == "") {
+if ($resume_name == "") {
 ?>
 	<div class="content">Your resume was not received.</div>
 <?php
@@ -51,7 +56,7 @@ if (!isset($_SESSION["resume_name"]) || $_SESSION["resume_name"] == "") {
 			<tr>
 				<td>Resume:
 				</td>
-				<td><?php echo $_SESSION["resume_name"]; ?>
+				<td><?php echo htmlspecialchars($resume_name); ?>
 				</td>
 			</tr>
 			<tr>

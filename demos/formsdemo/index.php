@@ -8,8 +8,8 @@
     <title>SWFUpload Revision 6 Demo</title>
 
 	<link href="../css/default.css" rel="stylesheet" type="text/css" />
-	<script type="text/javascript" src="../swfuploadr6_0011/swfupload.js"></script>
-	<script type="text/javascript" src="js/handlers.js"></script>
+	<script type="text/javascript" src="../swfuploadr6_0013/swfupload.js"></script>
+	<script type="text/javascript" src="js_13/handlers.js"></script>
 	<script type="text/javascript">
 		var swf_upload_control;
 
@@ -18,7 +18,6 @@
 				// Backend settings
 				upload_target_url: "../formsdemo/upload.php",	// Relative to the SWF file
 				file_post_name: "resume_file",
-				post_params: { "PHPSESSID" : "<?php echo session_id(); ?>"},
 
 				// Flash file settings
 				file_size_limit : "10240",	// 10 MB
@@ -27,6 +26,7 @@
 				file_upload_limit : "1",
 				//file_queue_limit : "1", // this isn't needed because the upload_limit will automatically place a queue limit
 				begin_upload_on_queue : false,
+				use_server_data_event : true,
 				validate_files: false,
 
 				// Event handler settings
@@ -39,7 +39,7 @@
 				error_handler : uploadError,
 
 				// Flash Settings
-				flash_url : "../swfuploadr6_0011/swfupload.swf",	// Relative to this file
+				flash_url : "../swfuploadr6_0013/swfupload.swf",	// Relative to this file
 
 				// UI settings
                 ui_function: myShowUI,
@@ -65,9 +65,6 @@
         // Called by the submit button to start the upload
 		function doSubmit() {
 			try {
-				var btnBrowse = document.getElementById("btnBrowse");
-				btnBrowse.disabled = true;
-
 				swf_upload_control.startUpload();
 			} catch (ex) {
 
@@ -79,7 +76,9 @@
 	    function uploadDone() {
 			try {
 				document.forms[0].submit();
-			} catch (ex) {}
+			} catch (ex) {
+				alert("Error submitting form");
+			}
 	    }
 	</script>
 
@@ -131,6 +130,7 @@
 									<!-- This is where the file progress gets shown.  SWFUpload doesn't update the UI directly.
 										The Handlers (in handlers.js) process the upload events and make the UI updates -->
 								</div>
+								<input type="hidden" name="hidFileID" id="hidFileID" value="" /><!-- This is where the file ID is stored after SWFUpload uploads the file and gets the ID back from upload.php -->
 							</div>
 							<div id="degradedUI">
 								<!-- This is the standard UI.  This UI is shown by default but when SWFUpload loads it will be

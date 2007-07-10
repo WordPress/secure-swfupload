@@ -1,11 +1,9 @@
 <?php
 	session_start();
-	
 	// I would handle the upload here if I wanted to do anything with it.
 	
 ?>
 <p>Upload Page</p>
-<p>This file doesn't do anything.  We don't want your files.</p>
 
 <p>Here is the list of cookies that the agent sent:</p>
 <ul>

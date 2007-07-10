@@ -1,4 +1,13 @@
- * SWFUpload 0.8.3 Revision 6 by Jacob Roberts, July 2007, linebyline.blogspot.com
+ * SWFUpload 0.8.3 Revision 6.2 by Jacob Roberts, July 2007, linebyline.blogspot.com
+
+ * --------- Revision 6.2 -----------
+ * + Added API calls for changing all the changeable settings dynamically
+ * = Fixed a bug in FileComplete event handler (in the SWF) that caused an error in Debug Players
+ *     and prevent the event from being called
+ * + Added a setting (use_server_data_event) to indicate whether FileComplete or ServerData should be called.
+ *     The SWFUpload architecture requires that only one file upload success event can be called.
+ * = Updated all the Demos, especially the Features Demo and the Forms Demo
+
 
  * --------- Revision 6 -----------
  * - Removed the call to setUploadSettings in flashReady.  This was a left over call that is unnecessary.

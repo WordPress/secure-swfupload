@@ -1,3 +1,5 @@
+var upload_successful = true;
+
 function fileBrowse() {
 	var txtFileName = document.getElementById("txtFileName");
 	txtFileName.value = "";
@@ -33,19 +35,28 @@ function fileProgress(fileObj, bytesLoaded) {
 
 function fileComplete(fileObj, server_data) {
 	try {
-
-
 		var progress = new FileProgress(fileObj, this.getSetting("progress_target"));
 		progress.SetComplete();
 		progress.SetStatus("Complete.");
 		progress.ToggleCancel(false);
 
+		if (server_data === " ") {
+			upload_successful = false;
+		} else {
+			upload_successful = true;
+			document.getElementById("hidFileID").value = server_data;
+		}
+		
 	} catch (e) { /*Console.Writeln("Upload Complete: " + fileObj.name);*/ }
 }
 
 function queueComplete(fileObj) {
 	try {
-		uploadDone();
+		if (upload_successful) {
+			uploadDone();
+		} else {
+			alert("There was a problem with the upload");
+		}
 	} catch (e) { /* Console.Writeln("Queue Done"); */ }
 }
 

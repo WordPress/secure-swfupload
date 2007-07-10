@@ -13,8 +13,8 @@
     <title>SWFUpload Revision 6 Demo</title>
 
 	<link href="../css/default.css" rel="stylesheet" type="text/css" />
-	<script type="text/javascript" src="../swfuploadr6_0011/swfupload.js"></script>
-	<script type="text/javascript" src="js/handlers.js"></script>
+	<script type="text/javascript" src="../swfuploadr6_0013/swfupload.js"></script>
+	<script type="text/javascript" src="js_13/handlers.js"></script>
 	<script type="text/javascript">
 		var upload1, upload2;
 
@@ -41,7 +41,7 @@
 				error_handler : uploadError,
 
 				// Flash Settings
-				flash_url : "../swfuploadr6_0011/swfupload.swf",	// Relative to this file
+				flash_url : "../swfuploadr6_0013/swfupload.swf",	// Relative to this file
 
 				// UI Settings
 				ui_container_id : "flashUI1",
@@ -74,7 +74,7 @@
 				error_handler : uploadError,
 
 				// Flash Settings
-				flash_url : "../swfuploadr6_0011/swfupload.swf",	// Relative to this file
+				flash_url : "../swfuploadr6_0013/swfupload.swf",	// Relative to this file
 
 				// UI Settings
 				ui_container_id : "flashUI2",

@@ -8,9 +8,9 @@
 
 	<link href="../css/default.css" rel="stylesheet" type="text/css" />
 	<link href="css/featuresdemo.css" rel="stylesheet" type="text/css" />
-	<script type="text/javascript" src="../swfuploadr6_0011/swfupload.js"></script>
-	<script type="text/javascript" src="js/featuresdemo.js"></script>
-	<script type="text/javascript" src="js/handlers.js"></script>
+	<script type="text/javascript" src="../swfuploadr6_0013/swfupload.js"></script>
+	<script type="text/javascript" src="js_13/featuresdemo.js"></script>
+	<script type="text/javascript" src="js_13/handlers.js"></script>
 	<script type="text/javascript">
 		var suo;
 		window.onload = function() {
@@ -31,6 +31,7 @@
 				file_upload_limit : "10",
 				begin_upload_on_queue : false,
 				validate_files : true,
+				use_server_data_event : true,
 
 				// Event Handler Settings
 				file_queued_handler : fileQueued,
@@ -44,7 +45,7 @@
 				error_handler : uploadError,
 
 				// Flash Settings
-				flash_url : "../swfuploadr6_0011/swfupload.swf",	// Relative to this file
+				flash_url : "../swfuploadr6_0013/swfupload.swf",	// Relative to this file
 
 				// UI Settings
 				ui_function : FeaturesDemo.showUI,
@@ -136,9 +137,51 @@
 									<input id="txtAddParamValue" type="text" class="textbox" />
 									<button id="btnAddParam" type="button"></button>
 								</div>
-								<div>
-									<label for="txtUploadTarget">upload_target_url:</label>
-									<input id="txtUploadTarget" type="text" class="textbox" />
+								<div id="divDynamicSettingForm">
+									<div>
+										<label for="txtUploadTarget">upload_target_url:</label>
+										<input id="txtUploadTarget" type="text" class="textbox" />
+									</div>
+									<div>
+										<label for="txtFilePostName">file_post_name</label>
+										<input id="txtFilePostName" type="text" class="textbox" />
+									</div>
+									<div>
+										<label for="txtFileTypes">file_types</label>
+										<input id="txtFileTypes" type="text" class="textbox" />
+									</div>
+									<div>
+										<label for="txtFileTypesDescription">file_types_description</label>
+										<input id="txtFileTypesDescription" type="text" class="textbox" />
+									</div>
+									<div>
+										<label for="txtFileSizeLimit">file_size_limit</label>
+										<input id="txtFileSizeLimit" type="text" class="textbox" />
+									</div>
+									<div>
+										<label for="txtFileUploadLimit">file_upload_limit</label>
+										<input id="txtFileUploadLimit" type="text" class="textbox" />
+									</div>
+									<div>
+										<label for="txtFileQueueLimit">file_queue_limit</label>
+										<input id="txtFileQueueLimit" type="text" class="textbox" />
+									</div>
+									<div class="checkbox">
+										<input id="cbBeginUploadOnQueue" type="checkbox" />
+										<label for="cbBeginUploadOnQueue">begin_upload_on_queue</label>
+									</div>
+									<div class="checkbox">
+										<input id="cbUseServerDataEvent" type="checkbox" />
+										<label for="cbUseServerDataEvent">use_server_data_event</label>
+									</div>
+									<div class="checkbox">
+										<input id="cbFileValidation" type="checkbox" />
+										<label for="cbFileValidation">file_validation</label>
+									</div>
+									<div class="checkbox">
+										<input id="cbDebug" type="checkbox" />
+										<label for="cbDebug">debug</label>
+									</div>
 								</div>
 								<div>
 									<table class="btn"><tr><td class="btn-left"></td><td class="btn-center">
@@ -146,52 +189,13 @@
 									</td><td class="btn-right"></td></tr></table>
 								</div>
 							</fieldset>
-							<fieldset>
-								<legend>Instance Information</legend>
-								<div>
-									<label for="txtFlashHTML">Flash HTML</label>
-									<textarea id="txtFlashHTML" wrap="soft" style="height: 150px;"></textarea>
-								</div>
-								<div>
-									<label for="txtControlID">control_id</label>
-									<input id="txtControlID" type="text" class="textbox" />
-								</div>
-							</fieldset>
 						</td>
 						<td style="width: 316px;">
 							<fieldset id="fsStaticSettings">
 								<legend>Static Settings</legend>
 								<div>
-									<label for="txtFilePostName">file_post_name</label>
-									<input id="txtFilePostName" type="text" class="textbox" />
-								</div>
-								<div>
-									<label for="txtFileTypes">file_types</label>
-									<input id="txtFileTypes" type="text" class="textbox" />
-								</div>
-								<div>
-									<label for="txtFileTypesDescription">file_types_description</label>
-									<input id="txtFileTypesDescription" type="text" class="textbox" />
-								</div>
-								<div>
-									<label for="txtFileSizeLimit">file_size_limit</label>
-									<input id="txtFileSizeLimit" type="text" class="textbox" />
-								</div>
-								<div>
-									<label for="txtFileUploadLimit">file_upload_limit</label>
-									<input id="txtFileUploadLimit" type="text" class="textbox" />
-								</div>
-								<div>
-									<label for="txtFileQueueLimit">file_queue_limit</label>
-									<input id="txtFileQueueLimit" type="text" class="textbox" />
-								</div>
-								<div>
 									<label for="txtFlashURL">flash_url</label>
 									<input id="txtFlashURL" type="text" class="textbox" />
-								</div>
-								<div>
-									<label for="txtFlashContainerID">flash_container_id</label>
-									<input id="txtFlashContainerID" type="text" class="textbox" />
 								</div>
 								<div>
 									<label for="txtFlashWidth">flash_width</label>
@@ -217,22 +221,21 @@
 									<label for="txtDegradedContainerID">degraded_container_id</label>
 									<input id="txtDegradedContainerID" type="text" class="textbox" />
 								</div>
-								<div class="checkbox">
-									<input id="cbBeginUploadOnQueue" type="checkbox" />
-									<label for="cbBeginUploadOnQueue">begin_upload_on_queue</label>
-								</div>
-								<div class="checkbox">
-									<input id="cbFileValidation" type="checkbox" />
-									<label for="cbFileValidation">file_validation</label>
-								</div>
-								<div class="checkbox">
-									<input id="cbDebug" type="checkbox" />
-									<label for="cbDebug">debug</label>
-								</div>
 								<div>
 									<table class="btn"><tr><td class="btn-left"></td><td class="btn-center">
 										<button id="btnReloadSWFUpload" type="button">Reload SWFUpload</button>
 									</td><td class="btn-right"></td></tr></table>
+								</div>
+							</fieldset>
+							<fieldset>
+								<legend>Instance Information</legend>
+								<div>
+									<label for="txtFlashHTML">Flash HTML</label>
+									<textarea id="txtFlashHTML" wrap="soft" style="height: 150px;"></textarea>
+								</div>
+								<div>
+									<label for="txtControlID">control_id</label>
+									<input id="txtControlID" type="text" class="textbox" />
 								</div>
 							</fieldset>
 						</td>
