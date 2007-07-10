@@ -5,7 +5,7 @@
 ?>
 <html xmlns="http://www.w3.org/1999/xhtml" >
 <head>
-    <title>SWFUpload Revision 6 Demo</title>
+    <title>SWFUpload Revision 6.2 Demo</title>
 
 	<link href="../css/default.css" rel="stylesheet" type="text/css" />
 	<script type="text/javascript" src="../swfuploadr6_0013/swfupload.js"></script>
@@ -52,7 +52,7 @@
 
 </head>
 <body>
-	<div id="title" class="title"><a class="likeParent" href="../index.php">SWFUpload (Revision 6) Application Demo</a></div>
+	<div id="title" class="title"><a class="likeParent" href="../index.php">SWFUpload (Revision 6.2) Application Demo</a></div>
 	<div id="swfu_container" style="display: none; margin: 0px 10px;">
 		<div>
 			<form>
