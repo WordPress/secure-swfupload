@@ -1,5 +1,5 @@
 /**
- * SWFUpload 0.8.3 Revision 5.2 by Jacob Roberts, April 2007, linebyline.blogspot.com
+ * SWFUpload 0.8.3 Revision 6.2 by Jacob Roberts, July 2007, linebyline.blogspot.com
  * -------- -------- -------- -------- -------- -------- -------- --------
  * SWFUpload is (c) 2006 Lars Huring and Mammon Media and is released under the MIT License:
  * http://www.opensource.org/licenses/mit-license.php
