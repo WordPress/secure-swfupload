@@ -87,7 +87,7 @@ SWFUpload.prototype.initSettings = function (init_settings) {
 
     // Flags
     this.addSetting("begin_upload_on_queue",  init_settings.begin_upload_on_queue,  true);
-    this.addSetting("use_server_data_event",  init_settings.use_server_data_event,  false);
+    //this.addSetting("use_server_data_event",  init_settings.use_server_data_event,  false);
     this.addSetting("validate_files",         init_settings.validate_files,         false);
 
     // File Settings
@@ -115,7 +115,8 @@ SWFUpload.prototype.initSettings = function (init_settings) {
     this.fileProgress    = this.retrieveSetting(init_settings.file_progress_handler,    this.fileProgress);
     this.fileCancelled   = this.retrieveSetting(init_settings.file_cancelled_handler,   this.fileCancelled);
     this.fileComplete    = this.retrieveSetting(init_settings.file_complete_handler,    this.fileComplete);
-    this.queueStopped    = this.retrieveSetting(init_settings.queue_stopped_handler,    this.queueStopped);
+    this.fileDequeued    = this.retrieveSetting(init_settings.file_dequeued_handler,    this.fileDequeued);
+	this.queueStopped    = this.retrieveSetting(init_settings.queue_stopped_handler,    this.queueStopped);
     this.queueComplete   = this.retrieveSetting(init_settings.queue_complete_handler,   this.queueComplete);
     this.error           = this.retrieveSetting(init_settings.error_handler,            this.error);
     this.debug           = this.retrieveSetting(init_settings.debug_handler,            this.debug);
@@ -195,8 +196,8 @@ SWFUpload.prototype.getFlashVars = function () {
     html += "&params=" + encodeURIComponent(param_string);
     html += "&filePostName=" + encodeURIComponent(this.getSetting("file_post_name"));
     html += "&beginUploadOnQueue=" + encodeURIComponent(this.getSetting("begin_upload_on_queue"));
-    html += "&useServerDataEvent=" + encodeURIComponent(this.getSetting("use_server_data_event"));
-    html += "&fileValidation=" + encodeURIComponent(this.getSetting("validate_files"));
+    //html += "&useServerDataEvent=" + encodeURIComponent(this.getSetting("use_server_data_event"));
+    html += "&validateFiles=" + encodeURIComponent(this.getSetting("validate_files"));
     html += "&fileTypes=" + encodeURIComponent(this.getSetting("file_types"));
     html += "&fileTypesDescription=" + encodeURIComponent(this.getSetting("file_types_description"));
     html += "&fileSizeLimit=" + encodeURIComponent(this.getSetting("file_size_limit"));
@@ -681,6 +682,11 @@ SWFUpload.prototype.fileComplete = function (file, server_data) {
     if (typeof(server_data) !== "undefined") {
         this.debugMessage("Upload Response Data: " + server_data);
     }
+};
+
+// Called after the upload is complete but before the next upload begins.
+SWFUpload.prototype.fileDequeued = function (file) {
+    this.debugMessage("File Dequeued: " + file.id);
 };
 
 // Called when at least 1 file has been uploaded and there are no files remaining in the queue.

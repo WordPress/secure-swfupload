@@ -1,7 +1,12 @@
 package {
 	/*
-	* Development note:  This code needs a security audit.  E.g. If someone sets the control id string as some javascript it
-	* could make funny things happen with the callbacks.
+	* Todo:  Remove the QueueComplete callback.  It doesn't make sense when allowing out of order uploads
+	*    or when errors occur.  We still need something so let's add a function that returns the number of
+	*    files that remain in the queue.  This number is incremented immediately before fileQueued is called
+	*    and decremented immediately before fileDequeued is called.
+	* 
+	*    Actually a GetStatistic method might be more useful.  It could include Total selected files, Total queued,
+	*    totals for each error type, total errors, total upload errors, total successful uploads, current queue count
 	*
 	* */
 
@@ -40,6 +45,7 @@ package {
 		private var fileProgress_Callback:String;
 		private var fileCancelled_Callback:String;
 		private var fileComplete_Callback:String;
+		private var postFileComplete_Callback:String;
 		private var queueComplete_Callback:String;
 		private var queueStopped_Callback:String;
 		private var error_Callback:String;
@@ -56,8 +62,7 @@ package {
 		private var fileUploadLimit:Number = 0;
 		private var fileQueueLimit:Number = 0;
 		private var beginUploadOnQueue:Boolean;
-		private var useServerDataEvent:Boolean;
-		private var fileValidation:Boolean;
+		private var validateFiles:Boolean;
 		private var debugEnabled:Boolean;
 
 		// Error code "constants"
@@ -74,7 +79,7 @@ package {
 		private var ERROR_CODE_INVALID_FILETYPE:Number          = -110;
 
 		public function SWFUpload() {
-			//flash.system.Security.allowDomain("*");	// Allow any domain to use this SWF to upload files
+			flash.system.Security.allowDomain("*");	// Allow uploading to any domain
 
 			// Setup file FileReferenceList events
 			this.fileBrowser.addEventListener(Event.SELECT, this.Select_Handler);
@@ -83,7 +88,12 @@ package {
 			// Get the control ID
 			this.controlID = root.loaderInfo.parameters.controlID;
 
-			// Configure the callbacks
+			// **Configure the callbacks**
+			// The JavaScript tracks all the instances of SWFUpload on a page.  We can access the instance
+			// associated with this SWF file using the controlID.  Each callback is accessible by making
+			// a call directly to it on our instance.  There is no error handling for undefined callback functions.
+			// A developer would have to deliberately remove the default functions,set the variable to null, or remove
+			// it from the init function.
 			this.flashReady_Callback = "SWFUpload.instances[\"" + this.controlID + "\"].flashReady";
 			this.dialogCancelled_Callback = "SWFUpload.instances[\"" + this.controlID + "\"].dialogCancelled";
 			this.fileQueued_Callback = "SWFUpload.instances[\"" + this.controlID + "\"].fileQueued";
@@ -91,6 +101,8 @@ package {
 			this.fileProgress_Callback = "SWFUpload.instances[\"" + this.controlID + "\"].fileProgress";
 			this.fileCancelled_Callback = "SWFUpload.instances[\"" + this.controlID + "\"].fileCancelled";
 			this.fileComplete_Callback = "SWFUpload.instances[\"" + this.controlID + "\"].fileComplete";
+			this.fileDequeued_Callback = "SWFUpload.instances[\"" + this.controlID + "\"].fileDequeued";
+			this.postFileComplete_Callback = "SWFUpload.instances[\"" + this.controlID + "\"].postFileComplete";
 			this.queueComplete_Callback = "SWFUpload.instances[\"" + this.controlID + "\"].queueComplete";
 			this.queueStopped_Callback = "SWFUpload.instances[\"" + this.controlID + "\"].queueStopped";
 			this.error_Callback = "SWFUpload.instances[\"" + this.controlID + "\"].error";
@@ -117,9 +129,9 @@ package {
 			this.LoadFileExensions(this.fileTypes);
 			
 			try {
-				this.fileValidation = root.loaderInfo.parameters.fileValidation == "true" ? true : false;
+				this.validateFiles = root.loaderInfo.parameters.validateFiles == "true" ? true : false;
 			} catch (ex:Object) {
-				this.fileValidation = false;
+				this.validateFiles = false;
 			}
 			
 			try {
@@ -127,11 +139,7 @@ package {
 			} catch (ex:Object) {
 				this.beginUploadOnQueue = false;
 			}
-			try {
-				this.useServerDataEvent = root.loaderInfo.parameters.useServerDataEvent == "true" ? true : false;
-			} catch (ex:Object) {
-				this.useServerDataEvent = false;
-			}
+
 			try {
 				this.debugEnabled = root.loaderInfo.parameters.debugEnabled == "true" ? true : false;
 			} catch (ex:Object) {
@@ -178,7 +186,6 @@ package {
 				ExternalInterface.addCallback("SetFileUploadLimit", this.SetFileUploadLimit);
 				ExternalInterface.addCallback("SetFileQueueLimit", this.SetFileQueueLimit);
 				ExternalInterface.addCallback("SetBeginUploadOnQueue", this.SetBeginUploadOnQueue);
-				ExternalInterface.addCallback("SetUseServerDataEvent", this.SetUseServerDataEvent);
 				ExternalInterface.addCallback("SetValidateFiles", this.SetValidateFiles);
 				ExternalInterface.addCallback("SetFilePostName", this.SetFilePostName);
 				ExternalInterface.addCallback("SetDebugEnabled", this.SetDebugEnabled);
@@ -213,16 +220,6 @@ package {
 			ExternalInterface.call(this.fileProgress_Callback, this.current_file_item.ToJavaScriptObject(), event.bytesLoaded, event.bytesTotal);
 		}
 
-		private function FileComplete_Handler(event:Event):void {
-			this.Debug("Event: Complete: File ID: " + this.current_file_item.id + ". Upload Complete. Calling uploadComplete.");
-
-			this.completed_uploads++;
-
-			ExternalInterface.call(this.fileComplete_Callback, this.current_file_item.ToJavaScriptObject());
-
-			this.UploadComplete();
-		}
-		
 		private function ServerData_Handler(event:DataEvent):void {
 			this.Debug("Event: UploadCompleteData: File ID: " + this.current_file_item.id + " Data: " + event.data);
 			
@@ -350,12 +347,12 @@ package {
 				this.current_file_item.file_reference.removeEventListener(SecurityErrorEvent.SECURITY_ERROR, this.SecurityError_Handler);
 				this.current_file_item.file_reference.removeEventListener(HTTPStatusEvent.HTTP_STATUS, this.HTTPError_Handler);
 				this.current_file_item.file_reference.removeEventListener(DataEvent.UPLOAD_COMPLETE_DATA, this.ServerData_Handler);
-				this.current_file_item.file_reference.removeEventListener(Event.COMPLETE, this.FileComplete_Handler);
 
 				this.file_queue.unshift(this.current_file_item);
-				ExternalInterface.call(this.queueStopped_Callback, this.current_file_item.ToJavaScriptObject());
-
+				var js_object:Object = this.current_file_item.ToJavaScriptObject();
 				this.current_file_item = null;
+
+				ExternalInterface.call(this.queueStopped_Callback, js_object);
 				this.Debug("StopUpload(): upload stopped.");
 			} else {
 				this.Debug("StopUpload(): Upload run not in progress");
@@ -370,7 +367,7 @@ package {
 					ExternalInterface.call(this.fileCancelled_Callback, this.current_file_item.ToJavaScriptObject());
 
 					this.Debug("CancelUpload(): Cancelling current upload");
-					this.UploadComplete(); // <-- this advanced the upload to the next file
+					this.UploadComplete(); // <-- this advanced the upload to the next file, the next file will start uploading
 				} else {
 					// Find the file in the queue
 					var file_index:Number = this.FindIndexInFileQueue(file_id);
@@ -383,7 +380,6 @@ package {
 						// Cancel the file (just for good measure) and make the callback
 						file_item.file_reference.cancel();
 						ExternalInterface.call(this.fileCancelled_Callback, file_item.ToJavaScriptObject());
-
 						// Get rid of the file object
 						file_item = null;
 						this.Debug("CancelUpload(): Cancelling queued upload");
@@ -479,12 +475,8 @@ package {
 			this.beginUploadOnQueue = begin_upload_on_queue;
 		}
 		
-		private function SetUseServerDataEvent(use_server_data_event:Boolean):void {
-			this.useServerDataEvent = use_server_data_event;
-		}
-		
 		private function SetValidateFiles(validate_files:Boolean):void {
-			this.fileValidation = validate_files;
+			this.validateFiles = validate_files;
 		}
 		
 		private function SetFilePostName(file_post_name:String):void {
@@ -554,19 +546,20 @@ package {
 
 					
 					// Validate the file
-					if (!this.fileValidation) {
+					if (!this.validateFiles) {
 						// Set the event handlers
 						this.current_file_item.file_reference.addEventListener(ProgressEvent.PROGRESS, this.FileProgress_Handler);
 						this.current_file_item.file_reference.addEventListener(IOErrorEvent.IO_ERROR, this.IOError_Handler);
 						this.current_file_item.file_reference.addEventListener(SecurityErrorEvent.SECURITY_ERROR, this.SecurityError_Handler);
 						this.current_file_item.file_reference.addEventListener(HTTPStatusEvent.HTTP_STATUS, this.HTTPError_Handler);
 						
-						// Set the appropriate server data/file complete event handler
+						this.current_file_item.file_reference.addEventListener(DataEvent.UPLOAD_COMPLETE_DATA, this.ServerData_Handler);
+						/*// Set the appropriate server data/file complete event handler
 						if (this.useServerDataEvent) {
 							this.current_file_item.file_reference.addEventListener(DataEvent.UPLOAD_COMPLETE_DATA, this.ServerData_Handler);
 						} else {
 							this.current_file_item.file_reference.addEventListener(Event.COMPLETE, this.FileComplete_Handler);
-						}
+						}*/
 						
 						// Upload the file
 						this.current_file_item.file_reference.upload(request, this.filePostName, false);
@@ -579,12 +572,14 @@ package {
 							this.current_file_item.file_reference.addEventListener(IOErrorEvent.IO_ERROR, this.IOError_Handler);
 							this.current_file_item.file_reference.addEventListener(SecurityErrorEvent.SECURITY_ERROR, this.SecurityError_Handler);
 							this.current_file_item.file_reference.addEventListener(HTTPStatusEvent.HTTP_STATUS, this.HTTPError_Handler);
-							// Set the appropriate server data/file complete event handler
+
+							this.current_file_item.file_reference.addEventListener(DataEvent.UPLOAD_COMPLETE_DATA, this.ServerData_Handler);
+							/*// Set the appropriate server data/file complete event handler
 							if (this.useServerDataEvent) {
 								this.current_file_item.file_reference.addEventListener(DataEvent.UPLOAD_COMPLETE_DATA, this.ServerData_Handler);
 							} else {
 								this.current_file_item.file_reference.addEventListener(Event.COMPLETE, this.FileComplete_Handler);
-							}
+							}*/
 							
 							// Upload the file
 							this.current_file_item.file_reference.upload(request, this.filePostName, false);
@@ -598,6 +593,7 @@ package {
 					this.Debug("startFile(): Upload Failed.");
 					ExternalInterface.call(this.error_Callback, this.ERROR_CODE_UPLOAD_FAILED, this.current_file_item.ToJavaScriptObject(), ex.message);
 					this.current_file_item = null;
+					// NOTE: instead of just failing and making an error callback maybe we should call call UploadComplete
 				}
 			}
 			// Otherwise we've would have looped through all the FileItems. This means the queue is empty)
@@ -618,9 +614,12 @@ package {
 			this.Debug("UploadComplete(): Upload complete. Removing File Reference and starting the next upload.");
 
 			// Remove the pointer, the space in the array still exists
+			var jsFileObj:Object = this.current_file_item.ToJavaScriptObject();
 			this.current_file_item = null;
 			this.queued_uploads--;
 
+			ExternalInterface.call(this.postFileComplete_Callback, jsFileObj);
+			
 			// Start the next file upload
 			if (!this.single_upload) {
 				this.StartFile();
@@ -708,7 +707,7 @@ package {
 			debug_info += "ControlID:              " + this.controlID + "\n";
 			debug_info += "Upload Target URL:      " + this.uploadTargetURL + "\n";
 			debug_info += "Begin Upload on Queue:  " + this.beginUploadOnQueue + "\n";
-			debug_info += "Validate Files:         " + this.fileValidation + "\n";
+			debug_info += "Validate Files:         " + this.validateFiles + "\n";
 			debug_info += "File Types String:      " + this.fileTypes + "\n";
 			debug_info += "Parsed File Types:      " + this.valid_file_extensions.toString() + "\n";
 			debug_info += "File Types Description: " + this.fileTypesDescription + "\n";
