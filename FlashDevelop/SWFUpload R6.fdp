@@ -1,19 +1,20 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <project>
-  <!-- Other classes to be compiled into your SWF -->
-  <classpaths>
-    <class path="classes" />
-  </classpaths>
   <!-- Output SWF options -->
   <output>
+    <movie disabled="False" />
     <movie input="" />
     <movie path="swfupload.swf" />
     <movie fps="1" />
     <movie width="0" />
     <movie height="0" />
-    <movie version="8" />
+    <movie version="9" />
     <movie background="#FFFFFF" />
   </output>
+  <!-- Other classes to be compiled into your SWF -->
+  <classpaths>
+    <class path="classes" />
+  </classpaths>
   <!-- Build options -->
   <build>
     <option verbose="True" />

@@ -8,6 +8,12 @@ package {
 		private var postObject:Object;
 		public var file_reference:FileReference;
 		public var id:String;
+		public var file_status:int = 0;
+		
+		public static var FILE_STATUS_QUEUED:Number = 0;
+		public static var FILE_STATUS_IN_PROGRESS:Number = 1;
+		public static var FILE_STATUS_ERROR:Number = 2;
+		public static var FILE_STATUS_COMPLETE:Number = 3;
 		
 		public function FileItem(file_reference:FileReference, control_id:String)
 		{
