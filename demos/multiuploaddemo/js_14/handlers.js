@@ -1,4 +1,7 @@
-function uploadStart(fileObj) {
+function fileDialogStart() {
+	/* I don't need to do anything here */
+}
+function fileQueued(fileObj) {
 	try {
 		// You might include code here that prevents the form from being submitted while the upload is in
 		// progress.  Then you'll want to put code in the Queue Complete handler to "unblock" the form
@@ -12,56 +15,8 @@ function uploadStart(fileObj) {
 
 }
 
-function uploadProgress(fileObj, bytesLoaded) {
-
-	try {
-		var percent = Math.ceil((bytesLoaded / fileObj.size) * 100)
-
-		var progress = new FileProgress(fileObj, this.getSetting("progress_target"));
-		progress.SetProgress(percent);
-		progress.SetStatus("Uploading...");
-	} catch (ex) { this.debugMessage(ex); }
-}
-
-function uploadComplete(fileObj, server_data) {
-	try {
-
-
-		var progress = new FileProgress(fileObj, this.getSetting("progress_target"));
-		progress.SetComplete();
-		progress.SetStatus("Complete.");
-		progress.ToggleCancel(false);
-
-	} catch (ex) { this.debugMessage(ex); }
-}
-
-function uploadQueueComplete(fileObj) {
-	try {
-		document.getElementById("btnCancel1").disabled = true;
-	} catch (ex) { this.debugMessage(ex); }
-}
-
-function uploadDialogCancel() {
-/*	try {
-		Console.Writeln("Pressed Cancel");
-	} catch (e) { Console.Writeln("Error displaying file cancel information"); }
-*/
-}
-
-function uploadCancel(fileObj) {
-	try {
-		var progress = new FileProgress(fileObj, this.getSetting("progress_target"));
-		progress.SetCancelled();
-		progress.SetStatus("Cancelled");
-		progress.ToggleCancel(false);
-
-	}
-	catch (ex) {
-        this.debugMessage(ex);
-    }
-}
-
-function uploadError(error_code, fileObj, message) {
+//FIXME
+function fileQueueError(error_code, fileObj, message) {
 	try {
 		if (error_code == SWFUpload.ERROR_CODE_QUEUE_LIMIT_EXCEEDED) {
 			alert("You have attempted to queue too many files.\n" + (message == 0 ? "You have reached the upload limit." : "You may select " + (message > 1 ? "up to " + message + " files." : "one file.")));
@@ -73,11 +28,81 @@ function uploadError(error_code, fileObj, message) {
 		progress.ToggleCancel(false);
 
 		switch(error_code) {
+			case SWFUpload.ERROR_CODE_FILE_EXCEEDS_SIZE_LIMIT:
+				progress.SetStatus("File is too big.");
+				this.debugMessage("Error Code: File too big, File name: " + file.name + ", File size: " + file.size + ", Message: " + message);
+				break;
+			case SWFUpload.ERROR_CODE_ZERO_BYTE_FILE:
+				progress.SetStatus("Cannot upload Zero Byte files.");
+				this.debugMessage("Error Code: Zero byte file, File name: " + file.name + ", File size: " + file.size + ", Message: " + message);
+				break;
+			case SWFUpload.ERROR_CODE_INVALID_FILETYPE:
+				progress.SetStatus("Invalid File Type.");
+				this.debugMessage("Error Code: Invalid File Type, File name: " + file.name + ", File size: " + file.size + ", Message: " + message);
+				break;
+			default:
+				progress.SetStatus("Unhandled Error");
+				this.debugMessage("Error Code: " + error_code + ", File name: " + file.name + ", File size: " + file.size + ", Message: " + message);
+				break;
+		}
+	} catch (ex) {
+        this.debugMessage(ex);
+    }
+}
+
+function fileDialogCompleteHandler(num_files_queued) {
+	/* I want auto start and I can do that here */
+	this.startUpload();
+}
+
+function uploadStart(fileObj) {
+	/* I don't want to do any file validation or anything,  I'll just update the UI and return true to indicate that the upload should start */
+	var progress = new FileProgress(fileObj, this.getSetting("progress_target"));
+	progress.SetStatus("Uploading...");
+	progress.ToggleCancel(true, this);
+
+	return true;
+}
+
+function uploadProgress(fileObj, bytesLoaded, bytesTotal) {
+
+	try {
+		var percent = Math.ceil((bytesLoaded / bytesTotal) * 100)
+
+		var progress = new FileProgress(fileObj, this.getSetting("progress_target"));
+		progress.SetProgress(percent);
+		progress.SetStatus("Uploading...");
+	} catch (ex) { this.debugMessage(ex); }
+}
+
+function uploadComplete(fileObj, server_data) {
+	try {
+		var progress = new FileProgress(fileObj, this.getSetting("progress_target"));
+		progress.SetComplete();
+		progress.SetStatus("Complete.");
+		progress.ToggleCancel(false);
+
+	} catch (ex) { this.debugMessage(ex); }
+}
+
+function fileComplete(fileObj) {
+	/*  I want the next upload to continue automatically so I'll call startUpload here */
+	this.startUpload();
+}
+
+//FIXME
+function uploadError(error_code, fileObj, message) {
+	try {
+		var progress = new FileProgress(fileObj, this.getSetting("progress_target"));
+		progress.SetError();
+		progress.ToggleCancel(false);
+
+		switch(error_code) {
 			case SWFUpload.ERROR_CODE_HTTP_ERROR:
 				progress.SetStatus("Upload Error");
 				this.debugMessage("Error Code: HTTP Error, File name: " + file.name + ", Message: " + message);
 				break;
-			case SWFUpload.ERROR_CODE_MISSING_UPLOAD_TARGET:
+			case SWFUpload.ERROR_CODE_MISSING_UPLOAD_URL:
 				progress.SetStatus("Configuration Error");
 				this.debugMessage("Error Code: No backend file, File name: " + file.name + ", Message: " + message);
 				break;
@@ -93,21 +118,9 @@ function uploadError(error_code, fileObj, message) {
 				progress.SetStatus("Security Error");
 				this.debugMessage("Error Code: Security Error, File name: " + file.name + ", Message: " + message);
 				break;
-			case SWFUpload.ERROR_CODE_FILE_EXCEEDS_SIZE_LIMIT:
-				progress.SetStatus("File is too big.");
-				this.debugMessage("Error Code: File too big, File name: " + file.name + ", File size: " + file.size + ", Message: " + message);
-				break;
-			case SWFUpload.ERROR_CODE_ZERO_BYTE_FILE:
-				progress.SetStatus("Cannot upload Zero Byte files.");
-				this.debugMessage("Error Code: Zero byte file, File name: " + file.name + ", File size: " + file.size + ", Message: " + message);
-				break;
 			case SWFUpload.ERROR_CODE_UPLOAD_LIMIT_EXCEEDED:
 				progress.SetStatus("Upload limit exceeded.");
 				this.debugMessage("Error Code: Upload Limit Exceeded, File name: " + file.name + ", File size: " + file.size + ", Message: " + message);
-				break;
-			case SWFUpload.ERROR_CODE_INVALID_FILETYPE:
-				progress.SetStatus("Invalid File Type.");
-				this.debugMessage("Error Code: Invalid File Type, File name: " + file.name + ", File size: " + file.size + ", Message: " + message);
 				break;
 			default:
 				progress.SetStatus("Unhandled Error");
@@ -118,6 +131,7 @@ function uploadError(error_code, fileObj, message) {
         this.debugMessage(ex);
     }
 }
+
 
 
 function FileProgress(fileObj, target_id) {

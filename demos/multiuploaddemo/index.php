@@ -10,11 +10,11 @@
 ?>
 <html xmlns="http://www.w3.org/1999/xhtml" >
 <head>
-    <title>SWFUpload Revision 6.2 Demo</title>
+    <title>SWFUpload Revision 7.0 Demo</title>
 
 	<link href="../css/default.css" rel="stylesheet" type="text/css" />
-	<script type="text/javascript" src="../swfuploadr6_0013/swfupload.js"></script>
-	<script type="text/javascript" src="js_13/handlers.js"></script>
+	<script type="text/javascript" src="../swfupload_0014/swfupload.js"></script>
+	<script type="text/javascript" src="js_14/handlers.js"></script>
 	<script type="text/javascript">
 		var upload1, upload2;
 
@@ -30,18 +30,20 @@
 				file_types_description : "All Files",
 				file_upload_limit : "10",
 				file_queue_limit : "0",
-				begin_upload_on_queue : true,
 
-				// Event Handler Settings
-				file_queued_handler : uploadStart,
-				file_progress_handler : uploadProgress,
-				file_cancelled_handler : uploadCancel,
-				file_complete_handler : uploadComplete,
-				queue_complete_handler : uploadQueueComplete,
-				error_handler : uploadError,
+				// Event Handler Settings (all my handlers are in the Handler.js file)
+				file_dialog_start_handler : fileDialogStart,
+				file_queued_handler : fileQueued,
+				file_queue_error_handler : fileQueueError,
+				file_dialog_complete_handler : fileDialogComplete,
+				upload_start_handler : uploadStart,
+				upload_progress_handler : uploadProgress,
+				upload_error_handler : uploadError,
+				upload_complete_handler : uploadComplete,
+				file_complete_handler : fileComplete,
 
 				// Flash Settings
-				flash_url : "../swfuploadr6_0013/swfupload.swf",	// Relative to this file
+				flash_url : "../swfupload_0014/swfupload.swf",	// Relative to this file
 
 				// UI Settings
 				ui_container_id : "flashUI1",
@@ -63,18 +65,20 @@
 				file_types_description : "Image Files",
 				file_upload_limit : "10",
 				file_queue_limit : "2",
-				begin_upload_on_queue : true,
 
 				// Event Handler Settings
-				file_queued_handler : uploadStart,
-				file_progress_handler : uploadProgress,
-				file_cancelled_handler : uploadCancel,
-				file_complete_handler : uploadComplete,
-				queue_complete_handler : uploadQueueComplete,
-				error_handler : uploadError,
+				file_dialog_start_handler : fileDialogStart,
+				file_queued_handler : fileQueued,
+				file_queue_error_handler : fileQueueError,
+				file_dialog_complete_handler : fileDialogComplete,
+				upload_start_handler : uploadStart,
+				upload_progress_handler : uploadProgress,
+				upload_error_handler : uploadError,
+				upload_complete_handler : uploadComplete,
+				file_complete_handler : fileComplete,
 
 				// Flash Settings
-				flash_url : "../swfuploadr6_0013/swfupload.swf",	// Relative to this file
+				flash_url : "../swfupload_0014/swfupload.swf",	// Relative to this file
 
 				// UI Settings
 				ui_container_id : "flashUI2",
@@ -90,7 +94,7 @@
 
 </head>
 <body>
-	<div class="title"><a class="likeParent" href="../index.php">SWFUpload (Revision 6.2) Multi-Upload Demo</a></div>
+	<div class="title"><a class="likeParent" href="../index.php">SWFUpload (Revision 7.0) Multi-Upload Demo</a></div>
 	<form id="form1" action="index.php" method="post" enctype="multipart/form-data">
 		<div class="content">
 			<table>

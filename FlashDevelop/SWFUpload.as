@@ -178,6 +178,8 @@ package {
 				ExternalInterface.addCallback("StopUpload", this.StopUpload);
 				ExternalInterface.addCallback("CancelUpload", this.CancelUpload);
 				
+				ExternalInterface.addCallback("GetStats", this.GetStats);
+				
 				ExternalInterface.addCallback("AddFileParam", this.AddFileParam);
 				ExternalInterface.addCallback("RemoveFileParam", this.RemoveFileParam);
 
@@ -276,7 +278,6 @@ package {
 			this.Select_Handler(fileArray);
 		}
 		
-		// FIXME -- check that this is working right iwth the new events and that the FileItem status is being set correctly
 		private function Select_Handler(file_reference_list:Array):void {
 			this.Debug("Select Handler: Files Selected from Multi-Dialog. Processing file list");
 
@@ -436,6 +437,15 @@ package {
 				}
 			}
 
+		}
+		
+		private function GetStats():Object {
+			return {	"files_queued" : this.queued_uploads,
+						"complete_uploads" : this.completed_uploads,
+						"upload_errors" : this.upload_errors,
+						"upload_cancelled" : this.upload_cancelled,
+						"queue_errors" : this.queue_errors
+			};
 		}
 
 		private function AddFileParam(file_id:String, name:String, value:String):Boolean {
