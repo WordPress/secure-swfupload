@@ -77,7 +77,7 @@ package {
 
 		// Error code "constants"
 		private var ERROR_CODE_HTTP_ERROR:Number 				= -10;
-		private var ERROR_CODE_MISSING_UPLOAD_URL:Number 	= -20;
+		private var ERROR_CODE_MISSING_UPLOAD_URL:Number        = -20;
 		private var ERROR_CODE_IO_ERROR:Number 					= -30;
 		private var ERROR_CODE_SECURITY_ERROR:Number 			= -40;
 		private var ERROR_CODE_FILE_EXCEEDS_SIZE_LIMIT:Number 	= -50;

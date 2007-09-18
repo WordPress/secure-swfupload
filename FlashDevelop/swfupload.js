@@ -1,17 +1,11 @@
 /**
- * SWFUpload 0.8.3 Revision 6.2 by Jacob Roberts, July 2007, linebyline.blogspot.com
+ * SWFUpload 0.8.3 Revision 7.0 by Jacob Roberts, Sept 2007, linebyline.blogspot.com
  * -------- -------- -------- -------- -------- -------- -------- --------
  * SWFUpload is (c) 2006 Lars Huring and Mammon Media and is released under the MIT License:
  * http://www.opensource.org/licenses/mit-license.php
  *
  * See Changelog.txt for version history
  *
- * + Added ServerData event callback
- * = Changed upload_params to query_params
- * + Added post_params
- * + Added PreuploadValidation callback
- * + Added automatic cookie transmission to workaround the Flash browser bug
- * ? Added custom file post name setting
  */
 
 /* *********** */
@@ -65,6 +59,15 @@ SWFUpload.ERROR_CODE_UPLOAD_FAILED            = -80;
 SWFUpload.ERROR_CODE_QUEUE_LIMIT_EXCEEDED     = -90;
 SWFUpload.ERROR_CODE_SPECIFIED_FILE_NOT_FOUND = -100;
 SWFUpload.ERROR_CODE_INVALID_FILETYPE         = -110;
+SWFUpload.ERROR_CODE_FILE_VALIDATION_FAILED   = -120;
+SWFUpload.ERROR_CODE_FILE_CANCELLED           = -130;
+
+SWFUpload.FILE_STATUS_QUEUED         = 0;
+SWFUpload.FILE_STATUS_IN_PROGRESS    = 1;
+SWFUpload.FILE_STATUS_ERROR          = 2;
+SWFUpload.FILE_STATUS_COMPLETE       = 3;
+SWFUpload.FILE_STATUS_CANCELLED      = 4;
+
 
 /* ***************** */
 /* Instance Thingies */
@@ -73,22 +76,15 @@ SWFUpload.ERROR_CODE_INVALID_FILETYPE         = -110;
 
 SWFUpload.prototype.initSettings = function (init_settings) {
 
-    this.addSetting("control_id", this.movieName, "");
-
     // UI setting
     this.addSetting("ui_function",           init_settings.ui_function,           null);
     this.addSetting("ui_container_id",       init_settings.ui_container_id,       "");
     this.addSetting("degraded_container_id", init_settings.degraded_container_id, "");
 
     // Upload backend settings
-    this.addSetting("upload_target_url", init_settings.upload_target_url, "");
+    this.addSetting("upload_url",        init_settings.upload_url,        "");
     this.addSetting("file_post_name",    init_settings.file_post_name,    "Filedata");
     this.addSetting("post_params",       init_settings.post_params,       {});
-
-    // Flags
-    this.addSetting("begin_upload_on_queue",  init_settings.begin_upload_on_queue,  true);
-    //this.addSetting("use_server_data_event",  init_settings.use_server_data_event,  false);
-    this.addSetting("validate_files",         init_settings.validate_files,         false);
 
     // File Settings
     this.addSetting("file_types",             init_settings.file_types,             "*.gif;*.jpg;*.png");
@@ -108,18 +104,19 @@ SWFUpload.prototype.initSettings = function (init_settings) {
     this.debug_enabled = this.getSetting("debug_enabled");
 
     // Event Handlers
-    this.flashReady      = this.retrieveSetting(init_settings.flash_ready_handler,      this.flashReady);
-    this.dialogCancelled = this.retrieveSetting(init_settings.dialog_cancelled_handler, this.dialogCancelled);
-    this.fileQueued      = this.retrieveSetting(init_settings.file_queued_handler,      this.fileQueued);
-    this.fileValidation  = this.retrieveSetting(init_settings.file_validation_handler,  this.fileValidation);
-    this.fileProgress    = this.retrieveSetting(init_settings.file_progress_handler,    this.fileProgress);
-    this.fileCancelled   = this.retrieveSetting(init_settings.file_cancelled_handler,   this.fileCancelled);
-    this.fileComplete    = this.retrieveSetting(init_settings.file_complete_handler,    this.fileComplete);
-    this.fileDequeued    = this.retrieveSetting(init_settings.file_dequeued_handler,    this.fileDequeued);
-	this.queueStopped    = this.retrieveSetting(init_settings.queue_stopped_handler,    this.queueStopped);
-    this.queueComplete   = this.retrieveSetting(init_settings.queue_complete_handler,   this.queueComplete);
-    this.error           = this.retrieveSetting(init_settings.error_handler,            this.error);
-    this.debug           = this.retrieveSetting(init_settings.debug_handler,            this.debug);
+    this.flashReady         = this.retrieveSetting(init_settings.flash_ready_handler,          this.flashReady);
+    this.fileDialogStart    = this.retrieveSetting(init_settings.file_dialog_start_handler,    this.fileDialogStart);
+    this.fileQueued         = this.retrieveSetting(init_settings.file_queued_handler,          this.fileQueued);
+    this.fileQueueError     = this.retrieveSetting(init_settings.file_queue_error_handler,     this.fileQueueError);
+    this.fileDialogComplete = this.retrieveSetting(init_settings.file_dialog_complete_handler, this.fileDialogComplete);
+    
+	this.uploadStart    = this.retrieveSetting(init_settings.upload_start_handler,             this.uploadStart);
+	this.uploadProgress = this.retrieveSetting(init_settings.upload_progress_handler,          this.uploadProgress);
+    this.uploadError    = this.retrieveSetting(init_settings.upload_error_handler,             this.uploadError);
+    this.uploadComplete = this.retrieveSetting(init_settings.upload_complete_handler,          this.uploadComplete);
+    this.fileComplete   = this.retrieveSetting(init_settings.file_complete_handler,            this.fileComplete);
+
+    this.debug          = this.retrieveSetting(init_settings.debug_handler,            this.debug);
 };
 
 // loadFlash is a private method that generates the HTML tag for the Flash
@@ -134,11 +131,15 @@ SWFUpload.prototype.loadFlash = function () {
     }
 
     // Get the body tag where we will be adding the flash movie
-    target_element = document.getElementsByTagName("body")[0];
-    if (typeof(target_element) === "undefined" || target_element === null) {
-        this.debugMessage('Could not find an element to add the Flash too. Failed to find element for "flash_container_id" or the BODY element.');
-        return false;
-    }
+    try {
+		target_element = document.getElementsByTagName("body")[0];
+		if (typeof(target_element) === "undefined" || target_element === null) {
+			this.debugMessage('Could not find an element to add the Flash too. Failed to find element for "flash_container_id" or the BODY element.');
+			return false;
+		}
+	} catch {
+		return false;
+	}
 
     // Append the container and load the flash
     container = document.createElement("div");
@@ -191,13 +192,10 @@ SWFUpload.prototype.getFlashVars = function () {
 
     // Build the parameter string
     var html = "";
-    html += "controlID=" + encodeURIComponent(this.getSetting("control_id"));
-    html += "&uploadTargetURL=" + encodeURIComponent(upload_target_url);
+    html += "movieName=" + encodeURIComponent(this.movieName);
+    html += "&uploadURL=" + encodeURIComponent(upload_url);
     html += "&params=" + encodeURIComponent(param_string);
     html += "&filePostName=" + encodeURIComponent(this.getSetting("file_post_name"));
-    html += "&beginUploadOnQueue=" + encodeURIComponent(this.getSetting("begin_upload_on_queue"));
-    //html += "&useServerDataEvent=" + encodeURIComponent(this.getSetting("use_server_data_event"));
-    html += "&validateFiles=" + encodeURIComponent(this.getSetting("validate_files"));
     html += "&fileTypes=" + encodeURIComponent(this.getSetting("file_types"));
     html += "&fileTypesDescription=" + encodeURIComponent(this.getSetting("file_types_description"));
     html += "&fileSizeLimit=" + encodeURIComponent(this.getSetting("file_size_limit"));
@@ -214,6 +212,8 @@ SWFUpload.prototype.getMovieElement = function () {
 
         // Fix IEs "Flash can't callback when in a form" issue (http://www.extremefx.com.ar/blog/fixing-flash-external-interface-inside-form-on-internet-explorer)
         // Removed because Revision 6 always adds the flash to the body (inside a containing div)
+		// If you insist on adding the Flash file inside a Form then in IE you have to make you wait until the DOM is ready
+		// and run this code to make the form's ID available from the window object so Flash and JavaScript can communicate.
         //if (typeof(window[this.movieName]) === "undefined" || window[this.moveName] !== this.movieElement) {
         //  window[this.movieName] = this.movieElement;
         //}
@@ -345,14 +345,14 @@ SWFUpload.prototype.outputObject = function (object, prefix) {
     to operate SWFUpload
    ***************************** */
 
-SWFUpload.prototype.browse = function () {
+SWFUpload.prototype.selectFile = function () {
     var movie_element = this.getMovieElement();
-    if (movie_element !== null && typeof(movie_element.Browse) === "function") {
+    if (movie_element !== null && typeof(movie_element.SelectFile) === "function") {
         try {
-            movie_element.Browse();
+            movie_element.SelectFile();
         }
         catch (ex) {
-            this.debugMessage("Could not call browse: " + ex);
+            this.debugMessage("Could not call SelectFile: " + ex);
         }
     } else {
         this.debugMessage("Could not find Flash element");
@@ -360,9 +360,24 @@ SWFUpload.prototype.browse = function () {
 
 };
 
-// Begins the uploads (if begin_upload_on_queue is disabled)
-// The file_id is optional.  If specified only that file will be uploaded.  If not specified SWFUpload will
-// begin to process the queue.
+SWFUpload.prototype.selectFiles = function () {
+    var movie_element = this.getMovieElement();
+    if (movie_element !== null && typeof(movie_element.SelectFiles) === "function") {
+        try {
+            movie_element.SelectFiles();
+        }
+        catch (ex) {
+            this.debugMessage("Could not call SelectFile: " + ex);
+        }
+    } else {
+        this.debugMessage("Could not find Flash element");
+    }
+
+};
+
+
+/* Start the upload.  If a file_id is specified that file is uploaded. Otherwise the first
+ * file in the queue is uploaded.  If no files are in the queue then nothing happens */
 SWFUpload.prototype.startUpload = function (file_id) {
     var movie_element = this.getMovieElement();
     if (movie_element !== null && typeof(movie_element.StartUpload) === "function") {
@@ -378,7 +393,7 @@ SWFUpload.prototype.startUpload = function (file_id) {
 
 };
 
-// Cancels the current uploading item.  If no item is uploading then nothing happens.
+/* Cancels a the file upload.  You must specify a file_id */
 SWFUpload.prototype.cancelUpload = function (file_id) {
     var movie_element = this.getMovieElement();
     if (movie_element !== null && typeof(movie_element.CancelUpload) === "function") {
@@ -387,22 +402,6 @@ SWFUpload.prototype.cancelUpload = function (file_id) {
         }
         catch (ex) {
             this.debugMessage("Could not call CancelUpload");
-        }
-    } else {
-        this.debugMessage("Could not find Flash element");
-    }
-
-};
-
-// Cancels all the files in the queue.  Including any current uploads.
-SWFUpload.prototype.cancelQueue = function () {
-    var movie_element = this.getMovieElement();
-    if (movie_element !== null && typeof(movie_element.CancelQueue) === "function") {
-        try {
-            movie_element.CancelQueue();
-        }
-        catch (ex) {
-            this.debugMessage("Could not call CancelQueue");
         }
     } else {
         this.debugMessage("Could not find Flash element");
@@ -456,18 +455,18 @@ SWFUpload.prototype.removeFileParam = function (file_id, name) {
 
 };
 
-SWFUpload.prototype.setUploadTargetURL = function (url) {
+SWFUpload.prototype.setUploadURL = function (url) {
     var movie_element = this.getMovieElement();
-    if (movie_element !== null && typeof(movie_element.SetUploadTargetURL) === "function") {
+    if (movie_element !== null && typeof(movie_element.SetUploadURL) === "function") {
         try {
-            this.addSetting("upload_target_url", url);
-            movie_element.SetUploadTargetURL(this.getSetting("upload_target_url"));
+            this.addSetting("upload_url", url);
+            movie_element.SetUploadURL(this.getSetting("upload_url"));
         }
         catch (ex) {
-            this.debugMessage("Could not call SetUploadTargetURL");
+            this.debugMessage("Could not call SetUploadURL");
         }
     } else {
-        this.debugMessage("Could not find Flash element in SetUploadTargetURL");
+        this.debugMessage("Could not find Flash element in setUploadURL");
     }
 };
 
@@ -547,51 +546,6 @@ SWFUpload.prototype.setFileQueueLimit = function (file_queue_limit) {
     }
 };
 
-SWFUpload.prototype.setBeginUploadOnQueue = function (begin_upload_on_queue) {
-    var movie_element = this.getMovieElement();
-    if (movie_element !== null && typeof(movie_element.SetBeginUploadOnQueue) === "function") {
-        try {
-            this.addSetting("begin_upload_on_queue", begin_upload_on_queue);
-            movie_element.SetBeginUploadOnQueue(this.getSetting("begin_upload_on_queue"));
-        }
-        catch (ex) {
-            this.debugMessage("Could not call SetBeginUploadOnQueue");
-        }
-    } else {
-        this.debugMessage("Could not find Flash element in SetBeginUploadOnQueue");
-    }
-};
-
-SWFUpload.prototype.setUseServerDataEvent = function (use_server_data_event) {
-    var movie_element = this.getMovieElement();
-    if (movie_element !== null && typeof(movie_element.SetUseServerDataEvent) === "function") {
-        try {
-            this.addSetting("use_server_data_event", use_server_data_event);
-            movie_element.SetUseServerDataEvent(this.getSetting("use_server_data_event"));
-        }
-        catch (ex) {
-            this.debugMessage("Could not call SetUseServerDataEvent");
-        }
-    } else {
-        this.debugMessage("Could not find Flash element in SetUseServerDataEvent");
-    }
-};
-
-SWFUpload.prototype.setValidateFiles = function (validate_files) {
-    var movie_element = this.getMovieElement();
-    if (movie_element !== null && typeof(movie_element.SetValidateFiles) === "function") {
-        try {
-            this.addSetting("validate_files", validate_files);
-            movie_element.SetValidateFiles(this.getSetting("validate_files"));
-        }
-        catch (ex) {
-            this.debugMessage("Could not call SetValidateFiles");
-        }
-    } else {
-        this.debugMessage("Could not find Flash element in SetValidateFiles");
-    }
-};
-
 SWFUpload.prototype.setFilePostName = function (file_post_name) {
     var movie_element = this.getMovieElement();
     if (movie_element !== null && typeof(movie_element.SetFilePostName) === "function") {
@@ -647,24 +601,35 @@ SWFUpload.prototype.flashReady = function () {
     }
 };
 
-// Called when the user cancels the File browser window.
-SWFUpload.prototype.dialogCancelled = function () {
-    this.debugMessage("browse Dialog Cancelled.");
+
+SWFUpload.prototype.fileDialogStart = function () {
+	/* This is a chance to do something before the browse window opens */
 };
 
-// Called once for each file the user selects
+
 SWFUpload.prototype.fileQueued = function (file) {
-    this.debugMessage("File Queued: " + file.id);
+    /* Called when a file is successfully added to the queue. */
 };
 
-// Called before a file is queued if the validateFiles setting is true.  This function
-// must return true or false to indicate to flash whether the file should be
-// uploaded.
-SWFUpload.prototype.fileValidation = function (file) {
-    this.debugMessage("File Validation: " + file.id);
 
-    return true;
-};
+SWFUpload.prototype.fileQueueError = function (error_code, file, message) {
+	/* Handle errors that occur when an attempt to queue a file fails */
+}
+
+SWFUpload.prototype.fileDialogComplete = function (files_selected) {
+	/* Called after the file dialog has closed and the selected files have been queued.
+		You could call startUpload here if you want the queued files to begin uploading immediately.
+	*/
+}
+
+SWFUpload.prototype.uploadStart = function (file) {
+	/* Gets called when a file upload is about to be started.  Return true to continue the upload. Return false to stop the upload. 
+		If you return false then the uploadError callback is called and then fileComplete (like normal).
+		
+		This is a good place to do any file validation you need.
+	*/
+	return true;
+}
 
 // Called during upload as the file progresses
 SWFUpload.prototype.fileProgress = function (file, bytes_complete) {
