@@ -1,4 +1,14 @@
- * SWFUpload 0.8.3 Revision 6.2 by Jacob Roberts, July 2007, linebyline.blogspot.com
+ * SWFUpload Revision 7.0 by Jacob Roberts, Sept 2007, linebyline.blogspot.com
+
+ * --------- Revision 7.0 -----------
+ * = Redesigned the Event Chain
+ * - Removed much of the queue concepts
+ * - Removed the fileValidation events. This can be done in the new uploadStart event
+ * - Removed beginUploadOnQueue feature. This can be done in the new dialogComplete event.
+ * + Added functions for retrieving queue stats (number of files uploaded, queued, errors, etc)
+ * + Added an file status property to the FileObject. This indicates, uploaded, error, waiting.
+ * = Created JavaScript files for replacing the removed functionality. I.E. auto upload start, file validation
+ * + Added a single file browser (user cannot select multiple files)
 
  * --------- Revision 6.2 -----------
  * + Added API calls for changing all the changeable settings dynamically

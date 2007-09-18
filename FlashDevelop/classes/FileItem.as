@@ -14,12 +14,14 @@ package {
 		public static var FILE_STATUS_IN_PROGRESS:Number = 1;
 		public static var FILE_STATUS_ERROR:Number = 2;
 		public static var FILE_STATUS_COMPLETE:Number = 3;
+		public static var FILE_STATUS_CANCELLED:Number = 4;
 		
 		public function FileItem(file_reference:FileReference, control_id:String)
 		{
 			this.postObject = {};
 			this.file_reference = file_reference;
-			this.id = control_id + "_" + (FileItem.file_id_sequence++);		
+			this.id = control_id + "_" + (FileItem.file_id_sequence++);
+			this.file_status = FileItem.FILE_STATUS_QUEUED;
 			
 		}
 		
