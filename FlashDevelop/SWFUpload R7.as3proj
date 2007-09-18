@@ -54,6 +54,8 @@
   <compileTargets>
     <compile path="SWFUpload.as" />
     <compile path="classes\SWFUpload.as" />
+    <compile path="SWFUpload\SWFUpload.as" />
+    <compile path="SWFUploadBob\SWFUpload.as" />
   </compileTargets>
   <!-- Paths to exclude from the Project Explorer tree -->
   <hiddenPaths>
