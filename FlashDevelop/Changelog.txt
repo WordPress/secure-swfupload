@@ -5,10 +5,12 @@
  * - Removed much of the queue concepts
  * - Removed the fileValidation events. This can be done in the new uploadStart event
  * - Removed beginUploadOnQueue feature. This can be done in the new dialogComplete event.
+ * - Removed use_server_data. This is now always on.
  * + Added functions for retrieving queue stats (number of files uploaded, queued, errors, etc)
- * + Added an file status property to the FileObject. This indicates, uploaded, error, waiting.
- * = Created JavaScript files for replacing the removed functionality. I.E. auto upload start, file validation
+ * + Added a file status property to the FileObject. This indicates, uploaded, error, waiting.
  * + Added a single file browser (user cannot select multiple files)
+ * + Fixed bug (hopefully) caused if Flash call to JavaScript and in the callback JavaSCript calls to Flash
+ *    This only place this does not apply is to uploadStart.  If you call in to Flash from uploadStart use a setTimeout to do it.
 
  * --------- Revision 6.2 -----------
  * + Added API calls for changing all the changeable settings dynamically
