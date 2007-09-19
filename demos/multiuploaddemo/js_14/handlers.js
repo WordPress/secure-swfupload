@@ -1,3 +1,16 @@
+function cancelQueue(instance) {
+	document.getElementById(instance.getSetting("cancel_button_id")).disabled = true;
+	instance.stopUpload();
+	var stats;
+	
+	do {
+		stats = instance.getStats();
+		instance.cancelUpload();
+	} while (stats.files_queued !== 0);
+	
+}
+
+
 function fileDialogStart() {
 	/* I don't need to do anything here */
 }
@@ -9,17 +22,14 @@ function fileQueued(fileObj) {
 		progress.SetStatus("Pending...");
 		progress.ToggleCancel(true, this);
 
-		document.getElementById("btnCancel1").disabled = false;
-
 	} catch (ex) { this.debugMessage(ex); }
 
 }
 
-//FIXME
 function fileQueueError(error_code, fileObj, message) {
 	try {
-		if (error_code == SWFUpload.ERROR_CODE_QUEUE_LIMIT_EXCEEDED) {
-			alert("You have attempted to queue too many files.\n" + (message == 0 ? "You have reached the upload limit." : "You may select " + (message > 1 ? "up to " + message + " files." : "one file.")));
+		if (error_code === SWFUpload.ERROR_CODE_QUEUE_LIMIT_EXCEEDED) {
+			alert("You have attempted to queue too many files.\n" + (message === 0 ? "You have reached the upload limit." : "You may select " + (message > 1 ? "up to " + message + " files." : "one file.")));
 			return;
 		}
 
@@ -30,19 +40,24 @@ function fileQueueError(error_code, fileObj, message) {
 		switch(error_code) {
 			case SWFUpload.ERROR_CODE_FILE_EXCEEDS_SIZE_LIMIT:
 				progress.SetStatus("File is too big.");
-				this.debugMessage("Error Code: File too big, File name: " + file.name + ", File size: " + file.size + ", Message: " + message);
+				this.debugMessage("Error Code: File too big, File name: " + fileObj.name + ", File size: " + fileObj.size + ", Message: " + message);
 				break;
 			case SWFUpload.ERROR_CODE_ZERO_BYTE_FILE:
 				progress.SetStatus("Cannot upload Zero Byte files.");
-				this.debugMessage("Error Code: Zero byte file, File name: " + file.name + ", File size: " + file.size + ", Message: " + message);
+				this.debugMessage("Error Code: Zero byte file, File name: " + fileObj.name + ", File size: " + fileObj.size + ", Message: " + message);
 				break;
 			case SWFUpload.ERROR_CODE_INVALID_FILETYPE:
 				progress.SetStatus("Invalid File Type.");
-				this.debugMessage("Error Code: Invalid File Type, File name: " + file.name + ", File size: " + file.size + ", Message: " + message);
+				this.debugMessage("Error Code: Invalid File Type, File name: " + fileObj.name + ", File size: " + fileObj.size + ", Message: " + message);
+				break;
+			case SWFUpload.ERROR_CODE_QUEUE_LIMIT_EXCEEDED:
+				alert("You have selected too many files.  " +  (message > 1 ? "You may only add " +  message + " more files" : "You cannot add any more files."));
 				break;
 			default:
-				progress.SetStatus("Unhandled Error");
-				this.debugMessage("Error Code: " + error_code + ", File name: " + file.name + ", File size: " + file.size + ", Message: " + message);
+				if (fileObj !== null) {
+					progress.SetStatus("Unhandled Error");
+				}
+				this.debugMessage("Error Code: " + error_code + ", File name: " + fileObj.name + ", File size: " + fileObj.size + ", Message: " + message);
 				break;
 		}
 	} catch (ex) {
@@ -50,9 +65,14 @@ function fileQueueError(error_code, fileObj, message) {
     }
 }
 
-function fileDialogCompleteHandler(num_files_queued) {
+function fileDialogComplete(num_files_queued) {
+	if (this.getStats().files_queued > 0) {
+		document.getElementById(this.getSetting("cancel_button_id")).disabled = false;
+	}
+	
 	/* I want auto start and I can do that here */
 	this.startUpload();
+
 }
 
 function uploadStart(fileObj) {
@@ -67,7 +87,7 @@ function uploadStart(fileObj) {
 function uploadProgress(fileObj, bytesLoaded, bytesTotal) {
 
 	try {
-		var percent = Math.ceil((bytesLoaded / bytesTotal) * 100)
+		var percent = Math.ceil((bytesLoaded / bytesTotal) * 100);
 
 		var progress = new FileProgress(fileObj, this.getSetting("progress_target"));
 		progress.SetProgress(percent);
@@ -87,10 +107,14 @@ function uploadComplete(fileObj, server_data) {
 
 function fileComplete(fileObj) {
 	/*  I want the next upload to continue automatically so I'll call startUpload here */
-	this.startUpload();
+	if (this.getStats().files_queued === 0) {
+		document.getElementById(this.getSetting("cancel_button_id")).disabled = true;
+	} else {	
+		this.startUpload();
+	}
+
 }
 
-//FIXME
 function uploadError(error_code, fileObj, message) {
 	try {
 		var progress = new FileProgress(fileObj, this.getSetting("progress_target"));
@@ -99,32 +123,47 @@ function uploadError(error_code, fileObj, message) {
 
 		switch(error_code) {
 			case SWFUpload.ERROR_CODE_HTTP_ERROR:
-				progress.SetStatus("Upload Error");
-				this.debugMessage("Error Code: HTTP Error, File name: " + file.name + ", Message: " + message);
+				progress.SetStatus("Upload Error: " + message);
+				this.debugMessage("Error Code: HTTP Error, File name: " + fileObj.name + ", Message: " + message);
 				break;
 			case SWFUpload.ERROR_CODE_MISSING_UPLOAD_URL:
 				progress.SetStatus("Configuration Error");
-				this.debugMessage("Error Code: No backend file, File name: " + file.name + ", Message: " + message);
+				this.debugMessage("Error Code: No backend file, File name: " + fileObj.name + ", Message: " + message);
 				break;
 			case SWFUpload.ERROR_CODE_UPLOAD_FAILED:
 				progress.SetStatus("Upload Failed.");
-				this.debugMessage("Error Code: Upload Failed, File name: " + file.name + ", File size: " + file.size + ", Message: " + message);
+				this.debugMessage("Error Code: Upload Failed, File name: " + fileObj.name + ", File size: " + fileObj.size + ", Message: " + message);
 				break;
 			case SWFUpload.ERROR_CODE_IO_ERROR:
 				progress.SetStatus("Server (IO) Error");
-				this.debugMessage("Error Code: IO Error, File name: " + file.name + ", Message: " + message);
+				this.debugMessage("Error Code: IO Error, File name: " + fileObj.name + ", Message: " + message);
 				break;
 			case SWFUpload.ERROR_CODE_SECURITY_ERROR:
 				progress.SetStatus("Security Error");
-				this.debugMessage("Error Code: Security Error, File name: " + file.name + ", Message: " + message);
+				this.debugMessage("Error Code: Security Error, File name: " + fileObj.name + ", Message: " + message);
 				break;
 			case SWFUpload.ERROR_CODE_UPLOAD_LIMIT_EXCEEDED:
 				progress.SetStatus("Upload limit exceeded.");
-				this.debugMessage("Error Code: Upload Limit Exceeded, File name: " + file.name + ", File size: " + file.size + ", Message: " + message);
+				this.debugMessage("Error Code: Upload Limit Exceeded, File name: " + fileObj.name + ", File size: " + fileObj.size + ", Message: " + message);
+				break;
+			case SWFUpload.ERROR_CODE_SPECIFIED_FILE_NOT_FOUND:
+				progress.SetStatus("File not found.");
+				this.debugMessage("Error Code: The file was not found, File name: " + fileObj.name + ", File size: " + fileObj.size + ", Message: " + message);
+				break;
+			case SWFUpload.ERROR_CODE_FILE_VALIDATION_FAILED:
+				progress.SetStatus("Failed Validation.  Upload skipped.");
+				this.debugMessage("Error Code: File Validation Failed, File name: " + fileObj.name + ", File size: " + fileObj.size + ", Message: " + message);
+				break;
+			case SWFUpload.ERROR_CODE_FILE_CANCELLED:
+				if (this.getStats().files_queued === 0) {
+					document.getElementById(this.getSetting("cancel_button_id")).disabled = true;
+				}
+				progress.SetStatus("Cancelled");
+				progress.SetCancelled();
 				break;
 			default:
-				progress.SetStatus("Unhandled Error");
-				this.debugMessage("Error Code: " + error_code + ", File name: " + file.name + ", File size: " + file.size + ", Message: " + message);
+				progress.SetStatus("Unhandled Error: " + error_code);
+				this.debugMessage("Error Code: " + error_code + ", File name: " + fileObj.name + ", File size: " + fileObj.size + ", Message: " + message);
 				break;
 		}
 	} catch (ex) {
@@ -185,7 +224,7 @@ FileProgress.prototype.SetProgress = function(percentage) {
 	this.fileProgressElement.className = "progressContainer green";
 	this.fileProgressElement.childNodes[3].className = "progressBarInProgress";
 	this.fileProgressElement.childNodes[3].style.width = percentage + "%";
-}
+};
 FileProgress.prototype.SetComplete = function() {
 	this.fileProgressElement.className = "progressContainer blue";
 	this.fileProgressElement.childNodes[3].className = "progressBarComplete";
@@ -193,7 +232,7 @@ FileProgress.prototype.SetComplete = function() {
 
 	var oSelf = this;
 	setTimeout(function() { oSelf.Disappear(); }, 10000);
-}
+};
 FileProgress.prototype.SetError = function() {
 	this.fileProgressElement.className = "progressContainer red";
 	this.fileProgressElement.childNodes[3].className = "progressBarError";
@@ -201,7 +240,7 @@ FileProgress.prototype.SetError = function() {
 
 	var oSelf = this;
 	setTimeout(function() { oSelf.Disappear(); }, 5000);
-}
+};
 FileProgress.prototype.SetCancelled = function() {
 	this.fileProgressElement.className = "progressContainer";
 	this.fileProgressElement.childNodes[3].className = "progressBarError";
@@ -209,10 +248,10 @@ FileProgress.prototype.SetCancelled = function() {
 
 	var oSelf = this;
 	setTimeout(function() { oSelf.Disappear(); }, 2000);
-}
+};
 FileProgress.prototype.SetStatus = function(status) {
 	this.fileProgressElement.childNodes[2].innerHTML = status;
-}
+};
 
 FileProgress.prototype.ToggleCancel = function(show, upload_obj) {
 	this.fileProgressElement.childNodes[0].style.visibility = show ? "visible" : "hidden";
@@ -220,7 +259,7 @@ FileProgress.prototype.ToggleCancel = function(show, upload_obj) {
 		var file_id = this.file_progress_id;
 		this.fileProgressElement.childNodes[0].onclick = function() { upload_obj.cancelUpload(file_id); return false; };
 	}
-}
+};
 
 FileProgress.prototype.Disappear = function() {
 
@@ -230,14 +269,16 @@ FileProgress.prototype.Disappear = function() {
 
 	if (this.opacity > 0) {
 		this.opacity -= reduce_opacity_by;
-		if (this.opacity < 0) this.opacity = 0;
+		if (this.opacity < 0) {
+			this.opacity = 0;
+		}
 
 		if (this.fileProgressWrapper.filters) {
 			try {
 				this.fileProgressWrapper.filters.item("DXImageTransform.Microsoft.Alpha").opacity = this.opacity;
 			} catch (e) {
 				// If it is not set initially, the browser will throw an error.  This will set it if it is not set yet.
-				this.fileProgressWrapper.style.filter = 'progid:DXImageTransform.Microsoft.Alpha(opacity=' + this.opacity + ')';
+				this.fileProgressWrapper.style.filter = "progid:DXImageTransform.Microsoft.Alpha(opacity=" + this.opacity + ")";
 			}
 		} else {
 			this.fileProgressWrapper.style.opacity = this.opacity / 100;
@@ -246,7 +287,9 @@ FileProgress.prototype.Disappear = function() {
 
 	if (this.height > 0) {
 		this.height -= reduce_height_by;
-		if (this.height < 0) this.height = 0;
+		if (this.height < 0) {
+			this.height = 0;
+		}
 
 		this.fileProgressWrapper.style.height = this.height + "px";
 	}
@@ -257,4 +300,4 @@ FileProgress.prototype.Disappear = function() {
 	} else {
 		this.fileProgressWrapper.style.display = "none";
 	}
-}
+};

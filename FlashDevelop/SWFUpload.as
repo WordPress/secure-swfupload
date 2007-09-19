@@ -22,8 +22,10 @@ package {
 	import flash.events.*;
 	import flash.external.ExternalInterface;
 	import flash.system.Security;
+	import flash.utils.Timer;
 
 	import FileItem;
+	import ExternalCall;
 
 	public class SWFUpload extends Sprite {
 		// Cause SWFUpload to start as soon as the movie starts
@@ -31,7 +33,9 @@ package {
 		{
 			var SWFUpload:SWFUpload = new SWFUpload();
 		}
-
+		
+		private const build_number:String = "20070918160000";
+		
 		// State tracking variables
 		private var fileBrowserMany:FileReferenceList = new FileReferenceList();
 		private var fileBrowserOne:FileReference = null;	// This isn't set because it can't be reused like the FileReferenceList. It gets setup in the SelectFile method
@@ -200,7 +204,8 @@ package {
 
 			// Do some feature detection
 			if (flash.net.FileReferenceList && flash.net.FileReference && flash.net.URLRequest && flash.external.ExternalInterface && flash.external.ExternalInterface.available) {
-				ExternalInterface.call(this.flashReady_Callback);
+				//ExternalInterface.call(this.flashReady_Callback);
+				ExternalCall.Simple(this.flashReady_Callback);
 			} else {
 				this.Debug("Feature Detection Failed");				
 			}
@@ -212,13 +217,12 @@ package {
 		* *************************************** */
 		private function DialogCancelled_Handler(event:Event):void {
 			this.Debug("Event: fileDialogComplete: File Dialog window cancelled.");
-			ExternalInterface.call(this.fileDialogComplete_Callback, 0);
+			ExternalCall.FileDialogComplete(this.fileDialogComplete_Callback, 0);
 		}
 
 		private function FileProgress_Handler(event:ProgressEvent):void {
 			this.Debug("Event: uploadProgress: File ID: " + this.current_file_item.id + ". Bytes: " + event.bytesLoaded + ". Total: " + event.bytesTotal);
-
-			ExternalInterface.call(this.uploadProgress_Callback, this.current_file_item.ToJavaScriptObject(), event.bytesLoaded, event.bytesTotal);
+			ExternalCall.UploadProgress(this.uploadProgress_Callback, this.current_file_item.ToJavaScriptObject(), event.bytesLoaded, event.bytesTotal);
 		}
 
 		private function ServerData_Handler(event:DataEvent):void {
@@ -226,7 +230,7 @@ package {
 			this.current_file_item.file_status = FileItem.FILE_STATUS_COMPLETE;
 
 			this.Debug("Event: uploadComplete: File ID: " + this.current_file_item.id + " Data: " + event.data);
-			ExternalInterface.call(this.uploadComplete_Callback, this.current_file_item.ToJavaScriptObject(), event.data);
+			ExternalCall.UploadComplete(this.uploadComplete_Callback, this.current_file_item.ToJavaScriptObject(), event.data);
 
 			this.UploadComplete();
 			
@@ -237,8 +241,7 @@ package {
 			this.current_file_item.file_status = FileItem.FILE_STATUS_ERROR;
 
 			this.Debug("Event: uploadError: HTTP ERROR : File ID: " + this.current_file_item.id + ". HTTP Status: " + event.status + ".");
-			ExternalInterface.call(this.uploadError_Callback, this.ERROR_CODE_HTTP_ERROR, this.current_file_item.ToJavaScriptObject(), event.status);
-
+			ExternalCall.UploadError(this.uploadError_Callback, this.ERROR_CODE_HTTP_ERROR, this.current_file_item.ToJavaScriptObject(), event.status.toString());
 			this.UploadComplete();
 		}
 		
@@ -250,10 +253,10 @@ package {
 
 			if(!this.uploadURL.length) {
 				this.Debug("Event: uploadError : IO Error : File ID: " + this.current_file_item.id + ". Upload URL string is empty.");
-				ExternalInterface.call(this.uploadError_Callback, this.ERROR_CODE_MISSING_UPLOAD_URL, this.current_file_item.ToJavaScriptObject(), event.text);
+				ExternalCall.UploadError(this.uploadError_Callback, this.ERROR_CODE_MISSING_UPLOAD_URL, this.current_file_item.ToJavaScriptObject(), event.text);
 			} else {
 				this.Debug("Event: uploadError : IO Error : File ID: " + this.current_file_item.id + ". IO Error.");
-				ExternalInterface.call(this.uploadError_Callback, this.ERROR_CODE_IO_ERROR, this.current_file_item.ToJavaScriptObject(), event.text);
+				ExternalCall.UploadError(this.uploadError_Callback, this.ERROR_CODE_IO_ERROR, this.current_file_item.ToJavaScriptObject(), event.text);
 			}
 
 			this.UploadComplete();
@@ -264,7 +267,7 @@ package {
 			this.current_file_item.file_status = FileItem.FILE_STATUS_ERROR;
 
 			this.Debug("Event: uploadError : Security Error : File Number: " + this.current_file_item.id + ". Error:" + event.text);
-			ExternalInterface.call(this.uploadError_Callback, this.ERROR_CODE_SECURITY_ERROR, this.current_file_item.ToJavaScriptObject(), event.text);
+			ExternalCall.UploadError(this.uploadError_Callback, this.ERROR_CODE_SECURITY_ERROR, this.current_file_item.ToJavaScriptObject(), event.text);
 
 			this.UploadComplete();
 		}
@@ -288,7 +291,7 @@ package {
 			// Check if the number of files selected is greater than the number allowed to queue up.
 			if (file_reference_list.length > queue_slots_remaining && (this.fileUploadLimit != 0 || this.fileQueueLimit > 0)) {
 				this.Debug("Event: fileQueueError : Selected Files exceed remaining Queue size.");
-				ExternalInterface.call(this.fileQueueError_Callback, this.ERROR_CODE_QUEUE_LIMIT_EXCEEDED, null, queue_slots_remaining);
+				ExternalCall.FileQueueError(this.fileQueueError_Callback, this.ERROR_CODE_QUEUE_LIMIT_EXCEEDED, null, queue_slots_remaining.toString());
 			} else {
 				// Process each selected file
 				for (var i:Number = 0; i < file_reference_list.length; i++) {
@@ -301,29 +304,30 @@ package {
 						this.Debug("Event: fileQueued : File ID: " + file_item.id);
 						this.file_queue.push(file_item);
 						this.queued_uploads++;
-						ExternalInterface.call(this.fileQueued_Callback, file_item.ToJavaScriptObject());
+						ExternalCall.FileQueued(this.fileQueued_Callback, file_item.ToJavaScriptObject());
 					} 
 					else if (!is_valid_filetype) {
 						this.Debug("Event: fileQueueError : File not of a valid type.");
 						this.queue_errors++;
-						ExternalInterface.call(this.fileQueueError_Callback, this.ERROR_CODE_INVALID_FILETYPE, file_item.ToJavaScriptObject(), "File is not an allowed file type.");
+						ExternalCall.FileQueueError(this.fileQueueError_Callback, this.ERROR_CODE_INVALID_FILETYPE, file_item.ToJavaScriptObject(), "File is not an allowed file type.");
 					}
 					else if (size_result > 0) {
 						this.Debug("Event: fileQueueError : File exceeds size limit.");
 						this.queue_errors++;
-						ExternalInterface.call(this.fileQueueError_Callback, this.ERROR_CODE_FILE_EXCEEDS_SIZE_LIMIT, file_item.ToJavaScriptObject(), "File size exceeds allowed limit.");
+						ExternalCall.FileQueueError(this.fileQueueError_Callback, this.ERROR_CODE_FILE_EXCEEDS_SIZE_LIMIT, file_item.ToJavaScriptObject(), "File size exceeds allowed limit.");
 					} else if (size_result < 0) {
 						this.Debug("Event: fileQueueError : File is zero bytes.");
 						this.queue_errors++;
-						ExternalInterface.call(this.fileQueueError_Callback, this.ERROR_CODE_ZERO_BYTE_FILE, file_item.ToJavaScriptObject(), "File is zero bytes and cannot be uploaded.");
+						ExternalCall.FileQueueError(this.fileQueueError_Callback, this.ERROR_CODE_ZERO_BYTE_FILE, file_item.ToJavaScriptObject(), "File is zero bytes and cannot be uploaded.");
 					} 
 				}
 			}
 			
 			this.Debug("Event: fileDialogComplete : Finished adding files");
-			ExternalInterface.call(this.fileDialogComplete_Callback, file_reference_list.length);
+			ExternalCall.FileDialogComplete(this.fileDialogComplete_Callback, file_reference_list.length);
 		}
 
+		
 		/* ****************************************************************
 			Externally exposed functions
 		****************************************************************** */
@@ -343,7 +347,7 @@ package {
 			if (this.fileTypesDescription.length > 0)  allowed_file_types_description = this.fileTypesDescription;
 
 			this.Debug("Event: fileDialogStart : Browsing files. Single Select. Allowed file types: " + allowed_file_types);
-			ExternalInterface.call(this.fileDialogStart_Callback);
+			ExternalCall.Simple(this.fileDialogStart_Callback);
 
 			this.fileBrowserOne.browse([new FileFilter(allowed_file_types_description, allowed_file_types)]);
 
@@ -357,7 +361,7 @@ package {
 			if (this.fileTypesDescription.length > 0)  allowed_file_types_description = this.fileTypesDescription;
 
 			this.Debug("Event: fileDialogStart : Browsing files. Multi Select. Allowed file types: " + allowed_file_types);
-			ExternalInterface.call(this.fileDialogStart_Callback);
+			ExternalCall.Simple(this.fileDialogStart_Callback);
 			this.fileBrowserMany.browse([new FileFilter(allowed_file_types_description, allowed_file_types)]);
 		}
 
@@ -403,22 +407,25 @@ package {
 		 * If the file is not currently uploading then only the uploadCancelled event is fired.
 		 * */
 		private function CancelUpload(file_id:String):void {
-			if (file_id) {
-				if (this.current_file_item != null && this.current_file_item.id == file_id) {
+			var file_item:FileItem = null;
+			var timer:Timer = null;
+			
+			// Check the current file item
+			if (this.current_file_item != null && (this.current_file_item.id == file_id || !file_id)) {
 					this.current_file_item.file_reference.cancel();
 					this.current_file_item.file_status = FileItem.FILE_STATUS_CANCELLED;
 					this.upload_cancelled++;
 
 					this.Debug("Event: fileCancelled: File ID: " + this.current_file_item.id + ". Cancelling current upload");
-					ExternalInterface.call(this.uploadError_Callback, this.ERROR_CODE_FILE_CANCELLED, this.current_file_item.ToJavaScriptObject(), "File Upload Cancelled.");
+					ExternalCall.UploadError(this.uploadError_Callback, this.ERROR_CODE_FILE_CANCELLED, this.current_file_item.ToJavaScriptObject(), "File Upload Cancelled.");
 
 					this.UploadComplete(); // <-- this advanced the upload to the next file
-				} else {
+			} else if (file_id) {
 					// Find the file in the queue
 					var file_index:Number = this.FindIndexInFileQueue(file_id);
 					if (file_index >= 0) {
 						// Remove the file from the queue
-						var file_item:FileItem = FileItem(this.file_queue[file_index]);
+						file_item = FileItem(this.file_queue[file_index]);
 						file_item.file_status = FileItem.FILE_STATUS_CANCELLED;
 						this.file_queue[file_index] = null;
 						this.queued_uploads--;
@@ -429,22 +436,52 @@ package {
 						file_item.file_reference.cancel();
 
 						this.Debug("Event: uploadError : " + file_item.id + ". Cancelling queued upload");
-						ExternalInterface.call(this.uploadError_Callback, this.ERROR_CODE_FILE_CANCELLED, file_item.ToJavaScriptObject(), "File Cancelled");
+						ExternalCall.UploadError(this.uploadError_Callback, this.ERROR_CODE_FILE_CANCELLED, file_item.ToJavaScriptObject(), "File Cancelled");
+						timer = new Timer(0, 1);
+						timer.addEventListener(TimerEvent.TIMER, function(callback:String, error_code:Number, file_object:Object, message:String):Function { return function():void { ExternalInterface.call(callback, error_code, file_object, message); }; }(this.uploadError_Callback, this.ERROR_CODE_FILE_CANCELLED, file_item.ToJavaScriptObject(), "File Cancelled"));
+						timer.start();
 
 						// Get rid of the file object
 						file_item = null;
 					}
+			} else {
+				// Get the first file and cancel it
+				while (this.file_queue.length > 0 && file_item == null) {
+					// Check that File Reference is valid (if not make sure it's deleted and get the next one on the next loop)
+					file_item = FileItem(this.file_queue.shift());	// Cast back to a FileItem
+					if (typeof(file_item) == "undefined") {
+						file_item = null;
+						continue;
+					}
 				}
+				
+				if (file_item != null) {
+					file_item.file_status = FileItem.FILE_STATUS_CANCELLED;
+					this.queued_uploads--;
+					this.upload_cancelled++;
+					
+
+					// Cancel the file (just for good measure) and make the callback
+					file_item.file_reference.cancel();
+
+					this.Debug("Event: uploadError : " + file_item.id + ". Cancelling queued upload");
+					
+					ExternalCall.UploadError(this.uploadError_Callback, this.ERROR_CODE_FILE_CANCELLED, file_item.ToJavaScriptObject(), "File Cancelled");
+
+					// Get rid of the file object
+					file_item = null;
+				}
+				
 			}
 
 		}
 		
 		private function GetStats():Object {
-			return {	"files_queued" : this.queued_uploads,
-						"complete_uploads" : this.completed_uploads,
-						"upload_errors" : this.upload_errors,
-						"upload_cancelled" : this.upload_cancelled,
-						"queue_errors" : this.queue_errors
+			return {	files_queued : this.queued_uploads,
+						complete_uploads : this.completed_uploads,
+						upload_errors : this.upload_errors,
+						upload_cancelled : this.upload_cancelled,
+						queue_errors : this.queue_errors
 			};
 		}
 
@@ -525,12 +562,12 @@ package {
 				this.Debug("StartFile(): Upload already in progress. Not starting another upload.");
 			}
 
-			this.Debug("StartFile: " + (file_id ? "File ID: " + file_id : "Next file in queue"));
+			this.Debug("StartFile: " + (file_id ? "File ID: " + file_id : "First file in queue"));
 
 			// Check the upload limit
 			if (this.completed_uploads >= this.fileUploadLimit && this.fileUploadLimit != 0) {
 				this.Debug("Event: uploadError : Upload limit reached. No more files can be uploaded.");
-				ExternalInterface.call(this.uploadError_Callback, this.ERROR_CODE_UPLOAD_LIMIT_EXCEEDED, null, "The upload limit has been reached.");
+				ExternalCall.UploadError(this.uploadError_Callback, this.ERROR_CODE_UPLOAD_LIMIT_EXCEEDED, null, "The upload limit has been reached.");
 				this.current_file_item = null;
 				return;
 			}
@@ -553,7 +590,7 @@ package {
 					this.file_queue[file_index] = null;
 				} else {
 					this.Debug("Event: uploadError : File ID not found in queue: " + file_id);
-					ExternalInterface.call(this.uploadError_Callback, this.ERROR_CODE_SPECIFIED_FILE_NOT_FOUND, null, "File ID not queued.");
+					ExternalCall.UploadError(this.uploadError_Callback, this.ERROR_CODE_SPECIFIED_FILE_NOT_FOUND, null, "File ID not queued.");
 				}
 			}
 
@@ -566,6 +603,7 @@ package {
 				// Begin the upload
 				this.Debug("startFile(): File Reference found.  Starting upload to " + request.url + ". File ID: " + this.current_file_item.id);
 				try {
+					this.Debug("Event: uploadStart : File ID: " + this.current_file_item.id);
 					var start_upload:Boolean = ExternalInterface.call(this.uploadStart_Callback, this.current_file_item.ToJavaScriptObject());
 					
 					// Validate the file
@@ -585,7 +623,7 @@ package {
 						this.Debug("Event: uploadError : Call to uploadStart returned false. Not uploading file.");
 						this.upload_errors++;
 						this.current_file_item.file_status = FileItem.FILE_STATUS_ERROR;
-						ExternalInterface.call(this.uploadError_Callback, this.ERROR_CODE_FILE_VALIDATION_FAILED, this.current_file_item.ToJavaScriptObject(), "Call to uploadStart return false. Not uploading file.");
+						ExternalCall.UploadError(this.uploadError_Callback, this.ERROR_CODE_FILE_VALIDATION_FAILED, this.current_file_item.ToJavaScriptObject(), "Call to uploadStart return false. Not uploading file.");
 						this.UploadComplete();
 					}
 				}
@@ -593,7 +631,7 @@ package {
 					this.upload_errors++;
 					this.Debug("Event: uploadError(): Upload Failed. Unhandled exception.");
 					this.current_file_item.file_status = FileItem.FILE_STATUS_ERROR;
-					ExternalInterface.call(this.uploadError_Callback, this.ERROR_CODE_UPLOAD_FAILED, this.current_file_item.ToJavaScriptObject(), ex.message);
+					ExternalCall.UploadError(this.uploadError_Callback, this.ERROR_CODE_UPLOAD_FAILED, this.current_file_item.ToJavaScriptObject(), ex.message);
 					this.UploadComplete();
 				}
 			}
@@ -611,8 +649,17 @@ package {
 			this.current_file_item = null;
 			this.queued_uploads--;
 
-			this.Debug("Event: fileComplete : File complete. ");
-			ExternalInterface.call(this.fileComplete_Callback, jsFileObj);
+			this.Debug("Event: fileComplete : File complete.");
+			
+			// I used a timer here to work around issues that occur when chains get built by Flash calling Javascript and
+			// JavaScript then calling Flash and so on.  Using the Timer allows this function to return and the stack to
+			// clear.  The Timer gets executed a moment later on a separate "thread".  This should be done any time
+			// Flash is going to call Javascript which is going to call back in to Flash.
+			// I used some ECMAScript magic here to avoid having to create temporary variables and one shot functions.
+			// See the Yahoo JavaScript training videos by Crawford.  They are excellent.
+			ExternalCall.FileComplete(this.fileComplete_Callback, jsFileObj);
+
+			this.Debug("Event: Exiting fileComplete : File complete.");
 		}
 
 
@@ -687,14 +734,19 @@ package {
 				for (var i:Number=0; i < lines.length; i++) {
 					lines[i] = "SWF DEBUG: " + lines[i];
 				}
-				ExternalInterface.call(this.debug_Callback, lines.join("\n"));
+				try {
+					ExternalCall.Debug(this.debug_Callback, lines.join("\n"));
+				} catch (ex:Error) {
+					// pretend nothing happened
+				}
 			}
 		}
 
 		private function PrintDebugInfo():void {
 			var debug_info:String = "\n----- SWF DEBUG OUTPUT ----\n";
+			debug_info += "Build Number:           " + this.build_number + "\n";
 			debug_info += "movieName:              " + this.movieName + "\n";
-			debug_info += "Upload Target URL:      " + this.uploadURL + "\n";
+			debug_info += "Upload URL:             " + this.uploadURL + "\n";
 			debug_info += "File Types String:      " + this.fileTypes + "\n";
 			debug_info += "Parsed File Types:      " + this.valid_file_extensions.toString() + "\n";
 			debug_info += "File Types Description: " + this.fileTypesDescription + "\n";

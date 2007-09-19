@@ -1,9 +1,13 @@
 <?php
 	$session_id = isset($_POST["PHPSESSID"]) ? $_POST["PHPSESSID"] : false;
+	
 	if ($session_id) {
 		session_id($session_id);
 	}
 	session_start();
+
+	//$rnd_bit = rand(0, 99);
+	//header("HTTP/1.1 5$rnd_bit Internal Server Error");
 
 	//$upload_path = str_replace("\\", "/", realpath(dirname($_SERVER['SCRIPT_FILENAME']))) . "/uploads/";
 	//$upload_path = "uploads/";
@@ -19,7 +23,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" >
 <head>
-    <title>SWFUpload Revision 6.2 Demo</title>
+    <title>SWFUpload Revision 7.0 Demo</title>
 </head>
 <body>
 	<p>Upload Page</p>

@@ -49,7 +49,7 @@ var SWFUpload = function (init_settings) {
 SWFUpload.instances = {};
 SWFUpload.movieCount = 0;
 SWFUpload.ERROR_CODE_HTTP_ERROR				  = -10;
-SWFUpload.ERROR_CODE_MISSING_UPLOAD_TARGET	  = -20;
+SWFUpload.ERROR_CODE_MISSING_UPLOAD_URL	      = -20;
 SWFUpload.ERROR_CODE_IO_ERROR				  = -30;
 SWFUpload.ERROR_CODE_SECURITY_ERROR			  = -40;
 SWFUpload.ERROR_CODE_FILE_EXCEEDS_SIZE_LIMIT  = -50;
@@ -77,27 +77,27 @@ SWFUpload.FILE_STATUS_CANCELLED		 = 4;
 SWFUpload.prototype.initSettings = function (init_settings) {
 
 	// UI setting
-	this.addSetting("ui_function",			 init_settings.ui_function,			  null);
-	this.addSetting("ui_container_id",		 init_settings.ui_container_id,		  "");
-	this.addSetting("degraded_container_id", init_settings.degraded_container_id, "");
+	this.addSetting("ui_function",			 	init_settings.ui_function,			  	null);
+	this.addSetting("ui_container_id",		 	init_settings.ui_container_id,		  	"");
+	this.addSetting("degraded_container_id", 	init_settings.degraded_container_id, 	"");
 
 	// Upload backend settings
-	this.addSetting("upload_url",		 init_settings.upload_url,		  "");
-	this.addSetting("file_post_name",	 init_settings.file_post_name,	  "Filedata");
-	this.addSetting("post_params",		 init_settings.post_params,		  {});
+	this.addSetting("upload_url",		 		init_settings.upload_url,		  		"");
+	this.addSetting("file_post_name",	 		init_settings.file_post_name,	  		"Filedata");
+	this.addSetting("post_params",		 		init_settings.post_params,		  		{});
 
 	// File Settings
-	this.addSetting("file_types",			  init_settings.file_types,				"*.gif;*.jpg;*.png");
-	this.addSetting("file_types_description", init_settings.file_types_description, "Common Web Image Formats (gif, jpg, png)");
-	this.addSetting("file_size_limit",		  init_settings.file_size_limit,		"1024");
-	this.addSetting("file_upload_limit",	  init_settings.file_upload_limit,		"0");
-	this.addSetting("file_queue_limit",		  init_settings.file_queue_limit,		"0");
+	this.addSetting("file_types",			  	init_settings.file_types,				"*.gif;*.jpg;*.png");
+	this.addSetting("file_types_description", 	init_settings.file_types_description, 	"Common Web Image Formats (gif, jpg, png)");
+	this.addSetting("file_size_limit",		  	init_settings.file_size_limit,			"1024");
+	this.addSetting("file_upload_limit",	  	init_settings.file_upload_limit,		"0");
+	this.addSetting("file_queue_limit",		  	init_settings.file_queue_limit,			"0");
 
 	// Flash Settings
-	this.addSetting("flash_url",		  init_settings.flash_url,			"swfupload.swf");
-	this.addSetting("flash_width",		  init_settings.flash_width,		"1px");
-	this.addSetting("flash_height",		  init_settings.flash_height,		"1px");
-	this.addSetting("flash_color",		  init_settings.flash_color,		"#FFFFFF");
+	this.addSetting("flash_url",		  		init_settings.flash_url,				"swfupload.swf");
+	this.addSetting("flash_width",		  		init_settings.flash_width,				"1px");
+	this.addSetting("flash_height",		  		init_settings.flash_height,				"1px");
+	this.addSetting("flash_color",		  		init_settings.flash_color,				"#FFFFFF");
 
 	// Debug Settings
 	this.addSetting("debug_enabled", init_settings.debug,  false);
@@ -186,8 +186,7 @@ SWFUpload.prototype.getFlashHTML = function () {
 // This private method builds the parameter string that will be passed
 // to flash.
 SWFUpload.prototype.getFlashVars = function () {
-	// Add the cookies to the backend string
-	var upload_target_url = this.getSetting("upload_target_url");
+	// Build a string from the post param object
 	var param_string = this.buildParamString();
 
 	// Build the parameter string
@@ -438,7 +437,7 @@ SWFUpload.prototype.getStats = function () {
 	var movie_element = this.getMovieElement();
 	if (movie_element !== null && typeof(movie_element.GetStats) === "function") {
 		try {
-			movie_element.GetStats();
+			return movie_element.GetStats();
 		}
 		catch (ex) {
 			this.debugMessage("Could not call GetStats");

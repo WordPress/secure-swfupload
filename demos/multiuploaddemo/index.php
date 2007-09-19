@@ -21,7 +21,7 @@
 		window.onload = function() {
 			upload1 = new SWFUpload({
 				// Backend Settings
-				upload_target_url: "../multiuploaddemo/upload.php",	// Relative to the SWF file
+				upload_url: "../multiuploaddemo/upload.php",	// Relative to the SWF file
 				post_params: {"PHPSESSID" : "<?php echo session_id(); ?>"},
 
 				// File Upload Settings
@@ -50,13 +50,14 @@
 				degraded_container_id : "degradedUI1",
 
 				// Debug Settings
-				debug: false
+				debug: true
 			});
 			upload1.addSetting("progress_target", "fsUploadProgress1");	// Add an additional setting that will later be used by the handler.
+			upload1.addSetting("cancel_button_id", "btnCancel1");	// Add an additional setting that will later be used by the handler.
 
 			upload2 = new SWFUpload({
 				// Backend Settings
-				upload_target_url: "../multiuploaddemo/upload.php",	// Relative to the SWF file
+				upload_url: "../multiuploaddemo/upload.php",	// Relative to the SWF file
 				post_params: {"PHPSESSID" : "<?php echo session_id(); ?>"},
 
 				// File Upload Settings
@@ -88,6 +89,7 @@
 				debug: false
 			});
 			upload2.addSetting("progress_target", "fsUploadProgress2");	// Add an additional setting that will later be used by the handler.
+			upload2.addSetting("cancel_button_id", "btnCancel2");	// Add an additional setting that will later be used by the handler.
 
 	     }
 	</script>
@@ -105,8 +107,8 @@
 								<legend>Large File Upload Site</legend>
 							</fieldset>
 							<div>
-								<input type="button" value="Upload file (Max 100 MB)" onclick="upload1.browse()" style="font-size: 8pt;" />
-								<input id="btnCancel1" type="button" value="Cancel Uploads" onclick="upload1.cancelQueue();" disabled="disabled" style="font-size: 8pt;" /><br />
+								<input type="button" value="Upload file (Max 100 MB)" onclick="upload1.selectFiles()" style="font-size: 8pt;" />
+								<input id="btnCancel1" type="button" value="Cancel Uploads" onclick="cancelQueue(upload1);" disabled="disabled" style="font-size: 8pt;" /><br />
 							</div>
 						</div>
 						<div id="degradedUI1">
@@ -125,8 +127,8 @@
 								<legend>Small File Upload Site</legend>
 							</fieldset>
 							<div>
-								<input type="button" value="Upload file (Max 100KB)" onclick="upload2.browse()" style="font-size: 8pt;" />
-								<input id="btnCancel2" type="button" value="Cancel Uploads" onclick="upload2.cancelQueue();" disabled="disabled" style="font-size: 8pt;" /><br />
+								<input type="button" value="Upload file (Max 100KB)" onclick="upload2.selectFile()" style="font-size: 8pt;" />
+								<input id="btnCancel2" type="button" value="Cancel Uploads" onclick="cancelQueue(upload2);" disabled="disabled" style="font-size: 8pt;" /><br />
 							</div>
 						</div>
 						<div id="degradedUI2">
