@@ -1,15 +1,22 @@
 <?php
-session_start();
+if (isset($_POST["PHPSESSIONID"])) {
+	$session_id = $_POST["PHPSESSIONID"];
+} else {
+	$session_id = "";
+}
 
+session_start($session_id);
+
+
+// Check for a degraded file upload, this means SWFUpload did not load and the user used the standard HTML upload
 $used_degraded = false;
-
-// Check for a degraded file upload
 $resume_name = "";
 if (is_uploaded_file($_FILES["resume_degraded"]["tmp_name"])) {
     $resume_name = $_FILES["resume_degraded"]["name"];
     $used_degraded = true;
 }
 
+// Check for the file id we should have gotten from SWFUpload
 if (isset($_POST["hidFileID"]) && $_POST["hidFileID"] != "" ) {
 	$resume_name = $_POST["hidFileID"];
 }
@@ -18,13 +25,13 @@ if (isset($_POST["hidFileID"]) && $_POST["hidFileID"] != "" ) {
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" >
 <head>
-    <title>SWFUpload Revision 6.2 Demo</title>
+    <title>SWFUpload Revision 7.0 Demo</title>
 
 	<link href="../css/default.css" rel="stylesheet" type="text/css" />
 
 </head>
 <body>
-	<div class="title"><a class="likeParent" href="../index.php">SWFUpload (Revision 6.2) Classic Form Demo</a></div>
+	<div class="title"><a class="likeParent" href="../index.php">SWFUpload (Revision 7.0) Classic Form Demo</a></div>
 
 <?php
 if ($resume_name == "") {
@@ -68,7 +75,7 @@ if ($resume_name == "") {
 		</table>
 	</div>
     <?php if ($used_degraded) { ?>
-    <div class="content">You used the degraded form.</div>
+    <div class="content">You used the standard HTML form.</div>
     <?php } ?>
     <hr width="90%" />
 	<div class="content">

@@ -5,10 +5,10 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" >
 <head>
-    <title>SWFUpload Revision 6.5 Demo</title>
+    <title>SWFUpload Revision 7.0 Demo</title>
 
 	<link href="../css/default.css" rel="stylesheet" type="text/css" />
-	<script type="text/javascript" src="../swfuploadr6_0013/swfupload.js"></script>
+	<script type="text/javascript" src="../swfupload_0014/swfupload.js"></script>
 	<script type="text/javascript" src="js_13/handlers.js"></script>
 	<script type="text/javascript">
 		var swf_upload_control;
@@ -16,33 +16,33 @@
         window.onload = function () {
             swf_upload_control = new SWFUpload({
 				// Backend settings
-				upload_target_url: "../formsdemo/upload.php",	// Relative to the SWF file
+				upload_url: "../formsdemo/upload.php",	// Relative to the SWF file, you can use an absolute URL as well.
 				file_post_name: "resume_file",
 
 				// Flash file settings
 				file_size_limit : "10240",	// 10 MB
 				file_types : "*.*",	// or you could use something like: "*.doc;*.wpd;*.pdf",
 				file_types_description : "All Files",
-				file_upload_limit : "1",
-				//file_queue_limit : "1", // this isn't needed because the upload_limit will automatically place a queue limit
-				begin_upload_on_queue : false,
-				use_server_data_event : true,
-				validate_files: false,
+				file_upload_limit : "0", // Even though I only want one file I want the user to be able to try again if an upload fails
+				file_queue_limit : "1", // this isn't needed because the upload_limit will automatically place a queue limit
 
 				// Event handler settings
+				//file_dialog_start_handler : fileDialogStart,		// I don't need to override this handler
 				file_queued_handler : fileQueued,
-				file_validation_handler : fileValidation,
-				file_progress_handler : fileProgress,
-				file_cancelled_handler : uploadCancelled,
+				file_queue_error_handler : fileQueueError,
+				file_dialog_complete_handler : fileDialogComplete,
+				
+				//upload_start_handler : uploadStart,	// I could do some client/JavaScript validation here, but I don't need to.
+				upload_progress_handler : uploadProgress,
+				upload_error_handler : uploadError,
+				upload_complete_handler : uploadComplete,
 				file_complete_handler : fileComplete,
-				queue_complete_handler : queueComplete,
-				error_handler : uploadError,
 
 				// Flash Settings
-				flash_url : "../swfuploadr6_0013/swfupload.swf",	// Relative to this file
+				flash_url : "../swfupload_0014/swfupload.swf",	// Relative to this file
 
 				// UI settings
-                ui_function: myShowUI,
+                ui_function: myShowUI,	// I'm using a custom UI function rather than SWFUpload's default
 				ui_container_id : "flashUI",
 				degraded_container_id : "degradedUI",
 
@@ -57,11 +57,52 @@
         }
 
         function myShowUI() {
-            document.getElementById("btnSubmit").onclick = doSubmit;
+            var btnSubmit = document.getElementById("btnSubmit");
+			var txtLastName = document.getElementById("lastname");
+			var txtFirstName = document.getElementById("firstname");
+			var txtEducation = document.getElementById("education");
+			var txtReferences = document.getElementById("references");
+			
+			btnSubmit.onclick = doSubmit;
+			btnSubmit.disabled = true;
+			
+			txtLastName.onchange = validateForm;
+			txtFirstName.onchange = validateForm;
+			txtEducation.onchange = validateForm;
+			txtReferences.onchange = validateForm;
+			
+			
             this.showUI();  // Let SWFUpload finish loading the UI.
-
+			validateForm();
         }
+		
+		function validateForm() {
+			var txtLastName = document.getElementById("lastname");
+			var txtFirstName = document.getElementById("firstname");
+			var txtEducation = document.getElementById("education");
+			var txtFileName = document.getElementById("txtFileName");
+			var txtReferences = document.getElementById("references");
+			
+			var is_valid = true;
+			if (txtLastName.value === "") is_valid = false;
+			if (txtFirstName.value === "") is_valid = false;
+			if (txtEducation.value === "") is_valid = false;
+			if (txtFileName.value === "") is_valid = false;
+			if (txtReferences.value === "") is_valid = false;
+			
+			document.getElementById("btnSubmit").disabled = !is_valid;
+		
+		}
+		
+		function fileBrowse() {
+			var txtFileName = document.getElementById("txtFileName");
+			txtFileName.value = "";
 
+			this.cancelUpload();
+			this.selectFile();
+		}
+		
+		
         // Called by the submit button to start the upload
 		function doSubmit() {
 			try {
@@ -96,7 +137,7 @@
 							Last Name:
 						</td>
 						<td>
-							<input name="lastname" type="text" style="width: 200px" />
+							<input name="lastname" id="lastname" type="text" style="width: 200px" />
 						</td>
 					</tr>
 					<tr>
@@ -104,7 +145,7 @@
 							First Name:
 						</td>
 						<td>
-							<input name="firstname" type="text" style="width: 200px" />
+							<input name="firstname" id="firstname" type="text" style="width: 200px" />
 						</td>
 					</tr>
 					<tr>
@@ -112,7 +153,7 @@
 							Education:
 						</td>
 						<td>
-							<textarea name="education" cols="0" rows="0" style="width: 400px; height: 100px;"></textarea>
+							<textarea name="education"  id="education" cols="0" rows="0" style="width: 400px; height: 100px;"></textarea>
 						</td>
 					</tr>
 					<tr>
@@ -144,7 +185,7 @@
 							References:
 						</td>
 						<td>
-							<textarea name="references" cols="0" rows="0" style="width: 400px; height: 100px;"></textarea>
+							<textarea name="references" id="references" cols="0" rows="0" style="width: 400px; height: 100px;"></textarea>
 						</td>
 					</tr>
 				</table>

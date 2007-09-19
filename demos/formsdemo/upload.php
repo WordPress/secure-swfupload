@@ -1,8 +1,16 @@
 <?php
-    // Handle the file and return the file identifier to the SWF
+	/* Using SWFUpload changes the way some uploads are handled.  Uploads that are tied to a form are submitted
+	separately from the form.  If I'm creating a database record for the form or the "attachment" then I need some
+	way to tie them back together.
+	
+	The upload occurs first.  Once complete the form is submitted.  So, I am having the upload generate a file id
+	that is passed back to the form.  The file id gets submitted with the form so that script can find the
+	upload. */
+
+
 	if (isset($_FILES["resume_file"]) && isset($_FILES["resume_file"]["name"])) {
-		echo $_FILES["resume_file"]["name"];
+		echo rand(1000000, 9999999);	// Create a pretend file id, this might have come from a database.
 	} else {
-		echo ' ';
+		echo ' '; // I have to return something or SWFUpload won't file uploadComplete
 	}
 ?>
