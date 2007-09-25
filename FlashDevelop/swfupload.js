@@ -705,7 +705,7 @@ SWFUpload.prototype.uploadError = function (errcode, file, msg) {
 		case SWFUpload.ERROR_CODE_HTTP_ERROR:
 			this.debugMessage("Error Code: HTTP Error, File name: " + file.name + ", Message: " + msg);
 			break;
-		case SWFUpload.ERROR_CODE_MISSING_UPLOAD_TARGET:
+		case SWFUpload.ERROR_CODE_MISSING_UPLOAD_URL:
 			this.debugMessage("Error Code: No backend file, File name: " + file.name + ", Message: " + msg);
 			break;
 		case SWFUpload.ERROR_CODE_IO_ERROR:
