@@ -5,7 +5,11 @@
 	
 	The upload occurs first.  Once complete the form is submitted.  So, I am having the upload generate a file id
 	that is passed back to the form.  The file id gets submitted with the form so that script can find the
-	upload. */
+	upload. 
+	
+	I avoided using a session since Flash Player does not the session id cookie in non-ie browsers.  If I
+	had used sessions I'd have to make sure the session was set up correctly (see the other demoes).
+	*/
 
 
 	if (isset($_FILES["resume_file"]) && isset($_FILES["resume_file"]["name"])) {

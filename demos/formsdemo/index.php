@@ -5,10 +5,10 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" >
 <head>
-    <title>SWFUpload Revision 7.0 Demo</title>
+    <title>SWFUpload Revision 7.2 beta 2 Demo</title>
 
 	<link href="../css/default.css" rel="stylesheet" type="text/css" />
-	<script type="text/javascript" src="../swfupload_0014/swfupload.js"></script>
+	<script type="text/javascript" src="../swfupload_0015/swfupload.js"></script>
 	<script type="text/javascript" src="js_13/handlers.js"></script>
 	<script type="text/javascript">
 		var swf_upload_control;
@@ -39,7 +39,7 @@
 				file_complete_handler : fileComplete,
 
 				// Flash Settings
-				flash_url : "../swfupload_0014/swfupload.swf",	// Relative to this file
+				flash_url : "../swfupload_0015/swfupload.swf",	// Relative to this file
 
 				// UI settings
                 ui_function: myShowUI,	// I'm using a custom UI function rather than SWFUpload's default
@@ -49,10 +49,10 @@
 				// Debug settings
 				debug: true
 			});
-
             // This is a setting that my Handlers will use. It's not part of SWFUpload
             // But I can add it to the SWFUpload object and then use it where I need to
-            swf_upload_control.addSetting("progress_target", "fsUploadProgress")
+			swf_upload_control.customSettings.progress_target = "fsUploadProgress";
+			swf_upload_control.customSettings.upload_successful = false;
 
         }
 
@@ -104,7 +104,11 @@
 		
 		
         // Called by the submit button to start the upload
-		function doSubmit() {
+		function doSubmit(e) {
+			e = e || window.event;
+			if (e.stopPropagation) e.stopPropagation();
+			e.cancelBubble = true;
+			
 			try {
 				swf_upload_control.startUpload();
 			} catch (ex) {
@@ -125,7 +129,7 @@
 
 </head>
 <body>
-	<div class="title"><a class="likeParent" href="../index.php">SWFUpload (Revision 6.2) Classic Form Demo</a></div>
+	<div class="title"><a class="likeParent" href="../index.php">SWFUpload (Revision 7.0 beta 2) Classic Form Demo</a></div>
 
 	<form id="form1" action="thanks.php" enctype="multipart/form-data" method="post">
 		<div class="content">

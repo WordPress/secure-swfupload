@@ -1,19 +1,14 @@
 <?php
-	$php_session_id = isset($_POST["PHPSESSID"]) ? $_POST["PHPSESSID"] : false;
-
-	if ($php_session_id === false) {
-		header("HTTP/1.0 500 Internal Server Error");
-		echo "Could not find session";
-		exit(0);
+	if (isset($_POST["PHPSESSID"])) {
+		session_id($_POST["PHPSESSID"]);
 	}
 
-	session_id($php_session_id);
 	session_start();
 
 	// Get the image and create a thumbnail
 	$img = @imagecreatefromjpeg($_FILES["Filedata"]["tmp_name"]);
 	if (!$img) {
-		header("HTTP/1.0 500 Internal Server Error");
+		header("HTTP/1.1 500 Internal Server Error");
 		echo "could not create image handle";
 		exit(0);
 	}
@@ -22,7 +17,7 @@
 	$height = imageSY($img);
 
 	if (!$width || !$height) {
-		header("HTTP/1.0 500 Internal Server Error");
+		header("HTTP/1.1 500 Internal Server Error");
 		echo "Invalid width or height";
 		exit(0);
 	}
@@ -51,7 +46,7 @@
 
 	$new_img = ImageCreateTrueColor(100, 100);
 	if (!@imagefilledrectangle($new_img, 0, 0, $target_width-1, $target_height-1, 0)) {	// Fill the image black
-		header("HTTP/1.0 500 Internal Server Error");
+		header("HTTP/1.1 500 Internal Server Error");
 		echo "Could not fill new image";
 		exit(0);
 	}

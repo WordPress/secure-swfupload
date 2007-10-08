@@ -4,11 +4,11 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" >
 <head>
-    <title>SWFUpload Revision 6.2 Demo</title>
+    <title>SWFUpload Revision 7.0 beta 2 Demo</title>
 
 	<link href="../css/default.css" rel="stylesheet" type="text/css" />
 	<link href="css/featuresdemo.css" rel="stylesheet" type="text/css" />
-	<script type="text/javascript" src="../swfuploadr6_0013/swfupload.js"></script>
+	<script type="text/javascript" src="../swfupload_0015/swfupload.js"></script>
 	<script type="text/javascript" src="js_13/featuresdemo.js"></script>
 	<script type="text/javascript" src="js_13/handlers.js"></script>
 	<script type="text/javascript">
@@ -20,40 +20,40 @@
 			// Instantiate a SWFUpload Instance
 			suo = new SWFUpload({
 				// Backend Settings
-				upload_target_url: "../featuresdemo/upload.php?id=bob",	// Relative to the SWF file
-				post_params: { "post_name1": "post_value1", "post_name2": "post_value2" },
-				file_post_name: "Filedata",
+				upload_url: "../featuresdemo/upload.php?id=bob",	// I can pass query strings here if I want
+				post_params: { "post_name1": "post_value1", "post_name2": "post_value2" }, 	// Here are some POST values to send. These can be changed dynamically
+				file_post_name: "Filedata",	// This is the "name" of the file item that the server-side script will receive. Setting this doesn't work in the Linux Flash Player
 
 				// File Upload Settings
 				file_size_limit : "102400",	// 100MB
 				file_types : "*.*",
 				file_types_description : "All Files",
 				file_upload_limit : "10",
-				begin_upload_on_queue : false,
-				validate_files : true,
-				use_server_data_event : true,
 
 				// Event Handler Settings
-				file_queued_handler : fileQueued,
-				file_validation_handler : fileValidation,
-				file_progress_handler : fileProgress,
-				file_cancelled_handler : fileCancelled,
-				file_complete_handler : fileComplete,
-				queue_complete_handler : queueComplete,
-				queue_stopped_handler : queueStopped,
-				dialog_cancelled_handler : fileDialogCancelled,
-				error_handler : uploadError,
-
+				
+				file_dialog_start_handler : FeaturesDemoHandlers.fileDialogStart,
+				file_queued_handler : FeaturesDemoHandlers.fileQueued,
+				file_queue_error_handler : FeaturesDemoHandlers.fileQueueError,
+				file_dialog_complete_handler : FeaturesDemoHandlers.fileDialogComplete,
+				upload_start_handler : FeaturesDemoHandlers.uploadStart,
+				upload_progress_handler : FeaturesDemoHandlers.uploadProgress,
+				upload_error_handler : FeaturesDemoHandlers.uploadError,
+				upload_complete_handler : FeaturesDemoHandlers.uploadComplete,
+				
+				file_complete_handler : FeaturesDemoHandlers.fileComplete,
+				debug_handler : FeaturesDemoHandlers.debug,
+				
 				// Flash Settings
-				flash_url : "../swfuploadr6_0013/swfupload.swf",	// Relative to this file
+				flash_url : "../swfupload_0015/swfupload.swf",	// Relative to this file
 
 				// UI Settings
-				ui_function : FeaturesDemo.showUI,
-				ui_container_id : "divSWFUpload",
+				ui_function : FeaturesDemo.showUI,	//  I've give SWFUpload my own showUI function so I can do some things as soon as SWFUpload loads
+				ui_container_id : "divSWFUpload",		// When I use my own showUI I don't have to set these but I'm going to call SWFUpload's internal showUI (from my own showUI) so I'll need them set.
 				degraded_container_id : "divDegraded",
 
 				// Debug Settings
-				debug: true
+				debug: true		// For the purposes of this demo I wan't debug info shown
 			});
 
 	     }
@@ -61,14 +61,14 @@
 
 </head>
 <body>
-	<div class="title"><a class="likeParent" href="../index.php">SWFUpload (Revision 6.2) Features Demo</a></div>
+	<div class="title"><a class="likeParent" href="../index.php">SWFUpload (Revision 7.0 beta 2) Features Demo</a></div>
 	<form>
 		<div class="content">
 			<div id="divSWFUpload" style="display: none;">
 				The Features Demo allows you to experiment with all the features and settings that SWFUpload R5 offers.<br />
 				<br />
 				Some settings are not allowed to be changed because it is either not technically possible or because it would break the demo. The
-				unchangeable settings are: flash_url, upload_target_url, ui_function, ui_container_id, and degraded_container_id.  Changes to
+				unchangeable settings are: flash_url, upload_url, ui_function, ui_container_id, and degraded_container_id.  Changes to
 				these text boxes will be ignored.<br />
 				<br />
 				Your PHP Session ID: <?php echo session_id(); ?>
@@ -79,6 +79,11 @@
 								<legend>Queue</legend>
 								<div>
 									<select id="selQueue" size="15" style="width: 270px;"></select>
+								</div>
+								<div>
+									<table class="btn"><tr><td class="btn-left"></td><td class="btn-center">
+										<button id="btnBrowseSingle" type="button" class="action">Select Single File...</button>
+									</td><td class="btn-right"></td></tr></table>
 								</div>
 								<div>
 									<table class="btn"><tr><td class="btn-left"></td><td class="btn-center">
@@ -111,11 +116,29 @@
 									</td><td class="btn-right"></td></tr></table>
 								</div>
 								<div>
-									<label for="txtAddFileParamName">File Post Param</label>
+									<label for="txtAddFileParamName" style="font-weight: bolder;">File Post Param</label>
 									<div style="margin-left: 5px;">
-										<input id="txtAddFileParamName" type="text" class="textbox" style="width: 100px;" />
-										<input id="txtAddFileParamValue" type="text" class="textbox" style="width: 100px;" />
-										<button id="btnAddFileParam" type="button"></button>
+										<table>
+											<tr>
+												<td>
+													Name
+												</td>
+												<td>
+													Value
+												</td>
+											</tr>
+											<tr>
+												<td>
+													<input id="txtAddFileParamName" type="text" class="textbox" style="width: 100px;" />
+												</td>
+												<td>
+													<input id="txtAddFileParamValue" type="text" class="textbox" style="width: 100px;" />
+												</td>
+												<td>
+													<button id="btnAddFileParam" type="button"></button>
+												</td>
+											</tr>
+										</table>
 									</div>
 									<div style="margin-left: 5px;">
 										<input id="txtRemoveFileParamName" type="text" class="textbox" style="width: 100px;" />
@@ -139,7 +162,7 @@
 								</div>
 								<div id="divDynamicSettingForm">
 									<div>
-										<label for="txtUploadTarget">upload_target_url:</label>
+										<label for="txtUploadTarget">upload_url:</label>
 										<input id="txtUploadTarget" type="text" class="textbox" />
 									</div>
 									<div>
@@ -165,18 +188,6 @@
 									<div>
 										<label for="txtFileQueueLimit">file_queue_limit</label>
 										<input id="txtFileQueueLimit" type="text" class="textbox" />
-									</div>
-									<div class="checkbox">
-										<input id="cbBeginUploadOnQueue" type="checkbox" />
-										<label for="cbBeginUploadOnQueue">begin_upload_on_queue</label>
-									</div>
-									<div class="checkbox">
-										<input id="cbUseServerDataEvent" type="checkbox" />
-										<label for="cbUseServerDataEvent">use_server_data_event</label>
-									</div>
-									<div class="checkbox">
-										<input id="cbFileValidation" type="checkbox" />
-										<label for="cbFileValidation">file_validation</label>
 									</div>
 									<div class="checkbox">
 										<input id="cbDebug" type="checkbox" />
@@ -230,12 +241,12 @@
 							<fieldset>
 								<legend>Instance Information</legend>
 								<div>
-									<label for="txtFlashHTML">Flash HTML</label>
-									<textarea id="txtFlashHTML" wrap="soft" style="height: 150px;"></textarea>
+									<label for="txtMovieName">movieName</label>
+									<input id="txtMovieName" type="text" class="textbox" />
 								</div>
 								<div>
-									<label for="txtControlID">control_id</label>
-									<input id="txtControlID" type="text" class="textbox" />
+									<label for="txtFlashHTML">Flash HTML</label>
+									<textarea id="txtFlashHTML" wrap="soft" style="height: 150px;"></textarea>
 								</div>
 							</fieldset>
 						</td>
@@ -244,28 +255,21 @@
 						<td colspan="3">
 							<fieldset>
 								<legend>Events</legend>
-								<table>
+								<table style="width: 100%;">
 									<tr>
-										<td>
+										<td style="width: 50%">
 											<div>
 												<label for="selEventsQueue">Queue</label>
-												<select id="selEventsQueue" size="10"></select>
+												<select id="selEventsQueue" size="10" style="width: 100%;"></select>
 											</div>
 										</td>
-										<td>
+										<td style="width: 50%">
 											<div>
 												<label for="selEventsFile">File</label>
-												<select id="selEventsFile" size="10"></select>
-											</div>
-										</td>
-										<td>
-											<div>
-												<label for="selEventsError">Errors</label>
-												<select id="selEventsError" size="10"></select>
+												<select id="selEventsFile" size="10" style="width: 100%;"></select>
 											</div>
 										</td>
 									</tr>
-
 								</table>
 							</fieldset>
 							<fieldset>
@@ -283,7 +287,7 @@
 				</table>
 			</div>
 			<div id="divDegraded" class="content">
-				This demo requires JavaScript and Flash Player 8 or higher.  If your browser meets these requirements and SWFUpload has not loaded please report a bug.
+				This demo requires JavaScript and Flash Player 9 or higher.  If your browser meets these requirements and SWFUpload has not loaded please report a bug.
 			</div>
 		</div>
 	</form>

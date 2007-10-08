@@ -10,10 +10,10 @@
 ?>
 <html xmlns="http://www.w3.org/1999/xhtml" >
 <head>
-    <title>SWFUpload Revision 7.0 Demo</title>
+    <title>SWFUpload Revision 7.0 beta 2 Demo</title>
 
 	<link href="../css/default.css" rel="stylesheet" type="text/css" />
-	<script type="text/javascript" src="../swfupload_0014/swfupload.js"></script>
+	<script type="text/javascript" src="../swfupload_0015/swfupload.js"></script>
 	<script type="text/javascript" src="js_14/handlers.js"></script>
 	<script type="text/javascript">
 		var upload1, upload2;
@@ -43,17 +43,17 @@
 				file_complete_handler : fileComplete,
 
 				// Flash Settings
-				flash_url : "../swfupload_0014/swfupload.swf",	// Relative to this file
+				flash_url : "../swfupload_0015/swfupload.swf",	// Relative to this file
 
 				// UI Settings
 				ui_container_id : "flashUI1",
 				degraded_container_id : "degradedUI1",
 
 				// Debug Settings
-				debug: true
+				debug: false
 			});
-			upload1.addSetting("progress_target", "fsUploadProgress1");	// Add an additional setting that will later be used by the handler.
-			upload1.addSetting("cancel_button_id", "btnCancel1");	// Add an additional setting that will later be used by the handler.
+			upload1.customSettings.progressTarget = "fsUploadProgress1";	// Add an additional setting that will later be used by the handler.
+			upload1.customSettings.cancelButtonId = "btnCancel1";	// Add an additional setting that will later be used by the handler.
 
 			upload2 = new SWFUpload({
 				// Backend Settings
@@ -61,7 +61,7 @@
 				post_params: {"PHPSESSID" : "<?php echo session_id(); ?>"},
 
 				// File Upload Settings
-				file_size_limit : "100",	// 100 kb
+				file_size_limit : "200",	// 200 kb
 				file_types : "*.jpg;*.gif;*.png",
 				file_types_description : "Image Files",
 				file_upload_limit : "10",
@@ -79,7 +79,7 @@
 				file_complete_handler : fileComplete,
 
 				// Flash Settings
-				flash_url : "../swfupload_0014/swfupload.swf",	// Relative to this file
+				flash_url : "../swfupload_0015/swfupload.swf",	// Relative to this file
 
 				// UI Settings
 				ui_container_id : "flashUI2",
@@ -88,15 +88,15 @@
 				// Debug Settings
 				debug: false
 			});
-			upload2.addSetting("progress_target", "fsUploadProgress2");	// Add an additional setting that will later be used by the handler.
-			upload2.addSetting("cancel_button_id", "btnCancel2");	// Add an additional setting that will later be used by the handler.
+			upload2.customSettings.progressTarget = "fsUploadProgress2";	// Add an additional setting that will later be used by the handler.
+			upload2.customSettings.cancelButtonId = "btnCancel2";	// Add an additional setting that will later be used by the handler.
 
 	     }
 	</script>
 
 </head>
 <body>
-	<div class="title"><a class="likeParent" href="../index.php">SWFUpload (Revision 7.0) Multi-Upload Demo</a></div>
+	<div class="title"><a class="likeParent" href="../index.php">SWFUpload (Revision 7.0 beta 2) Multi-Upload Demo</a></div>
 	<form id="form1" action="index.php" method="post" enctype="multipart/form-data">
 		<div class="content">
 			<table>
@@ -127,14 +127,14 @@
 								<legend>Small File Upload Site</legend>
 							</fieldset>
 							<div>
-								<input type="button" value="Upload file (Max 100KB)" onclick="upload2.selectFile()" style="font-size: 8pt;" />
+								<input type="button" value="Upload file (Max 200KB)" onclick="upload2.selectFiles()" style="font-size: 8pt;" />
 								<input id="btnCancel2" type="button" value="Cancel Uploads" onclick="cancelQueue(upload2);" disabled="disabled" style="font-size: 8pt;" /><br />
 							</div>
 						</div>
 						<div id="degradedUI2">
 							<fieldset>
 								<legend>Small File Upload Site</legend>
-								<input type="file" name="anyfile2" /> (Any file, Max 100KB)<br/>
+								<input type="file" name="anyfile2" /> (Any file, Max 200KB)<br/>
 							</fieldset>
 							<div>
 								<input type="submit" value="Submit Files" />

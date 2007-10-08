@@ -1,6 +1,19 @@
  * SWFUpload Revision 7.0 by Jacob Roberts, Sept 2007, linebyline.blogspot.com
 
- * --------- Revision 7.0 -----------
+ * --------- Revision 7.0 beta 2 -----------
+ * = Changed ERROR_CODE_FILE_NOT_FOUND to ERROR_CODE_FILE_ID_NOT_FOUND
+ * + Grouped the error code constants in objects for queue errors and upload errors.
+ * + Added an UPLOAD_STOPPED error code.
+ * = Changed Event calling method (using Timer) in Flash.  Timer is no longer called
+ *    instead setTimeout is called in JavaScript.  This includes a change to the
+ *    JavaSCript design so the Event methods are not directly overridden but stored
+ *    internally and called if defined (with a setTimeout).  This is an effort
+ *    be more compatible with the current Flash Player on Linux
+ * = Changed the parameter order for the  fileQueueError and uploadError events so the fileObj is first, like other events.
+ * + Added an empty JavaScript object (customSettings) where users can store settings associated with the instance.
+ * = Updated all the demos.
+ 
+ * --------- Revision 7.0 beta 1 -----------
  * = Redesigned the Event Chain
  * - Removed much of the queue concepts
  * - Removed the fileValidation events. This can be done in the new uploadStart event

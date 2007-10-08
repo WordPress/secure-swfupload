@@ -1,5 +1,8 @@
+
+/* This is an example of how to cancel all the files queued up.  It's made somewhat generic.  Just pass your SWFUpload
+object in to this method and it loops through cancelling the uploads. */
 function cancelQueue(instance) {
-	document.getElementById(instance.getSetting("cancel_button_id")).disabled = true;
+	document.getElementById(instance.customSettings.cancelButtonId).disabled = true;
 	instance.stopUpload();
 	var stats;
 	
@@ -10,7 +13,14 @@ function cancelQueue(instance) {
 	
 }
 
-
+/* **********************
+   Event Handlers
+   These are my custom event handlers to make my
+   web application behave the way I went when SWFUpload
+   completes different tasks.  These aren't part of the SWFUpload
+   package.  They are part of my application.  Without these none
+   of the actions SWFUpload makes will show up in my application.
+   ********************** */
 function fileDialogStart() {
 	/* I don't need to do anything here */
 }
@@ -18,69 +28,75 @@ function fileQueued(fileObj) {
 	try {
 		// You might include code here that prevents the form from being submitted while the upload is in
 		// progress.  Then you'll want to put code in the Queue Complete handler to "unblock" the form
-		var progress = new FileProgress(fileObj, this.getSetting("progress_target"));
+		var progress = new FileProgress(fileObj, this.customSettings.progressTarget);
 		progress.SetStatus("Pending...");
 		progress.ToggleCancel(true, this);
 
-	} catch (ex) { this.debugMessage(ex); }
+	} catch (ex) { this.debug(ex); }
 
 }
 
-function fileQueueError(error_code, fileObj, message) {
+function fileQueueError(fileObj, error_code, message) {
 	try {
-		if (error_code === SWFUpload.ERROR_CODE_QUEUE_LIMIT_EXCEEDED) {
+		if (error_code === SWFUpload.QUEUE_ERROR.QUEUE_LIMIT_EXCEEDED) {
 			alert("You have attempted to queue too many files.\n" + (message === 0 ? "You have reached the upload limit." : "You may select " + (message > 1 ? "up to " + message + " files." : "one file.")));
 			return;
 		}
 
-		var progress = new FileProgress(fileObj, this.getSetting("progress_target"));
+		var progress = new FileProgress(fileObj, this.customSettings.progressTarget);
 		progress.SetError();
 		progress.ToggleCancel(false);
 
 		switch(error_code) {
-			case SWFUpload.ERROR_CODE_FILE_EXCEEDS_SIZE_LIMIT:
+			case SWFUpload.QUEUE_ERROR.FILE_EXCEEDS_SIZE_LIMIT:
 				progress.SetStatus("File is too big.");
-				this.debugMessage("Error Code: File too big, File name: " + fileObj.name + ", File size: " + fileObj.size + ", Message: " + message);
+				this.debug("Error Code: File too big, File name: " + fileObj.name + ", File size: " + fileObj.size + ", Message: " + message);
 				break;
-			case SWFUpload.ERROR_CODE_ZERO_BYTE_FILE:
+			case SWFUpload.QUEUE_ERROR.ZERO_BYTE_FILE:
 				progress.SetStatus("Cannot upload Zero Byte files.");
-				this.debugMessage("Error Code: Zero byte file, File name: " + fileObj.name + ", File size: " + fileObj.size + ", Message: " + message);
+				this.debug("Error Code: Zero byte file, File name: " + fileObj.name + ", File size: " + fileObj.size + ", Message: " + message);
 				break;
-			case SWFUpload.ERROR_CODE_INVALID_FILETYPE:
+			case SWFUpload.QUEUE_ERROR.INVALID_FILETYPE:
 				progress.SetStatus("Invalid File Type.");
-				this.debugMessage("Error Code: Invalid File Type, File name: " + fileObj.name + ", File size: " + fileObj.size + ", Message: " + message);
+				this.debug("Error Code: Invalid File Type, File name: " + fileObj.name + ", File size: " + fileObj.size + ", Message: " + message);
 				break;
-			case SWFUpload.ERROR_CODE_QUEUE_LIMIT_EXCEEDED:
+			case SWFUpload.QUEUE_ERROR.QUEUE_LIMIT_EXCEEDED:
 				alert("You have selected too many files.  " +  (message > 1 ? "You may only add " +  message + " more files" : "You cannot add any more files."));
 				break;
 			default:
 				if (fileObj !== null) {
 					progress.SetStatus("Unhandled Error");
 				}
-				this.debugMessage("Error Code: " + error_code + ", File name: " + fileObj.name + ", File size: " + fileObj.size + ", Message: " + message);
+				this.debug("Error Code: " + error_code + ", File name: " + fileObj.name + ", File size: " + fileObj.size + ", Message: " + message);
 				break;
 		}
 	} catch (ex) {
-        this.debugMessage(ex);
+        this.debug(ex);
     }
 }
 
 function fileDialogComplete(num_files_queued) {
+	try {
 	if (this.getStats().files_queued > 0) {
-		document.getElementById(this.getSetting("cancel_button_id")).disabled = false;
+		document.getElementById(this.customSettings.cancelButtonId).disabled = false;
 	}
 	
 	/* I want auto start and I can do that here */
 	this.startUpload();
-
+	} catch (ex)  {
+        this.debug(ex);
+	}
 }
 
 function uploadStart(fileObj) {
-	/* I don't want to do any file validation or anything,  I'll just update the UI and return true to indicate that the upload should start */
-	var progress = new FileProgress(fileObj, this.getSetting("progress_target"));
-	progress.SetStatus("Uploading...");
-	progress.ToggleCancel(true, this);
-
+	try {
+		/* I don't want to do any file validation or anything,  I'll just update the UI and return true to indicate that the upload should start */
+		var progress = new FileProgress(fileObj, this.customSettings.progressTarget);
+		progress.SetStatus("Uploading...");
+		progress.ToggleCancel(true, this);
+	}
+	catch (ex) {}
+	
 	return true;
 }
 
@@ -89,85 +105,90 @@ function uploadProgress(fileObj, bytesLoaded, bytesTotal) {
 	try {
 		var percent = Math.ceil((bytesLoaded / bytesTotal) * 100);
 
-		var progress = new FileProgress(fileObj, this.getSetting("progress_target"));
+		var progress = new FileProgress(fileObj, this.customSettings.progressTarget);
 		progress.SetProgress(percent);
 		progress.SetStatus("Uploading...");
-	} catch (ex) { this.debugMessage(ex); }
+	} catch (ex) { this.debug(ex); }
 }
 
 function uploadComplete(fileObj, server_data) {
 	try {
-		var progress = new FileProgress(fileObj, this.getSetting("progress_target"));
+		var progress = new FileProgress(fileObj, this.customSettings.progressTarget);
 		progress.SetComplete();
 		progress.SetStatus("Complete.");
 		progress.ToggleCancel(false);
 
-	} catch (ex) { this.debugMessage(ex); }
+	} catch (ex) { this.debug(ex); }
 }
 
 function fileComplete(fileObj) {
-	/*  I want the next upload to continue automatically so I'll call startUpload here */
-	if (this.getStats().files_queued === 0) {
-		document.getElementById(this.getSetting("cancel_button_id")).disabled = true;
-	} else {	
-		this.startUpload();
-	}
+	try {
+		/*  I want the next upload to continue automatically so I'll call startUpload here */
+		if (this.getStats().files_queued === 0) {
+			document.getElementById(this.customSettings.cancelButtonId).disabled = true;
+		} else {	
+			this.startUpload();
+		}
+	} catch (ex) { this.debug(ex); }
 
 }
 
-function uploadError(error_code, fileObj, message) {
+function uploadError(fileObj, error_code, message) {
 	try {
-		var progress = new FileProgress(fileObj, this.getSetting("progress_target"));
+		var progress = new FileProgress(fileObj, this.customSettings.progressTarget);
 		progress.SetError();
 		progress.ToggleCancel(false);
 
 		switch(error_code) {
-			case SWFUpload.ERROR_CODE_HTTP_ERROR:
+			case SWFUpload.UPLOAD_ERROR.HTTP_ERROR:
 				progress.SetStatus("Upload Error: " + message);
-				this.debugMessage("Error Code: HTTP Error, File name: " + fileObj.name + ", Message: " + message);
+				this.debug("Error Code: HTTP Error, File name: " + fileObj.name + ", Message: " + message);
 				break;
-			case SWFUpload.ERROR_CODE_MISSING_UPLOAD_URL:
+			case SWFUpload.UPLOAD_ERROR.MISSING_UPLOAD_URL:
 				progress.SetStatus("Configuration Error");
-				this.debugMessage("Error Code: No backend file, File name: " + fileObj.name + ", Message: " + message);
+				this.debug("Error Code: No backend file, File name: " + fileObj.name + ", Message: " + message);
 				break;
-			case SWFUpload.ERROR_CODE_UPLOAD_FAILED:
+			case SWFUpload.UPLOAD_ERROR.UPLOAD_FAILED:
 				progress.SetStatus("Upload Failed.");
-				this.debugMessage("Error Code: Upload Failed, File name: " + fileObj.name + ", File size: " + fileObj.size + ", Message: " + message);
+				this.debug("Error Code: Upload Failed, File name: " + fileObj.name + ", File size: " + fileObj.size + ", Message: " + message);
 				break;
-			case SWFUpload.ERROR_CODE_IO_ERROR:
+			case SWFUpload.UPLOAD_ERROR.IO_ERROR:
 				progress.SetStatus("Server (IO) Error");
-				this.debugMessage("Error Code: IO Error, File name: " + fileObj.name + ", Message: " + message);
+				this.debug("Error Code: IO Error, File name: " + fileObj.name + ", Message: " + message);
 				break;
-			case SWFUpload.ERROR_CODE_SECURITY_ERROR:
+			case SWFUpload.UPLOAD_ERROR.SECURITY_ERROR:
 				progress.SetStatus("Security Error");
-				this.debugMessage("Error Code: Security Error, File name: " + fileObj.name + ", Message: " + message);
+				this.debug("Error Code: Security Error, File name: " + fileObj.name + ", Message: " + message);
 				break;
-			case SWFUpload.ERROR_CODE_UPLOAD_LIMIT_EXCEEDED:
+			case SWFUpload.UPLOAD_ERROR.UPLOAD_LIMIT_EXCEEDED:
 				progress.SetStatus("Upload limit exceeded.");
-				this.debugMessage("Error Code: Upload Limit Exceeded, File name: " + fileObj.name + ", File size: " + fileObj.size + ", Message: " + message);
+				this.debug("Error Code: Upload Limit Exceeded, File name: " + fileObj.name + ", File size: " + fileObj.size + ", Message: " + message);
 				break;
-			case SWFUpload.ERROR_CODE_SPECIFIED_FILE_NOT_FOUND:
+			case SWFUpload.UPLOAD_ERROR.SPECIFIED_FILE_ID_NOT_FOUND:
 				progress.SetStatus("File not found.");
-				this.debugMessage("Error Code: The file was not found, File name: " + fileObj.name + ", File size: " + fileObj.size + ", Message: " + message);
+				this.debug("Error Code: The file was not found, File name: " + fileObj.name + ", File size: " + fileObj.size + ", Message: " + message);
 				break;
-			case SWFUpload.ERROR_CODE_FILE_VALIDATION_FAILED:
+			case SWFUpload.UPLOAD_ERROR.FILE_VALIDATION_FAILED:
 				progress.SetStatus("Failed Validation.  Upload skipped.");
-				this.debugMessage("Error Code: File Validation Failed, File name: " + fileObj.name + ", File size: " + fileObj.size + ", Message: " + message);
+				this.debug("Error Code: File Validation Failed, File name: " + fileObj.name + ", File size: " + fileObj.size + ", Message: " + message);
 				break;
-			case SWFUpload.ERROR_CODE_FILE_CANCELLED:
+			case SWFUpload.UPLOAD_ERROR.FILE_CANCELLED:
 				if (this.getStats().files_queued === 0) {
-					document.getElementById(this.getSetting("cancel_button_id")).disabled = true;
+					document.getElementById(this.customSettings.cancelButtonId).disabled = true;
 				}
 				progress.SetStatus("Cancelled");
 				progress.SetCancelled();
 				break;
+			case SWFUpload.UPLOAD_ERROR.UPLOAD_STOPPED:
+				progress.SetStatus("Stopped");
+				break;
 			default:
 				progress.SetStatus("Unhandled Error: " + error_code);
-				this.debugMessage("Error Code: " + error_code + ", File name: " + fileObj.name + ", File size: " + fileObj.size + ", Message: " + message);
+				this.debug("Error Code: " + error_code + ", File name: " + fileObj.name + ", File size: " + fileObj.size + ", Message: " + message);
 				break;
 		}
 	} catch (ex) {
-        this.debugMessage(ex);
+        this.debug(ex);
     }
 }
 

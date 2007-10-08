@@ -66,7 +66,7 @@ package {
 		private var fileComplete_Callback:String;
 		
 		private var debug_Callback:String;
-
+		
 		// Values passed in from the HTML
 		private var movieName:String;
 		private var uploadURL:String;
@@ -80,19 +80,23 @@ package {
 		private var debugEnabled:Boolean;
 
 		// Error code "constants"
-		private var ERROR_CODE_HTTP_ERROR:Number 				= -10;
-		private var ERROR_CODE_MISSING_UPLOAD_URL:Number        = -20;
-		private var ERROR_CODE_IO_ERROR:Number 					= -30;
-		private var ERROR_CODE_SECURITY_ERROR:Number 			= -40;
-		private var ERROR_CODE_FILE_EXCEEDS_SIZE_LIMIT:Number 	= -50;
-		private var ERROR_CODE_ZERO_BYTE_FILE:Number 			= -60;
-		private var ERROR_CODE_UPLOAD_LIMIT_EXCEEDED:Number		= -70;
-		private var ERROR_CODE_UPLOAD_FAILED:Number 			= -80;
-		private var ERROR_CODE_QUEUE_LIMIT_EXCEEDED:Number 		= -90;
-		private var ERROR_CODE_SPECIFIED_FILE_NOT_FOUND:Number 	= -100;
-		private var ERROR_CODE_INVALID_FILETYPE:Number          = -110;
-		private var ERROR_CODE_FILE_VALIDATION_FAILED:Number	= -120;
-		private var ERROR_CODE_FILE_CANCELLED:Number			= -130;
+		// Queue errors
+		private var ERROR_CODE_QUEUE_LIMIT_EXCEEDED:Number 			= -100;
+		private var ERROR_CODE_FILE_EXCEEDS_SIZE_LIMIT:Number 		= -110;
+		private var ERROR_CODE_ZERO_BYTE_FILE:Number 				= -120;
+		private var ERROR_CODE_INVALID_FILETYPE:Number          	= -130;
+
+		// Upload Errors
+		private var ERROR_CODE_HTTP_ERROR:Number 					= -200;
+		private var ERROR_CODE_MISSING_UPLOAD_URL:Number        	= -210;
+		private var ERROR_CODE_IO_ERROR:Number 						= -220;
+		private var ERROR_CODE_SECURITY_ERROR:Number 				= -230;
+		private var ERROR_CODE_UPLOAD_LIMIT_EXCEEDED:Number			= -240;
+		private var ERROR_CODE_UPLOAD_FAILED:Number 				= -250;
+		private var ERROR_CODE_SPECIFIED_FILE_ID_NOT_FOUND:Number 	= -260;
+		private var ERROR_CODE_FILE_VALIDATION_FAILED:Number		= -270;
+		private var ERROR_CODE_FILE_CANCELLED:Number				= -280;
+		private var ERROR_CODE_UPLOAD_STOPPED:Number				= -290;
 
 		public function SWFUpload() {
 			Security.allowDomain("*");	// Allow uploading to any domain
@@ -204,12 +208,10 @@ package {
 
 			// Do some feature detection
 			if (flash.net.FileReferenceList && flash.net.FileReference && flash.net.URLRequest && flash.external.ExternalInterface && flash.external.ExternalInterface.available) {
-				//ExternalInterface.call(this.flashReady_Callback);
 				ExternalCall.Simple(this.flashReady_Callback);
 			} else {
 				this.Debug("Feature Detection Failed");				
 			}
-
 		}
 
 		/* *****************************************
@@ -282,7 +284,7 @@ package {
 		}
 		
 		private function Select_Handler(file_reference_list:Array):void {
-			this.Debug("Select Handler: Files Selected from Multi-Dialog. Processing file list");
+			this.Debug("Select Handler: Files Selected from Dialog. Processing file list");
 
 			// Determine how many files may be queued
 			var queue_slots_remaining:Number = this.fileUploadLimit - (this.completed_uploads + this.queued_uploads);
@@ -290,7 +292,7 @@ package {
 
 			// Check if the number of files selected is greater than the number allowed to queue up.
 			if (file_reference_list.length > queue_slots_remaining && (this.fileUploadLimit != 0 || this.fileQueueLimit > 0)) {
-				this.Debug("Event: fileQueueError : Selected Files exceed remaining Queue size.");
+				this.Debug("Event: fileQueueError : Selected Files (" + file_reference_list.length + ") exceeds remaining Queue size (" + queue_slots_remaining + ").");
 				ExternalCall.FileQueueError(this.fileQueueError_Callback, this.ERROR_CODE_QUEUE_LIMIT_EXCEEDED, null, queue_slots_remaining.toString());
 			} else {
 				// Process each selected file
@@ -331,7 +333,6 @@ package {
 		/* ****************************************************************
 			Externally exposed functions
 		****************************************************************** */
-
 		// Opens a file browser dialog that allows one file to be selected.
 		private function SelectFile():void  {
 			this.fileBrowserOne = new FileReference();
@@ -394,7 +395,8 @@ package {
 				this.file_queue.unshift(this.current_file_item);
 				var js_object:Object = this.current_file_item.ToJavaScriptObject();
 				this.current_file_item = null;
-
+				
+				ExternalCall.UploadError(this.uploadError_Callback, this.ERROR_CODE_UPLOAD_STOPPED, js_object, "Upload Stopped");
 				this.Debug("StopUpload(): upload stopped.");
 			} else {
 				this.Debug("StopUpload(): Upload run not in progress");
@@ -435,6 +437,7 @@ package {
 						// Cancel the file (just for good measure) and make the callback
 						file_item.file_reference.cancel();
 
+						this.Debug("Event: uploadError : " + file_item.id + ". Cancelling queued upload");
 						this.Debug("Event: uploadError : " + file_item.id + ". Cancelling queued upload");
 						ExternalCall.UploadError(this.uploadError_Callback, this.ERROR_CODE_FILE_CANCELLED, file_item.ToJavaScriptObject(), "File Cancelled");
 						timer = new Timer(0, 1);
@@ -590,7 +593,7 @@ package {
 					this.file_queue[file_index] = null;
 				} else {
 					this.Debug("Event: uploadError : File ID not found in queue: " + file_id);
-					ExternalCall.UploadError(this.uploadError_Callback, this.ERROR_CODE_SPECIFIED_FILE_NOT_FOUND, null, "File ID not queued.");
+					ExternalCall.UploadError(this.uploadError_Callback, this.ERROR_CODE_SPECIFIED_FILE_ID_NOT_FOUND, null, "File ID not queued.");
 				}
 			}
 
@@ -604,7 +607,7 @@ package {
 				this.Debug("startFile(): File Reference found.  Starting upload to " + request.url + ". File ID: " + this.current_file_item.id);
 				try {
 					this.Debug("Event: uploadStart : File ID: " + this.current_file_item.id);
-					var start_upload:Boolean = ExternalInterface.call(this.uploadStart_Callback, this.current_file_item.ToJavaScriptObject());
+					var start_upload:Boolean = ExternalCall.UploadStart(this.uploadStart_Callback, this.current_file_item.ToJavaScriptObject());
 					
 					// Validate the file
 					if (start_upload) {

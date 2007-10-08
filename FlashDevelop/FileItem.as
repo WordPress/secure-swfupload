@@ -10,11 +10,11 @@ package {
 		public var id:String;
 		public var file_status:int = 0;
 		
-		public static var FILE_STATUS_QUEUED:Number = 0;
-		public static var FILE_STATUS_IN_PROGRESS:Number = 1;
-		public static var FILE_STATUS_ERROR:Number = 2;
-		public static var FILE_STATUS_COMPLETE:Number = 3;
-		public static var FILE_STATUS_CANCELLED:Number = 4;
+		public static var FILE_STATUS_QUEUED:Number			= -1;
+		public static var FILE_STATUS_IN_PROGRESS:Number	= -2;
+		public static var FILE_STATUS_ERROR:Number			= -3;
+		public static var FILE_STATUS_COMPLETE:Number		= -4;
+		public static var FILE_STATUS_CANCELLED:Number		= -5;
 		
 		public function FileItem(file_reference:FileReference, control_id:String)
 		{

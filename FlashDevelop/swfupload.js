@@ -6,8 +6,15 @@
  *
  * See Changelog.txt for version history
  *
+ * Development Notes:
+ *	* In Linux Flash Player 9 setting the post file variable name does not work. It is always set to "FileData".
+ *  * There is a lot of repeated code that could be refactored to single functions.  Feel free.
+ *  * It's dangerous to do "circular calls" between Flash and JavaScript. I've taken steps to try to work around issues
+ *     by having the event calls pipe through setTimeout.  However you should still avoid calling in to Flash from
+ *     within the event handler methods.  Especially the "startUpload" event since it does not use the setTimeout hack.
  */
 
+ 
 /* *********** */
 /* Constructor */
 /* *********** */
@@ -18,11 +25,11 @@ var SWFUpload = function (init_settings) {
 	try {
 		document.execCommand('BackgroundImageCache', false, true);
 	} catch (ex1) {
-		this.debugMessage(ex1);
 	}
 
 
 	try {
+		this.customSettings = {};	// A container where developers can place their own settings associated with this instance.
 		this.settings = {};
 		this.movieName = "SWFUpload_" + SWFUpload.movieCount++;
 		this.movieElement = null;
@@ -34,12 +41,10 @@ var SWFUpload = function (init_settings) {
 		this.initSettings(init_settings);
 		this.loadFlash();
 
-		if (this.debug_enabled)	 {
-			this.displayDebugInfo();
-		}
+		this.displayDebugInfo();
 
 	} catch (ex2) {
-		this.debugMessage(ex2);
+		this.debug(ex2);
 	}
 };
 
@@ -48,25 +53,31 @@ var SWFUpload = function (init_settings) {
 /* *************** */
 SWFUpload.instances = {};
 SWFUpload.movieCount = 0;
-SWFUpload.ERROR_CODE_HTTP_ERROR				  = -10;
-SWFUpload.ERROR_CODE_MISSING_UPLOAD_URL	      = -20;
-SWFUpload.ERROR_CODE_IO_ERROR				  = -30;
-SWFUpload.ERROR_CODE_SECURITY_ERROR			  = -40;
-SWFUpload.ERROR_CODE_FILE_EXCEEDS_SIZE_LIMIT  = -50;
-SWFUpload.ERROR_CODE_ZERO_BYTE_FILE			  = -60;
-SWFUpload.ERROR_CODE_UPLOAD_LIMIT_EXCEEDED	  = -70;
-SWFUpload.ERROR_CODE_UPLOAD_FAILED			  = -80;
-SWFUpload.ERROR_CODE_QUEUE_LIMIT_EXCEEDED	  = -90;
-SWFUpload.ERROR_CODE_SPECIFIED_FILE_NOT_FOUND = -100;
-SWFUpload.ERROR_CODE_INVALID_FILETYPE		  = -110;
-SWFUpload.ERROR_CODE_FILE_VALIDATION_FAILED	  = -120;
-SWFUpload.ERROR_CODE_FILE_CANCELLED			  = -130;
-
-SWFUpload.FILE_STATUS_QUEUED		 = 0;
-SWFUpload.FILE_STATUS_IN_PROGRESS	 = 1;
-SWFUpload.FILE_STATUS_ERROR			 = 2;
-SWFUpload.FILE_STATUS_COMPLETE		 = 3;
-SWFUpload.FILE_STATUS_CANCELLED		 = 4;
+SWFUpload.QUEUE_ERROR = {
+	QUEUE_LIMIT_EXCEEDED	  		: -100,
+	FILE_EXCEEDS_SIZE_LIMIT  		: -110,
+	ZERO_BYTE_FILE			  		: -120,
+	INVALID_FILETYPE		  		: -130
+};
+SWFUpload.UPLOAD_ERROR = {
+	HTTP_ERROR				  		: -200,
+	MISSING_UPLOAD_URL	      		: -210,
+	IO_ERROR				  		: -220,
+	SECURITY_ERROR			  		: -230,
+	UPLOAD_LIMIT_EXCEEDED	  		: -240,
+	UPLOAD_FAILED			  		: -250,
+	SPECIFIED_FILE_ID_NOT_FOUND		: -260,
+	FILE_VALIDATION_FAILED	  		: -270,
+	FILE_CANCELLED			  		: -280,
+	UPLOAD_STOPPED					: -290
+};
+SWFUpload.FILE_STATUS = {
+	QUEUED		 : -1,
+	IN_PROGRESS	 : -2,
+	ERROR		 : -3,
+	COMPLETE	 : -4,
+	CANCELLED	 : -5
+};
 
 
 /* ***************** */
@@ -104,19 +115,18 @@ SWFUpload.prototype.initSettings = function (init_settings) {
 	this.debug_enabled = this.getSetting("debug_enabled");
 
 	// Event Handlers
-	this.flashReady			= this.retrieveSetting(init_settings.flash_ready_handler,		   this.flashReady);
-	this.fileDialogStart	= this.retrieveSetting(init_settings.file_dialog_start_handler,	   this.fileDialogStart);
-	this.fileQueued			= this.retrieveSetting(init_settings.file_queued_handler,		   this.fileQueued);
-	this.fileQueueError		= this.retrieveSetting(init_settings.file_queue_error_handler,	   this.fileQueueError);
-	this.fileDialogComplete = this.retrieveSetting(init_settings.file_dialog_complete_handler, this.fileDialogComplete);
+	this.fileDialogStart_handler	= this.retrieveSetting(init_settings.file_dialog_start_handler,		SWFUpload.fileDialogStart);
+	this.fileQueued_handler			= this.retrieveSetting(init_settings.file_queued_handler,			SWFUpload.fileQueued);
+	this.fileQueueError_handler		= this.retrieveSetting(init_settings.file_queue_error_handler,		SWFUpload.fileQueueError);
+	this.fileDialogComplete_handler	= this.retrieveSetting(init_settings.file_dialog_complete_handler,	SWFUpload.fileDialogComplete);
 	
-	this.uploadStart	= this.retrieveSetting(init_settings.upload_start_handler,			   this.uploadStart);
-	this.uploadProgress = this.retrieveSetting(init_settings.upload_progress_handler,		   this.uploadProgress);
-	this.uploadError	= this.retrieveSetting(init_settings.upload_error_handler,			   this.uploadError);
-	this.uploadComplete = this.retrieveSetting(init_settings.upload_complete_handler,		   this.uploadComplete);
-	this.fileComplete	= this.retrieveSetting(init_settings.file_complete_handler,			   this.fileComplete);
+	this.uploadStart_handler		= this.retrieveSetting(init_settings.upload_start_handler,			SWFUpload.uploadStart);
+	this.uploadProgress_handler		= this.retrieveSetting(init_settings.upload_progress_handler,		SWFUpload.uploadProgress);
+	this.uploadError_handler		= this.retrieveSetting(init_settings.upload_error_handler,			SWFUpload.uploadError);
+	this.uploadComplete_handler		= this.retrieveSetting(init_settings.upload_complete_handler,		SWFUpload.uploadComplete);
+	this.fileComplete_handler		= this.retrieveSetting(init_settings.file_complete_handler,			SWFUpload.fileComplete);
 
-	this.debug			= this.retrieveSetting(init_settings.debug_handler,			   this.debug);
+	this.debug_handler				= this.retrieveSetting(init_settings.debug_handler,			   		SWFUpload.debug);
 };
 
 // loadFlash is a private method that generates the HTML tag for the Flash
@@ -134,7 +144,7 @@ SWFUpload.prototype.loadFlash = function () {
 	try {
 		target_element = document.getElementsByTagName("body")[0];
 		if (typeof(target_element) === "undefined" || target_element === null) {
-			this.debugMessage('Could not find an element to add the Flash too. Failed to find element for "flash_container_id" or the BODY element.');
+			this.debug('Could not find an element to add the Flash too. Failed to find element for "flash_container_id" or the BODY element.');
 			return false;
 		}
 	} catch (ex) {
@@ -265,7 +275,7 @@ SWFUpload.prototype.showUI = function () {
 		}
 
 	} catch (ex) {
-		this.debugMessage(ex);
+		this.debug(ex);
 	}
 };
 
@@ -300,20 +310,19 @@ SWFUpload.prototype.retrieveSetting = function (value, default_value) {
 };
 
 
-// This method is used when debugging is enabled.
 // It loops through all the settings and displays
 // them in the debug Console.
 SWFUpload.prototype.displayDebugInfo = function () {
 	var key, debug_message = "";
 
-	debug_message += "----- DEBUG OUTPUT ----\nID: " + this.getMovieElement().id + "\n";
+	debug_message += "----- SWFUPLOAD SETTINGS     ----\nID: " + this.getMovieElement().id + "\n";
 
 	debug_message += this.outputObject(this.settings);
 
-	debug_message += "----- DEBUG OUTPUT END ----\n";
+	debug_message += "----- SWFUPLOAD SETTINGS END ----\n";
 	debug_message += "\n";
 
-	this.debugMessage(debug_message);
+	this.debug(debug_message);
 };
 SWFUpload.prototype.outputObject = function (object, prefix) {
 	var output = "", key;
@@ -351,10 +360,10 @@ SWFUpload.prototype.selectFile = function () {
 			movie_element.SelectFile();
 		}
 		catch (ex) {
-			this.debugMessage("Could not call SelectFile: " + ex);
-		}
+			this.debug("Could not call SelectFile: " + ex);
+		} 
 	} else {
-		this.debugMessage("Could not find Flash element");
+		this.debug("Could not find Flash element");
 	}
 
 };
@@ -366,28 +375,35 @@ SWFUpload.prototype.selectFiles = function () {
 			movie_element.SelectFiles();
 		}
 		catch (ex) {
-			this.debugMessage("Could not call SelectFile: " + ex);
-		}
+			this.debug("Could not call SelectFiles: " + ex);
+		} 
 	} else {
-		this.debugMessage("Could not find Flash element");
+		this.debug("Could not find Flash element");
 	}
 
 };
 
 
 /* Start the upload.  If a file_id is specified that file is uploaded. Otherwise the first
- * file in the queue is uploaded.  If no files are in the queue then nothing happens */
+ * file in the queue is uploaded.  If no files are in the queue then nothing happens.
+ * This call uses setTimeout since Flash will be calling back in to JavaScript
+ */
 SWFUpload.prototype.startUpload = function (file_id) {
+	var self = this;
 	var movie_element = this.getMovieElement();
 	if (movie_element !== null && typeof(movie_element.StartUpload) === "function") {
-		try {
-			movie_element.StartUpload(file_id);
-		}
-		catch (ex) {
-			this.debugMessage("Could not call StartUpload: " + ex);
-		}
+		setTimeout(
+			function () { 
+				try {
+					movie_element.StartUpload(file_id);
+				}
+				catch (ex) {
+					self.debug("Could not call StartUpload: " + ex);
+				} 
+			}, 0
+		);
 	} else {
-		this.debugMessage("Could not find Flash element");
+		this.debug("Could not find Flash element");
 	}
 
 };
@@ -400,10 +416,10 @@ SWFUpload.prototype.cancelUpload = function (file_id) {
 			movie_element.CancelUpload(file_id);
 		}
 		catch (ex) {
-			this.debugMessage("Could not call CancelUpload");
-		}
+			this.debug("Could not call CancelUpload: " + ex);
+		} 
 	} else {
-		this.debugMessage("Could not find Flash element");
+		this.debug("Could not find Flash element");
 	}
 
 };
@@ -416,15 +432,23 @@ SWFUpload.prototype.stopUpload = function () {
 			movie_element.StopUpload();
 		}
 		catch (ex) {
-			this.debugMessage("Could not call StopUpload");
-		}
+			this.debug("Could not call StopUpload: " + ex);
+		} 
 	} else {
-		this.debugMessage("Could not find Flash element");
+		this.debug("Could not find Flash element");
 	}
 
 };
 
-/* Gets the file statistics object.	 It looks like this (n = number):
+/* ************************
+ * Settings methods
+ *   These methods change the settings inside SWFUpload
+ *   They shouldn't need to be called in a setTimeout since they
+ *   should not call back from Flash to JavaScript (except perhaps in a Debug call)
+ *   and some need to return data so setTimeout won't work.
+ */
+
+/* Gets the file statistics object.	 It looks like this (where n = number):
 	{
 		files_queued: n,
 		complete_uploads: n,
@@ -434,44 +458,47 @@ SWFUpload.prototype.stopUpload = function () {
 	}
 */
 SWFUpload.prototype.getStats = function () {
+	var self = this;
 	var movie_element = this.getMovieElement();
 	if (movie_element !== null && typeof(movie_element.GetStats) === "function") {
 		try {
 			return movie_element.GetStats();
 		}
 		catch (ex) {
-			this.debugMessage("Could not call GetStats");
+			self.debug("Could not call GetStats");
 		}
 	} else {
-		this.debugMessage("Could not find Flash element");
+		this.debug("Could not find Flash element");
 	}
 };
 
 SWFUpload.prototype.addFileParam = function (file_id, name, value) {
+	var self = this;
 	var movie_element = this.getMovieElement();
 	if (movie_element !== null && typeof(movie_element.AddFileParam) === "function") {
 		try {
 			return movie_element.AddFileParam(file_id, name, value);
 		}
 		catch (ex) {
-			this.debugMessage("Could not call AddFileParam");
+			self.debug("Could not call AddFileParam");
 		}
 	} else {
-		this.debugMessage("Could not find Flash element");
+		this.debug("Could not find Flash element");
 	}
 };
 
 SWFUpload.prototype.removeFileParam = function (file_id, name) {
+	var self = this;
 	var movie_element = this.getMovieElement();
 	if (movie_element !== null && typeof(movie_element.RemoveFileParam) === "function") {
 		try {
 			return movie_element.RemoveFileParam(file_id, name);
 		}
 		catch (ex) {
-			this.debugMessage("Could not call AddFileParam");
+			self.debug("Could not call AddFileParam");
 		}
 	} else {
-		this.debugMessage("Could not find Flash element");
+		this.debug("Could not find Flash element");
 	}
 
 };
@@ -484,10 +511,10 @@ SWFUpload.prototype.setUploadURL = function (url) {
 			movie_element.SetUploadURL(this.getSetting("upload_url"));
 		}
 		catch (ex) {
-			this.debugMessage("Could not call SetUploadURL");
+			this.debug("Could not call SetUploadURL");
 		}
 	} else {
-		this.debugMessage("Could not find Flash element in setUploadURL");
+		this.debug("Could not find Flash element in setUploadURL");
 	}
 };
 
@@ -499,10 +526,10 @@ SWFUpload.prototype.setPostParams = function (param_object) {
 			movie_element.SetPostParams(this.getSetting("post_params"));
 		}
 		catch (ex) {
-			this.debugMessage("Could not call SetPostParams");
+			this.debug("Could not call SetPostParams");
 		}
 	} else {
-		this.debugMessage("Could not find Flash element in SetPostParams");
+		this.debug("Could not find Flash element in SetPostParams");
 	}
 };
 
@@ -515,10 +542,10 @@ SWFUpload.prototype.setFileTypes = function (types, description) {
 			movie_element.SetFileTypes(this.getSetting("file_types"), this.getSetting("file_types_description"));
 		}
 		catch (ex) {
-			this.debugMessage("Could not call SetFileTypes");
+			this.debug("Could not call SetFileTypes");
 		}
 	} else {
-		this.debugMessage("Could not find Flash element in SetFileTypes");
+		this.debug("Could not find Flash element in SetFileTypes");
 	}
 };
 
@@ -530,10 +557,10 @@ SWFUpload.prototype.setFileSizeLimit = function (file_size_limit) {
 			movie_element.SetFileSizeLimit(this.getSetting("file_size_limit"));
 		}
 		catch (ex) {
-			this.debugMessage("Could not call SetFileSizeLimit");
+			this.debug("Could not call SetFileSizeLimit");
 		}
 	} else {
-		this.debugMessage("Could not find Flash element in SetFileSizeLimit");
+		this.debug("Could not find Flash element in SetFileSizeLimit");
 	}
 };
 
@@ -545,10 +572,10 @@ SWFUpload.prototype.setFileUploadLimit = function (file_upload_limit) {
 			movie_element.SetFileUploadLimit(this.getSetting("file_upload_limit"));
 		}
 		catch (ex) {
-			this.debugMessage("Could not call SetFileUploadLimit");
+			this.debug("Could not call SetFileUploadLimit");
 		}
 	} else {
-		this.debugMessage("Could not find Flash element in SetFileUploadLimit");
+		this.debug("Could not find Flash element in SetFileUploadLimit");
 	}
 };
 
@@ -560,10 +587,10 @@ SWFUpload.prototype.setFileQueueLimit = function (file_queue_limit) {
 			movie_element.SetFileQueueLimit(this.getSetting("file_queue_limit"));
 		}
 		catch (ex) {
-			this.debugMessage("Could not call SetFileQueueLimit");
+			this.debug("Could not call SetFileQueueLimit");
 		}
 	} else {
-		this.debugMessage("Could not find Flash element in SetFileQueueLimit");
+		this.debug("Could not find Flash element in SetFileQueueLimit");
 	}
 };
 
@@ -575,10 +602,10 @@ SWFUpload.prototype.setFilePostName = function (file_post_name) {
 			movie_element.SetFilePostName(this.getSetting("file_post_name"));
 		}
 		catch (ex) {
-			this.debugMessage("Could not call SetFilePostName");
+			this.debug("Could not call SetFilePostName");
 		}
 	} else {
-		this.debugMessage("Could not find Flash element in SetFilePostName");
+		this.debug("Could not find Flash element in SetFilePostName");
 	}
 };
 
@@ -591,148 +618,279 @@ SWFUpload.prototype.setDebugEnabled = function (debug_enabled) {
 			movie_element.SetDebugEnabled(this.getSetting("debug_enabled"));
 		}
 		catch (ex) {
-			this.debugMessage("Could not call SetDebugEnabled");
+			this.debug("Could not call SetDebugEnabled");
 		}
 	} else {
-		this.debugMessage("Could not find Flash element in SetDebugEnabled");
+		this.debug("Could not find Flash element in SetDebugEnabled");
 	}
 };
 
 
 
 /* *******************************
-	Default Event Handlers
+	Internal Event Handlers, don't override these
+	These event handlers ensure that your custom event handlers
+	are called correctly
 ******************************* */
 // This is the callback method that the Flash movie will call when it has been loaded and is ready to go.
-// Calling this or showUI "manually" bypass the Flash Detection built in to SWFUpload.
+// Calling this or showUI "manually" bypasses the Flash Detection built in to SWFUpload.
 // FlashReady should not generally be overwritten. Use a ui_function setting if you want to control the UI loading after the flash has loaded.
 SWFUpload.prototype.flashReady = function () {
-	var ui_function;
-	try {
-		this.debugMessage("Flash called back and is ready.");
+	var self = this;
+	setTimeout(function () {
+		var ui_function;
+		try {
+			self.debug("Flash called back and is ready.");
 
-		ui_function = this.getSetting("ui_function");
-		if (typeof(ui_function) === "function") {
-			ui_function.apply(this);
-		} else {
-			this.showUI();
+			ui_function = self.getSetting("ui_function");
+			if (typeof(ui_function) === "function") {
+				ui_function.apply(self);
+			} else {
+				self.showUI();
+			}
+		} catch (ex) {
+			self.debug(ex);
 		}
-	} catch (ex) {
-		this.debugMessage(ex);
-	}
+	}, 0);
 };
 
-
+/* This is a chance to do something before the browse window opens */
 SWFUpload.prototype.fileDialogStart = function () {
-	/* This is a chance to do something before the browse window opens */
-};
-
-
-SWFUpload.prototype.fileQueued = function (file) {
-	/* Called when a file is successfully added to the queue. */
-};
-
-
-SWFUpload.prototype.fileQueueError = function (error_code, file, message) {
-	/* Handle errors that occur when an attempt to queue a file fails. */
-	try {
-		switch (error_code) {
-		case SWFUpload.ERROR_CODE_FILE_EXCEEDS_SIZE_LIMIT:
-			this.debugMessage("Error Code: File too big, File name: " + file.name + ", File size: " + file.size + ", Message: " + message);
-			break;
-		case SWFUpload.ERROR_CODE_ZERO_BYTE_FILE:
-			this.debugMessage("Error Code: Zero Byte File, File name: " + file.name + ", File size: " + file.size + ", Message: " + message);
-			break;
-		case SWFUpload.ERROR_CODE_QUEUE_LIMIT_EXCEEDED:
-			this.debugMessage("Error Code: Upload limit reached, File name: " + file.name + ", File size: " + file.size + ", Message: " + message);
-			break;
-		case SWFUpload.ERROR_CODE_INVALID_FILETYPE:
-			this.debugMessage("Error Code: File extension is not allowed, Message: " + message);
-			break;
-		default:
-			this.debugMessage("Error Code: Unhandled error occured. Errorcode: " + error_code);
-		}
-	} catch (ex) {
-		this.debugMessage(ex);
+	var self = this;
+	if (typeof(self.fileDialogStart_handler) === "function") {
+		setTimeout(function() { self.fileDialogStart_handler(); }, 0);
+	} else {
+		this.debug("fileDialogStart event not defined");
 	}
-
 };
 
+
+/* Called when a file is successfully added to the queue. */
+SWFUpload.prototype.fileQueued = function (file) {
+	var self = this;
+	if (typeof(self.fileQueued_handler) === "function") {
+		setTimeout(function() { self.fileQueued_handler(file); }, 0);
+	} else {
+		this.debug("fileDialogStart event not defined");
+	}
+};
+
+
+/* Handle errors that occur when an attempt to queue a file fails. */
+SWFUpload.prototype.fileQueueError = function (file, error_code, message) {
+	var self = this;
+	if (typeof(self.fileQueueError_handler) === "function") {
+		setTimeout(function() { self.fileQueueError_handler(file, error_code, message); }, 0);
+	} else {
+		this.debug("fileDialogStart event not defined");
+	}
+};
+
+/* Called after the file dialog has closed and the selected files have been queued.
+	You could call startUpload here if you want the queued files to begin uploading immediately. */
 SWFUpload.prototype.fileDialogComplete = function (num_files_selected) {
-	/* Called after the file dialog has closed and the selected files have been queued.
-		You could call startUpload here if you want the queued files to begin uploading immediately.
-	*/
+	var self = this;
+	if (typeof(self.fileDialogComplete_handler) === "function") {
+		setTimeout(function() { self.fileDialogComplete_handler(num_files_selected); }, 0);
+	} else {
+		this.debug("fileDialogStart event not defined");
+	}
 };
 
+/* Gets called when a file upload is about to be started.  Return true to continue the upload. Return false to stop the upload. 
+	If you return false then the uploadError callback is called and then fileComplete (like normal).
+	
+	This is a good place to do any file validation you need.
+	
+	This is the only function that cannot be called on a setTimeout because it must return a value to Flash.
+	You MUST NOT make any calls in to Flash (e.i, changing settings, getting stats, etc).
+*/
 SWFUpload.prototype.uploadStart = function (file) {
-	/* Gets called when a file upload is about to be started.  Return true to continue the upload. Return false to stop the upload. 
-		If you return false then the uploadError callback is called and then fileComplete (like normal).
-		
-		This is a good place to do any file validation you need.
-	*/
 	return true;
+	if (typeof(this.uploadStart_handler) === "function") {
+		return this.uploadStart_handler(files);
+	} else {
+		this.debug("fileDialogStart event not defined");
+		return true;
+	}
 };
 
 // Called during upload as the file progresses
 SWFUpload.prototype.uploadProgress = function (file, bytes_complete, bytes_total) {
-	this.debugMessage("File Progress: " + file.id + ", Bytes: " + bytes_complete + ". Total: " + bytes_total);
+	var self = this;
+	if (typeof(self.uploadProgress_handler) === "function") {
+		setTimeout(function() { self.uploadProgress_handler(file, bytes_complete, bytes_total); }, 0);
+	} else {
+		this.debug("fileDialogStart event not defined");
+	}
 };
 
+/* This gets called when a file finishes uploading and the upload script has completed and returned a 200 status code.	Any text returned by the
+server is available in server_data.	 The upload script must return some text or uploadComplete will not fire (neither will fileComplete). */
 SWFUpload.prototype.uploadComplete = function (file, server_data) {
-	/* This gets called when a file finishes uploading and the upload script has completed and returned a 200 status code.	Any text returned by the
-	server is available in server_data.	 The upload script must return some text or uploadComplete will not fire (neither will fileComplete). */
+	var self = this;
+	if (typeof(self.uploadComplete_handler) === "function") {
+		setTimeout(function() { self.uploadComplete_handler(file, server_data); }, 0);
+	} else {
+		this.debug("fileDialogStart event not defined");
+	}
 };
 
-// Called when a file upload has completed
+/* This is called last.	 The file is uploaded or an error occurred and SWFUpload is ready to make the next upload.
+	If you want to automatically start the next file just call startUpload from here.
+*/
 SWFUpload.prototype.fileComplete = function (file) {
-	/* This is called last.	 The file is uploaded or an error occurred and SWFUpload is ready to make the next upload.
-		If you want to automatically start the next file just call startUpload from here.
-	*/
+	var self = this;
+	if (typeof(self.fileComplete_handler) === "function") {
+		setTimeout(function() { self.fileComplete_handler(file); }, 0);
+	} else {
+		this.debug("fileDialogStart event not defined");
+	}
 };
 
 // Called by SWFUpload JavaScript and Flash flash functions when debug is enabled
 SWFUpload.prototype.debug = function (message) {
-	this.debugMessage(message);
+	var self = this;
+	if (typeof(self.debug_handler) === "function") {
+		setTimeout(function() { self.debug_handler(message); }, 0);
+	} else {
+		setTimeout(function() { self.debugMessage(message); }, 0);
+	}
 };
 
 // Called when an error occurs. Use errcode to determine which error occurred.
-SWFUpload.prototype.uploadError = function (errcode, file, msg) {
-	try {
-		switch (errcode) {
-		case SWFUpload.ERROR_CODE_SPECIFIED_FILE_NOT_FOUND:
-			this.debugMessage("Error Code: File ID specified for upload was not found, Message: " + msg);
-			break;
-		case SWFUpload.ERROR_CODE_HTTP_ERROR:
-			this.debugMessage("Error Code: HTTP Error, File name: " + file.name + ", Message: " + msg);
-			break;
-		case SWFUpload.ERROR_CODE_MISSING_UPLOAD_URL:
-			this.debugMessage("Error Code: No backend file, File name: " + file.name + ", Message: " + msg);
-			break;
-		case SWFUpload.ERROR_CODE_IO_ERROR:
-			this.debugMessage("Error Code: IO Error, File name: " + file.name + ", Message: " + msg);
-			break;
-		case SWFUpload.ERROR_CODE_SECURITY_ERROR:
-			this.debugMessage("Error Code: Security Error, File name: " + file.name + ", Message: " + msg);
-			break;
-		case SWFUpload.ERROR_CODE_UPLOAD_LIMIT_EXCEEDED:
-			this.debugMessage("Error Code: Upload limit reached, File name: " + file.name + ", File size: " + file.size + ", Message: " + msg);
-			break;
-		case SWFUpload.ERROR_CODE_UPLOAD_FAILED:
-			this.debugMessage("Error Code: Upload Initialization exception, File name: " + file.name + ", File size: " + file.size + ", Message: " + msg);
-			break;
-		case SWFUpload.ERROR_CODE_FILE_VALIDATION_FAILED:
-			this.debugMessage("Error Code: uploadStart callback returned false, File name: " + file.name + ", File size: " + file.size + ", Message: " + msg);
-			break;
-		case SWFUpload.ERROR_CODE_FILE_CANCELLED:
-			this.debugMessage("Error Code: The file upload was cancelled, File name: " + file.name + ", File size: " + file.size + ", Message: " + msg);
-			break;
-		default:
-			this.debugMessage("Error Code: Unhandled error occured. Errorcode: " + errcode);
-		}
-	} catch (ex) {
-		this.debugMessage(ex);
+SWFUpload.prototype.uploadError = function (file, error_code, message) {
+	var self = this;
+	if (typeof(this.uploadError_handler) === "function") {
+		setTimeout(function() { self.uploadError_handler(file, error_code, message); }, 0);
+	} else {
+		this.debug("fileDialogStart event not defined");
 	}
 };
+
+/* **********************************
+	Default Event Handlers.
+	These event handlers are used by default if an overriding handler is
+	not defined in the SWFUpload settings object.
+   ********************************** */
+/* This is a chance to do something before the browse window opens */
+SWFUpload.fileDialogStart = function () {
+};
+
+
+/* Called when a file is successfully added to the queue. */
+SWFUpload.fileQueued = function (file) {
+};
+
+
+/* Handle errors that occur when an attempt to queue a file fails. */
+SWFUpload.fileQueueError = function (file, error_code, message) {
+	try {
+		switch (error_code) {
+		case SWFUpload.QUEUE_ERROR.FILE_EXCEEDS_SIZE_LIMIT:
+			this.debug("Error Code: File too big, File name: " + file.name + ", File size: " + file.size + ", Message: " + message);
+			break;
+		case SWFUpload.QUEUE_ERROR.ZERO_BYTE_FILE:
+			this.debug("Error Code: Zero Byte File, File name: " + file.name + ", File size: " + file.size + ", Message: " + message);
+			break;
+		case SWFUpload.QUEUE_ERROR.QUEUE_LIMIT_EXCEEDED:
+			this.debug("Error Code: Upload limit reached, File name: " + file.name + ", File size: " + file.size + ", Message: " + message);
+			break;
+		case SWFUpload.QUEUE_ERROR.INVALID_FILETYPE:
+			this.debug("Error Code: File extension is not allowed, Message: " + message);
+			break;
+		default:
+			this.debug("Error Code: Unhandled error occured. Errorcode: " + error_code);
+		}
+	} catch (ex) {
+		this.debug(ex);
+	}
+};
+
+/* Called after the file dialog has closed and the selected files have been queued.
+	You could call startUpload here if you want the queued files to begin uploading immediately. */
+SWFUpload.fileDialogComplete = function (num_files_selected) {
+};
+
+/* Gets called when a file upload is about to be started.  Return true to continue the upload. Return false to stop the upload. 
+	If you return false then the uploadError callback is called and then fileComplete (like normal).
+	
+	This is a good place to do any file validation you need.
+	
+	This is the only function that cannot be called on a setTimeout because it must return a value to Flash.
+	You MUST NOT make any calls in to Flash (e.i, changing settings, getting stats, etc).
+*/
+SWFUpload.uploadStart = function (file) {
+	return true;
+};
+
+// Called during upload as the file progresses
+SWFUpload.uploadProgress = function (file, bytes_complete, bytes_total) {
+	this.debug("File Progress: " + file.id + ", Bytes: " + bytes_complete + ". Total: " + bytes_total);
+};
+
+/* This gets called when a file finishes uploading and the upload script has completed and returned a 200 status code.	Any text returned by the
+server is available in server_data.	 The upload script must return some text or uploadComplete will not fire (neither will fileComplete). */
+SWFUpload.uploadComplete = function (file, server_data) {
+};
+
+/* This is called last.	 The file is uploaded or an error occurred and SWFUpload is ready to make the next upload.
+	If you want to automatically start the next file just call startUpload from here.
+*/
+SWFUpload.fileComplete = function (file) {
+};
+
+// Called by SWFUpload JavaScript and Flash flash functions when debug is enabled.
+// Override this method in your settings to call your own debug message handler
+SWFUpload.debug = function (message) {
+	if (this.debug_enabled) {
+		this.debugMessage(message);
+	}
+};
+
+/* Called when an upload occurs during upload.  For HTTP errors 'message' will contain the HTTP STATUS CODE */
+SWFUpload.uploadError = function (file, error_code, message) {
+	try {
+		switch (errcode) {
+		case SWFUpload.UPLOAD_ERROR.SPECIFIED_FILE_ID_NOT_FOUND:
+			this.debug("Error Code: File ID specified for upload was not found, Message: " + msg);
+			break;
+		case SWFUpload.UPLOAD_ERROR.HTTP_ERROR:
+			this.debug("Error Code: HTTP Error, File name: " + file.name + ", Message: " + msg);
+			break;
+		case SWFUpload.UPLOAD_ERROR.MISSING_UPLOAD_URL:
+			this.debug("Error Code: No backend file, File name: " + file.name + ", Message: " + msg);
+			break;
+		case SWFUpload.UPLOAD_ERROR.IO_ERROR:
+			this.debug("Error Code: IO Error, File name: " + file.name + ", Message: " + msg);
+			break;
+		case SWFUpload.UPLOAD_ERROR.SECURITY_ERROR:
+			this.debug("Error Code: Security Error, File name: " + file.name + ", Message: " + msg);
+			break;
+		case SWFUpload.UPLOAD_ERROR.UPLOAD_LIMIT_EXCEEDED:
+			this.debug("Error Code: Upload limit reached, File name: " + file.name + ", File size: " + file.size + ", Message: " + msg);
+			break;
+		case SWFUpload.UPLOAD_ERROR.UPLOAD_FAILED:
+			this.debug("Error Code: Upload Initialization exception, File name: " + file.name + ", File size: " + file.size + ", Message: " + msg);
+			break;
+		case SWFUpload.UPLOAD_ERROR.FILE_VALIDATION_FAILED:
+			this.debug("Error Code: uploadStart callback returned false, File name: " + file.name + ", File size: " + file.size + ", Message: " + msg);
+			break;
+		case SWFUpload.UPLOAD_ERROR.FILE_CANCELLED:
+			this.debug("Error Code: The file upload was cancelled, File name: " + file.name + ", File size: " + file.size + ", Message: " + msg);
+			break;
+		case SWFUpload.UPLOAD_ERROR.UPLOAD_STOPPED:
+			this.debug("Error Code: The file upload was stopped, File name: " + file.name + ", File size: " + file.size + ", Message: " + msg);
+			break;
+		default:
+			this.debug("Error Code: Unhandled error occured. Errorcode: " + errcode);
+		}
+	} catch (ex) {
+		this.debug(ex);
+	}
+};
+
+
 
 /* **********************************
 	Debug Console
@@ -741,24 +899,25 @@ SWFUpload.prototype.uploadError = function (errcode, file, msg) {
 	itself to the body if necessary.
 
 	The console is automatically scrolled as messages appear.
+	
+	You can override this console (to use FireBug's console for instance) by setting the debug event method to your own function
+	that handles the debug message
    ********************************** */
 SWFUpload.prototype.debugMessage = function (message) {
 	var exception_message, exception_values;
 
-	if (this.debug_enabled) {
-		if (typeof(message) === "object" && typeof(message.name) === "string" && typeof(message.message) === "string") {
-			exception_message = "";
-			exception_values = [];
-			for (var key in message) {
-				exception_values.push(key + ": " + message[key]);
-			}
-			exception_message = exception_values.join("\n");
-			exception_values = exception_message.split("\n");
-			exception_message = "EXCEPTION: " + exception_values.join("\nEXCEPTION: ");
-			SWFUpload.Console.writeLine(exception_message);
-		} else {
-			SWFUpload.Console.writeLine(message);
+	if (typeof(message) === "object" && typeof(message.name) === "string" && typeof(message.message) === "string") {
+		exception_message = "";
+		exception_values = [];
+		for (var key in message) {
+			exception_values.push(key + ": " + message[key]);
 		}
+		exception_message = exception_values.join("\n");
+		exception_values = exception_message.split("\n");
+		exception_message = "EXCEPTION: " + exception_values.join("\nEXCEPTION: ");
+		SWFUpload.Console.writeLine(exception_message);
+	} else {
+		SWFUpload.Console.writeLine(message);
 	}
 };
 

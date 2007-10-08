@@ -1,32 +1,30 @@
-var upload_successful = true;
 
-
-function fileQueueError(error_code, fileObj, message)  {
+function fileQueueError(fileObj, error_code, message)  {
 	try {
 		// Handle this error separately because we don't want to create a FileProgress element for it.
 		switch(error_code) {
-			case SWFUpload.ERROR_CODE_QUEUE_LIMIT_EXCEEDED:
+			case SWFUpload.QUEUE_ERROR.QUEUE_LIMIT_EXCEEDED:
 				alert("You have attempted to queue too many files.\n" + (message == 0 ? "You have reached the upload limit." : "You may select " + (message > 1 ? "up to " + message + " files." : "one file.")));
 				return;
 				break;
-			case SWFUpload.ERROR_CODE_FILE_EXCEEDS_SIZE_LIMIT:
+			case SWFUpload.QUEUE_ERROR.FILE_EXCEEDS_SIZE_LIMIT:
 				alert("The file you selected is too big.");
-				this.debugMessage("Error Code: File too big, File name: " + file.name + ", File size: " + file.size + ", Message: " + message);
+				this.debug("Error Code: File too big, File name: " + file.name + ", File size: " + file.size + ", Message: " + message);
 				return;
 				break;
-			case SWFUpload.ERROR_CODE_ZERO_BYTE_FILE:
-				alert("The file you select is empty.  Please select another file.");
-				this.debugMessage("Error Code: Zero byte file, File name: " + file.name + ", File size: " + file.size + ", Message: " + message);
+			case SWFUpload.QUEUE_ERROR.ZERO_BYTE_FILE:
+				alert("The file you selected is empty.  Please select another file.");
+				this.debug("Error Code: Zero byte file, File name: " + file.name + ", File size: " + file.size + ", Message: " + message);
 				return;
 				break;
-			case SWFUpload.ERROR_CODE_INVALID_FILETYPE:
+			case SWFUpload.QUEUE_ERROR.INVALID_FILETYPE:
 				alert("The file you choose is not an allowed file type.");
-				this.debugMessage("Error Code: Invalid File Type, File name: " + file.name + ", File size: " + file.size + ", Message: " + message);
+				this.debug("Error Code: Invalid File Type, File name: " + file.name + ", File size: " + file.size + ", Message: " + message);
 				return;
 				break;
 			default:
 				alert("An error occurred in the upload. Try again later.");
-				this.debugMessage("Error Code: " + error_code + ", File name: " + file.name + ", File size: " + file.size + ", Message: " + message);
+				this.debug("Error Code: " + error_code + ", File name: " + file.name + ", File size: " + file.size + ", Message: " + message);
 				return;
 				break;
 		}
@@ -50,7 +48,7 @@ function uploadProgress(fileObj, bytesLoaded, bytesTotal) {
 		var percent = Math.ceil((bytesLoaded / bytesTotal) * 100)
 
 		fileObj.id = "singlefile";	// This makes it so FileProgress only makes a single UI element, instead of one for each file
-		var progress = new FileProgress(fileObj, this.getSetting("progress_target"));
+		var progress = new FileProgress(fileObj, this.customSettings.progress_target);
 		progress.SetProgress(percent);
 		progress.SetStatus("Uploading...");
 	} catch (e) { }
@@ -59,15 +57,15 @@ function uploadProgress(fileObj, bytesLoaded, bytesTotal) {
 function uploadComplete(fileObj, server_data) {
 	try {
 		fileObj.id = "singlefile";	// This makes it so FileProgress only makes a single UI element, instead of one for each file
-		var progress = new FileProgress(fileObj, this.getSetting("progress_target"));
+		var progress = new FileProgress(fileObj, this.customSettings.progress_target);
 		progress.SetComplete();
 		progress.SetStatus("Complete.");
 		progress.ToggleCancel(false);
-
+		
 		if (server_data === " ") {
-			upload_successful = false;
+			this.customSettings.upload_successful = false;
 		} else {
-			upload_successful = true;
+			this.customSettings.upload_successful = true;
 			document.getElementById("hidFileID").value = server_data;
 		}
 		
@@ -76,12 +74,12 @@ function uploadComplete(fileObj, server_data) {
 
 function fileComplete(fileObj) {
 	try {
-		if (upload_successful) {
+		if (this.customSettings.upload_successful) {
 			document.getElementById("btnBrowse").disabled = "true";
 			uploadDone();
 		} else {
 			fileObj.id = "singlefile";	// This makes it so FileProgress only makes a single UI element, instead of one for each file
-			var progress = new FileProgress(fileObj, this.getSetting("progress_target"));
+			var progress = new FileProgress(fileObj, this.customSettings.progress_target);
 			progress.SetError();
 			progress.SetStatus("File rejected");
 			progress.ToggleCancel(false);
@@ -95,7 +93,7 @@ function fileComplete(fileObj) {
 	} catch (e) {  }
 }
 
-function uploadError(error_code, fileObj, message) {
+function uploadError(fileObj, error_code, message) {
 	try {
 		var txtFileName = document.getElementById("txtFileName");
 		txtFileName.value = "";
@@ -103,50 +101,55 @@ function uploadError(error_code, fileObj, message) {
 		
 		// Handle this error separately because we don't want to create a FileProgress element for it.
 		switch(error_code) {
-			case SWFUpload.ERROR_CODE_MISSING_UPLOAD_URL:
+			case SWFUpload.UPLOAD_ERROR.MISSING_UPLOAD_URL:
 				alert("There was a configuration error.  You will not be able to upload a resume at this time.");
-				this.debugMessage("Error Code: No backend file, File name: " + file.name + ", Message: " + message);
+				this.debug("Error Code: No backend file, File name: " + file.name + ", Message: " + message);
 				return;
 				break;
-			case SWFUpload.ERROR_CODE_UPLOAD_LIMIT_EXCEEDED:
+			case SWFUpload.UPLOAD_ERROR.UPLOAD_LIMIT_EXCEEDED:
 				alert("You may only upload 1 file.");
-				this.debugMessage("Error Code: Upload Limit Exceeded, File name: " + file.name + ", File size: " + file.size + ", Message: " + message);
+				this.debug("Error Code: Upload Limit Exceeded, File name: " + file.name + ", File size: " + file.size + ", Message: " + message);
 				return;
 				break;
-			case SWFUpload.ERROR_CODE_FILE_CANCELLED:
+			case SWFUpload.UPLOAD_ERROR.FILE_CANCELLED:
+			case SWFUpload.UPLOAD_ERROR.UPLOAD_STOPPED:
 				break;
 			default:
 				alert("An error occurred in the upload. Try again later.");
-				this.debugMessage("Error Code: " + error_code + ", File name: " + file.name + ", File size: " + file.size + ", Message: " + message);
+				this.debug("Error Code: " + error_code + ", File name: " + file.name + ", File size: " + file.size + ", Message: " + message);
 				return;
 				break;
 		}
 
 		fileObj.id = "singlefile";	// This makes it so FileProgress only makes a single UI element, instead of one for each file
-		var progress = new FileProgress(fileObj, this.getSetting("progress_target"));
+		var progress = new FileProgress(fileObj, this.customSettings.progress_target);
 		progress.SetError();
 		progress.ToggleCancel(false);
 
 		switch(error_code) {
-			case SWFUpload.ERROR_CODE_HTTP_ERROR:
+			case SWFUpload.UPLOAD_ERROR.HTTP_ERROR:
 				progress.SetStatus("Upload Error");
-				this.debugMessage("Error Code: HTTP Error, File name: " + file.name + ", Message: " + message);
+				this.debug("Error Code: HTTP Error, File name: " + file.name + ", Message: " + message);
 				break;
-			case SWFUpload.ERROR_CODE_UPLOAD_FAILED:
+			case SWFUpload.UPLOAD_ERROR.UPLOAD_FAILED:
 				progress.SetStatus("Upload Failed.");
-				this.debugMessage("Error Code: Upload Failed, File name: " + file.name + ", File size: " + file.size + ", Message: " + message);
+				this.debug("Error Code: Upload Failed, File name: " + file.name + ", File size: " + file.size + ", Message: " + message);
 				break;
-			case SWFUpload.ERROR_CODE_IO_ERROR:
+			case SWFUpload.UPLOAD_ERROR.IO_ERROR:
 				progress.SetStatus("Server (IO) Error");
-				this.debugMessage("Error Code: IO Error, File name: " + file.name + ", Message: " + message);
+				this.debug("Error Code: IO Error, File name: " + file.name + ", Message: " + message);
 				break;
-			case SWFUpload.ERROR_CODE_SECURITY_ERROR:
+			case SWFUpload.UPLOAD_ERROR.SECURITY_ERROR:
 				progress.SetStatus("Security Error");
-				this.debugMessage("Error Code: Security Error, File name: " + file.name + ", Message: " + message);
+				this.debug("Error Code: Security Error, File name: " + file.name + ", Message: " + message);
 				break;
-			case SWFUpload.ERROR_CODE_FILE_CANCELLED:
+			case SWFUpload.UPLOAD_ERROR.FILE_CANCELLED:
 				progress.SetStatus("Upload Cancelled");
-				this.debugMessage("Error Code: Upload Cancelled, File name: " + file.name + ", Message: " + message);
+				this.debug("Error Code: Upload Cancelled, File name: " + file.name + ", Message: " + message);
+				break;
+			case SWFUpload.UPLOAD_ERROR.UPLOAD_STOPPED:
+				progress.SetStatus("Upload Stopped");
+				this.debug("Error Code: Upload Stopped, File name: " + file.name + ", Message: " + message);
 				break;
 		}
 	} catch (e) {}
@@ -159,7 +162,6 @@ function uploadError(error_code, fileObj, message) {
  * ******************************************************** */
 function FileProgress(fileObj, target_id) {
 		this.file_progress_id = fileObj.id;
-		//var file_progress_id = (fileObj.name + fileObj.size).replace(/[^a-zA-Z0-9_]/g, "");
 
 		this.fileProgressElement = document.getElementById(this.file_progress_id);
 		if (!this.fileProgressElement) {

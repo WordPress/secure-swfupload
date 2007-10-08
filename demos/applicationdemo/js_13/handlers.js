@@ -1,63 +1,4 @@
-function fileQueued(fileObj) {
-	try {
-
-	} catch (ex) { this.debugMessage(ex); }
-
-}
-
-function fileProgress(fileObj, bytesLoaded) {
-
-	try {
-		var percent = Math.ceil((bytesLoaded / fileObj.size) * 100)
-
-		var progress = new FileProgress(fileObj,  this.getSetting("upload_target"));
-		progress.SetProgress(percent);
-		if (percent === 100) {
-			progress.SetStatus("Creating thumbnail...");
-			progress.ToggleCancel(false, this);
-		} else {
-			progress.SetStatus("Uploading...");
-			progress.ToggleCancel(true, this);
-		}
-	} catch (ex) { this.debugMessage(ex); }
-}
-
-function fileComplete(fileObj, server_data) {
-	try {
-		// upload.php returns the thumbnail id in the server_data, use that to retrieve the thumbnail for display
-		
-		AddImage("thumbnail.php?id=" + server_data);
-
-		var progress = new FileProgress(fileObj,  this.getSetting("upload_target"));
-		//progress.SetComplete();
-		progress.SetStatus("Thumbnail Created.");
-		progress.ToggleCancel(false);
-
-
-	} catch (ex) { this.debugMessage(ex); }
-}
-
-
-function fileCancelled(fileObj) {
-	try {
-		var progress = new FileProgress(fileObj,  this.getSetting("upload_target"));
-		progress.SetCancelled();
-		progress.SetStatus("Cancelled");
-		progress.ToggleCancel(false);
-	}
-	catch (ex) { this.debugMessage(ex); }
-}
-
-function queueComplete() {
-	try {
-        var progress = new FileProgress({ name: "Done." },  this.getSetting("upload_target"));
-        progress.SetComplete();
-        progress.SetStatus("All images received.");
-        progress.ToggleCancel(false);
-    } catch (ex) { this.debugMessage(ex); }
-}
-
-function uploadError(error_code, fileObj, message) {
+function fileQueueError(fileObj, error_code, message) {
 	try {
 		var error_name = "";
 		switch(error_code) {
@@ -72,20 +13,14 @@ function uploadError(error_code, fileObj, message) {
 		}
 
 		switch(error_code) {
-			case SWFUpload.ERROR_CODE_ZERO_BYTE_FILE:
+			case SWFUpload.QUEUE_ERROR.ZERO_BYTE_FILE:
 				image_name = "zerobyte.gif";
 			break;
-			case SWFUpload.ERROR_CODE_UPLOAD_LIMIT_EXCEEDED:
-				image_name = "uploadlimit.gif";
-			break;
-			case SWFUpload.ERROR_CODE_FILE_EXCEEDS_SIZE_LIMIT:
+			case SWFUpload.QUEUE_ERROR.FILE_EXCEEDS_SIZE_LIMIT:
 				image_name = "toobig.gif";
 			break;
-			case SWFUpload.ERROR_CODE_HTTP_ERROR:
-			case SWFUpload.ERROR_CODE_MISSING_UPLOAD_TARGET:
-			case SWFUpload.ERROR_CODE_UPLOAD_FAILED:
-			case SWFUpload.ERROR_CODE_IO_ERROR:
-			case SWFUpload.ERROR_CODE_SECURITY_ERROR:
+			case SWFUpload.QUEUE_ERROR.ZERO_BYTE_FILE:
+			case SWFUpload.QUEUE_ERROR.INVALID_FILETYPE:
 			default:
 				alert(message);
 				image_name = "error.gif";
@@ -94,7 +29,98 @@ function uploadError(error_code, fileObj, message) {
 
 		AddImage("images/" + image_name);
 
-	} catch (ex) { this.debugMessage(ex); }
+	} catch (ex) { this.debug(ex); }
+
+}
+
+function fileDialogComplete(num_files_queued) {
+	try {
+		if (num_files_queued > 0) {
+			this.startUpload();
+		}
+	} catch (ex) {
+		this.debug(ex);
+	}
+}
+
+function uploadProgress(fileObj, bytesLoaded) {
+
+	try {
+		var percent = Math.ceil((bytesLoaded / fileObj.size) * 100)
+
+		var progress = new FileProgress(fileObj,  this.customSettings.upload_target);
+		progress.SetProgress(percent);
+		if (percent === 100) {
+			progress.SetStatus("Creating thumbnail...");
+			progress.ToggleCancel(false, this);
+		} else {
+			progress.SetStatus("Uploading...");
+			progress.ToggleCancel(true, this);
+		}
+	} catch (ex) { this.debug(ex); }
+}
+
+function uploadComplete(fileObj, server_data) {
+	try {
+		// upload.php returns the thumbnail id in the server_data, use that to retrieve the thumbnail for display
+		
+		AddImage("thumbnail.php?id=" + server_data);
+
+		var progress = new FileProgress(fileObj,  this.customSettings.upload_target);
+
+		progress.SetStatus("Thumbnail Created.");
+		progress.ToggleCancel(false);
+
+
+	} catch (ex) { this.debug(ex); }
+}
+
+function fileComplete(fileObj) {
+	try {
+		/*  I want the next upload to continue automatically so I'll call startUpload here */
+		if (this.getStats().files_queued > 0) {
+			this.startUpload();
+		} else {
+			var progress = new FileProgress(fileObj,  this.customSettings.upload_target);
+			progress.SetComplete();
+			progress.SetStatus("All images received.");
+			progress.ToggleCancel(false);
+		}
+	} catch (ex) { this.debug(ex); }
+}
+
+function uploadError(fileObj, error_code, message) {
+	try {
+		switch(error_code) {
+			case SWFUpload.UPLOAD_ERROR.FILE_CANCELLED:
+				try {
+					var progress = new FileProgress(fileObj,  this.customSettings.upload_target);
+					progress.SetCancelled();
+					progress.SetStatus("Cancelled");
+					progress.ToggleCancel(false);
+				}
+				catch (ex) { this.debug(ex); }
+			break;
+			case SWFUpload.UPLOAD_ERROR.UPLOAD_STOPPED:
+				try {
+					var progress = new FileProgress(fileObj,  this.customSettings.upload_target);
+					progress.SetCancelled();
+					progress.SetStatus("Stopped");
+					progress.ToggleCancel(true);
+				}
+				catch (ex) { this.debug(ex); }
+			case SWFUpload.UPLOAD_ERROR.UPLOAD_LIMIT_EXCEEDED:
+				image_name = "uploadlimit.gif";
+			break;
+			default:
+				alert(message);
+				image_name = "error.gif";
+			break;
+		}
+
+		AddImage("images/" + image_name);
+
+	} catch (ex) { this.debug(ex); }
 
 }
 
