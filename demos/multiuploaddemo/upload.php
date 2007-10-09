@@ -4,9 +4,9 @@
 	}
 	session_start();
 
-	if (!isset($_FILES["Filedata"]) || !is_uploaded_file($_FILES["Filedata"]["tmp_name"]) || $_FILES["Filedata"]["error"] != 0 || 1 != 0) {
-		header("HTTP/1.1 200 File Upload Error");
-		if (!isset($_FILES["Filedata"])) {
+	if (!isset($_FILES["Filedata"]) || !is_uploaded_file($_FILES["Filedata"]["tmp_name"]) || $_FILES["Filedata"]["error"] != 0) {
+		header("HTTP/1.1 500 File Upload Error");
+		if (isset($_FILES["Filedata"])) {
 			echo $_FILES["Filedata"]["error"];
 		}
 		exit(0);

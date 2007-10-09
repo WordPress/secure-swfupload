@@ -9,7 +9,7 @@
  *    JavaSCript design so the Event methods are not directly overridden but stored
  *    internally and called if defined (with a setTimeout).  This is an effort
  *    be more compatible with the current Flash Player on Linux
- * = Changed the parameter order for the  fileQueueError and uploadError events so the fileObj is first, like other events.
+ * = Changed the parameter order for the fileQueueError and uploadError events so the fileObj is first, like other events.
  * + Added an empty JavaScript object (customSettings) where users can store settings associated with the instance.
  * + Worked around an escaping bug in the ExternalInterface library by escaping all backslashes in out-going strings.
  * = Updated all the demos.
