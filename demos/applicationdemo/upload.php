@@ -5,6 +5,13 @@
 
 	session_start();
 
+	// Check the upload
+	if (!isset($_FILES["Filedata"]) || !is_uploaded_file($_FILES["Filedata"]["tmp_name"]) || $_FILES["Filedata"]["error"] != 0) {
+		header("HTTP/1.1 500 Internal Server Error");
+		echo "invalid upload";
+		exit(0);
+	}
+
 	// Get the image and create a thumbnail
 	$img = @imagecreatefromjpeg($_FILES["Filedata"]["tmp_name"]);
 	if (!$img) {

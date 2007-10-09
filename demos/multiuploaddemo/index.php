@@ -13,15 +13,15 @@
     <title>SWFUpload Revision 7.0 beta 2 Demo</title>
 
 	<link href="../css/default.css" rel="stylesheet" type="text/css" />
-	<script type="text/javascript" src="../swfupload_0015/swfupload.js"></script>
-	<script type="text/javascript" src="js_14/handlers.js"></script>
+	<script type="text/javascript" src="../swfupload/swfupload.js"></script>
+	<script type="text/javascript" src="js/handlers.js"></script>
 	<script type="text/javascript">
 		var upload1, upload2;
 
 		window.onload = function() {
 			upload1 = new SWFUpload({
 				// Backend Settings
-				upload_url: "../multiuploaddemo/upload.php",	// Relative to the SWF file
+				upload_url: "../multiuploaddemo/upload.php",	// Relative to the SWF file (or you can use absolute paths)
 				post_params: {"PHPSESSID" : "<?php echo session_id(); ?>"},
 
 				// File Upload Settings
@@ -43,7 +43,7 @@
 				file_complete_handler : fileComplete,
 
 				// Flash Settings
-				flash_url : "../swfupload_0015/swfupload.swf",	// Relative to this file
+				flash_url : "../swfupload/swfupload.swf",	// Relative to this file (or you can use absolute paths)
 
 				// UI Settings
 				ui_container_id : "flashUI1",
@@ -53,11 +53,11 @@
 				debug: false
 			});
 			upload1.customSettings.progressTarget = "fsUploadProgress1";	// Add an additional setting that will later be used by the handler.
-			upload1.customSettings.cancelButtonId = "btnCancel1";	// Add an additional setting that will later be used by the handler.
+			upload1.customSettings.cancelButtonId = "btnCancel1";			// Add an additional setting that will later be used by the handler.
 
 			upload2 = new SWFUpload({
 				// Backend Settings
-				upload_url: "../multiuploaddemo/upload.php",	// Relative to the SWF file
+				upload_url: "../multiuploaddemo/upload.php",	// Relative to the SWF file (or you can use absolute paths)
 				post_params: {"PHPSESSID" : "<?php echo session_id(); ?>"},
 
 				// File Upload Settings
@@ -67,7 +67,7 @@
 				file_upload_limit : "10",
 				file_queue_limit : "2",
 
-				// Event Handler Settings
+				// Event Handler Settings (all my handlers are in the Handler.js file)
 				file_dialog_start_handler : fileDialogStart,
 				file_queued_handler : fileQueued,
 				file_queue_error_handler : fileQueueError,
@@ -79,7 +79,7 @@
 				file_complete_handler : fileComplete,
 
 				// Flash Settings
-				flash_url : "../swfupload_0015/swfupload.swf",	// Relative to this file
+				flash_url : "../swfupload/swfupload.swf",	// Relative to this file (or you can use absolute paths)
 
 				// UI Settings
 				ui_container_id : "flashUI2",
@@ -89,7 +89,7 @@
 				debug: false
 			});
 			upload2.customSettings.progressTarget = "fsUploadProgress2";	// Add an additional setting that will later be used by the handler.
-			upload2.customSettings.cancelButtonId = "btnCancel2";	// Add an additional setting that will later be used by the handler.
+			upload2.customSettings.cancelButtonId = "btnCancel2";			// Add an additional setting that will later be used by the handler.
 
 	     }
 	</script>

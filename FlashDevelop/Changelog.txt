@@ -11,6 +11,7 @@
  *    be more compatible with the current Flash Player on Linux
  * = Changed the parameter order for the  fileQueueError and uploadError events so the fileObj is first, like other events.
  * + Added an empty JavaScript object (customSettings) where users can store settings associated with the instance.
+ * + Worked around an escaping bug in the ExternalInterface library by escaping all backslashes in out-going strings.
  * = Updated all the demos.
  
  * --------- Revision 7.0 beta 1 -----------

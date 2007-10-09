@@ -8,9 +8,9 @@
 
 	<link href="../css/default.css" rel="stylesheet" type="text/css" />
 	<link href="css/featuresdemo.css" rel="stylesheet" type="text/css" />
-	<script type="text/javascript" src="../swfupload_0015/swfupload.js"></script>
-	<script type="text/javascript" src="js_13/featuresdemo.js"></script>
-	<script type="text/javascript" src="js_13/handlers.js"></script>
+	<script type="text/javascript" src="../swfupload/swfupload.js"></script>
+	<script type="text/javascript" src="js/featuresdemo.js"></script>
+	<script type="text/javascript" src="js/handlers.js"></script>
 	<script type="text/javascript">
 		var suo;
 		window.onload = function() {
@@ -45,7 +45,7 @@
 				debug_handler : FeaturesDemoHandlers.debug,
 				
 				// Flash Settings
-				flash_url : "../swfupload_0015/swfupload.swf",	// Relative to this file
+				flash_url : "../swfupload/swfupload.swf",	// Relative to this file
 
 				// UI Settings
 				ui_function : FeaturesDemo.showUI,	//  I've give SWFUpload my own showUI function so I can do some things as soon as SWFUpload loads

@@ -8,8 +8,8 @@
     <title>SWFUpload Revision 7.0 beta 2 Demo</title>
 
 	<link href="../css/default.css" rel="stylesheet" type="text/css" />
-	<script type="text/javascript" src="../swfupload_0015/swfupload.js"></script>
-	<script type="text/javascript" src="js_13/handlers.js"></script>
+	<script type="text/javascript" src="../swfupload/swfupload.js"></script>
+	<script type="text/javascript" src="js/handlers.js"></script>
 	<script type="text/javascript">
 		var swfu;
 		window.onload = function () {
@@ -35,14 +35,14 @@
 				file_complete_handler : fileComplete,
 
 				// Flash Settings
-				flash_url : "../swfupload_0015/swfupload.swf",	// Relative to this file
+				flash_url : "../swfupload/swfupload.swf",	// Relative to this file
 
 				// UI Settings
 				ui_container_id : "swfu_container",
 				degraded_container_id : "degraded_container",
 
 				// Debug Settings
-				debug: true
+				debug: false
 			});
 			swfu.customSettings.upload_target = "divFileProgressContainer";
 		}
