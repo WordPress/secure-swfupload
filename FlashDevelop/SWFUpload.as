@@ -22,7 +22,6 @@ package {
 	import flash.events.*;
 	import flash.external.ExternalInterface;
 	import flash.system.Security;
-	import flash.utils.Timer;
 
 	import FileItem;
 	import ExternalCall;
@@ -34,7 +33,7 @@ package {
 			var SWFUpload:SWFUpload = new SWFUpload();
 		}
 		
-		private const build_number:String = "20071008210000";
+		private const build_number:String = "2007-10-11 15:47:00";
 		
 		// State tracking variables
 		private var fileBrowserMany:FileReferenceList = new FileReferenceList();
@@ -207,7 +206,7 @@ package {
 			this.PrintDebugInfo();
 
 			// Do some feature detection
-			if (flash.net.FileReferenceList && flash.net.FileReference && flash.net.URLRequest && flash.external.ExternalInterface && flash.external.ExternalInterface.available) {
+			if (flash.net.FileReferenceList && flash.net.FileReference && flash.net.URLRequest && flash.external.ExternalInterface && flash.external.ExternalInterface.available && DataEvent.UPLOAD_COMPLETE_DATA) {
 				ExternalCall.Simple(this.flashReady_Callback);
 			} else {
 				this.Debug("Feature Detection Failed");				
@@ -410,7 +409,6 @@ package {
 		 * */
 		private function CancelUpload(file_id:String):void {
 			var file_item:FileItem = null;
-			var timer:Timer = null;
 			
 			// Check the current file item
 			if (this.current_file_item != null && (this.current_file_item.id == file_id || !file_id)) {
@@ -440,9 +438,6 @@ package {
 						this.Debug("Event: uploadError : " + file_item.id + ". Cancelling queued upload");
 						this.Debug("Event: uploadError : " + file_item.id + ". Cancelling queued upload");
 						ExternalCall.UploadError(this.uploadError_Callback, this.ERROR_CODE_FILE_CANCELLED, file_item.ToJavaScriptObject(), "File Cancelled");
-						timer = new Timer(0, 1);
-						timer.addEventListener(TimerEvent.TIMER, function(callback:String, error_code:Number, file_object:Object, message:String):Function { return function():void { ExternalInterface.call(callback, error_code, file_object, message); }; }(this.uploadError_Callback, this.ERROR_CODE_FILE_CANCELLED, file_item.ToJavaScriptObject(), "File Cancelled"));
-						timer.start();
 
 						// Get rid of the file object
 						file_item = null;
@@ -605,36 +600,37 @@ package {
 				
 				// Begin the upload
 				this.Debug("startFile(): File Reference found.  Starting upload to " + request.url + ". File ID: " + this.current_file_item.id);
-				try {
-					this.Debug("Event: uploadStart : File ID: " + this.current_file_item.id);
-					var start_upload:Boolean = ExternalCall.UploadStart(this.uploadStart_Callback, this.current_file_item.ToJavaScriptObject());
-					
-					// Validate the file
-					if (start_upload) {
+				this.Debug("Event: uploadStart : File ID: " + this.current_file_item.id);
+				var start_upload:Boolean = ExternalCall.UploadStart(this.uploadStart_Callback, this.current_file_item.ToJavaScriptObject());
+				
+				// Validate the file
+				if (start_upload) {
+					try {
 						// Set the event handlers
 						this.current_file_item.file_reference.addEventListener(ProgressEvent.PROGRESS, this.FileProgress_Handler);
 						this.current_file_item.file_reference.addEventListener(IOErrorEvent.IO_ERROR, this.IOError_Handler);
 						this.current_file_item.file_reference.addEventListener(SecurityErrorEvent.SECURITY_ERROR, this.SecurityError_Handler);
 						this.current_file_item.file_reference.addEventListener(HTTPStatusEvent.HTTP_STATUS, this.HTTPError_Handler);
-						
 						this.current_file_item.file_reference.addEventListener(DataEvent.UPLOAD_COMPLETE_DATA, this.ServerData_Handler);
 						
 						// Upload the file
-						this.current_file_item.file_status = FileItem.FILE_STATUS_IN_PROGRESS;
 						this.current_file_item.file_reference.upload(request, this.filePostName, false);
-					} else {
-						this.Debug("Event: uploadError : Call to uploadStart returned false. Not uploading file.");
+					} catch (ex:Error) {
 						this.upload_errors++;
 						this.current_file_item.file_status = FileItem.FILE_STATUS_ERROR;
-						ExternalCall.UploadError(this.uploadError_Callback, this.ERROR_CODE_FILE_VALIDATION_FAILED, this.current_file_item.ToJavaScriptObject(), "Call to uploadStart return false. Not uploading file.");
+						var message:String = ex.errorID + "\n" + ex.name + "\n" + ex.message + "\n" + ex.getStackTrace();
+						this.Debug("Event: uploadError(): Unhandled exception: " + message);
+						ExternalCall.UploadError(this.uploadError_Callback, this.ERROR_CODE_UPLOAD_FAILED, this.current_file_item.ToJavaScriptObject(), message);
+						
 						this.UploadComplete();
 					}
-				}
-				catch (ex:Error) {
+					this.current_file_item.file_status = FileItem.FILE_STATUS_IN_PROGRESS;
+
+				} else {
+					this.Debug("Event: uploadError : Call to uploadStart returned false. Not uploading file.");
 					this.upload_errors++;
-					this.Debug("Event: uploadError(): Upload Failed. Unhandled exception.");
 					this.current_file_item.file_status = FileItem.FILE_STATUS_ERROR;
-					ExternalCall.UploadError(this.uploadError_Callback, this.ERROR_CODE_UPLOAD_FAILED, this.current_file_item.ToJavaScriptObject(), ex.message);
+					ExternalCall.UploadError(this.uploadError_Callback, this.ERROR_CODE_FILE_VALIDATION_FAILED, this.current_file_item.ToJavaScriptObject(), "Call to uploadStart return false. Not uploading file.");
 					this.UploadComplete();
 				}
 			}
@@ -654,12 +650,6 @@ package {
 
 			this.Debug("Event: fileComplete : File complete.");
 			
-			// I used a timer here to work around issues that occur when chains get built by Flash calling Javascript and
-			// JavaScript then calling Flash and so on.  Using the Timer allows this function to return and the stack to
-			// clear.  The Timer gets executed a moment later on a separate "thread".  This should be done any time
-			// Flash is going to call Javascript which is going to call back in to Flash.
-			// I used some ECMAScript magic here to avoid having to create temporary variables and one shot functions.
-			// See the Yahoo JavaScript training videos by Crawford.  They are excellent.
 			ExternalCall.FileComplete(this.fileComplete_Callback, jsFileObj);
 
 			this.Debug("Event: Exiting fileComplete : File complete.");
