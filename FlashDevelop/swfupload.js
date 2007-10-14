@@ -31,6 +31,7 @@ var SWFUpload = function (init_settings) {
 	try {
 		this.customSettings = {};	// A container where developers can place their own settings associated with this instance.
 		this.settings = {};
+		this.eventQueue = [];
 		this.movieName = "SWFUpload_" + SWFUpload.movieCount++;
 		this.movieElement = null;
 
@@ -654,11 +655,20 @@ SWFUpload.prototype.flashReady = function () {
 	}, 0);
 };
 
+
+SWFUpload.prototype.executeNextEvent = function () {
+	var  f = this.eventQueue.shift();
+	if (typeof(f) === "function") {
+		f();
+	}
+}
+
 /* This is a chance to do something before the browse window opens */
 SWFUpload.prototype.fileDialogStart = function () {
 	var self = this;
 	if (typeof(self.fileDialogStart_handler) === "function") {
-		setTimeout(function() { self.fileDialogStart_handler(); }, 0);
+		this.eventQueue[this.eventQueue.length] = function() { self.fileDialogStart_handler(); };
+		setTimeout(function () { self.executeNextEvent();}, 0);
 	} else {
 		this.debug("fileDialogStart event not defined");
 	}
@@ -669,7 +679,8 @@ SWFUpload.prototype.fileDialogStart = function () {
 SWFUpload.prototype.fileQueued = function (file) {
 	var self = this;
 	if (typeof(self.fileQueued_handler) === "function") {
-		setTimeout(function() { self.fileQueued_handler(file); }, 0);
+		this.eventQueue[this.eventQueue.length] = function() { self.fileQueued_handler(file); };
+		setTimeout(function () { self.executeNextEvent();}, 0);
 	} else {
 		this.debug("fileDialogStart event not defined");
 	}
@@ -680,7 +691,8 @@ SWFUpload.prototype.fileQueued = function (file) {
 SWFUpload.prototype.fileQueueError = function (file, error_code, message) {
 	var self = this;
 	if (typeof(self.fileQueueError_handler) === "function") {
-		setTimeout(function() { self.fileQueueError_handler(file, error_code, message); }, 0);
+		this.eventQueue[this.eventQueue.length] = function() {  self.fileQueueError_handler(file, error_code, message); };
+		setTimeout(function () { self.executeNextEvent();}, 0);
 	} else {
 		this.debug("fileDialogStart event not defined");
 	}
@@ -691,7 +703,8 @@ SWFUpload.prototype.fileQueueError = function (file, error_code, message) {
 SWFUpload.prototype.fileDialogComplete = function (num_files_selected) {
 	var self = this;
 	if (typeof(self.fileDialogComplete_handler) === "function") {
-		setTimeout(function() { self.fileDialogComplete_handler(num_files_selected); }, 0);
+		this.eventQueue[this.eventQueue.length] = function() { self.fileDialogComplete_handler(num_files_selected); };
+		setTimeout(function () { self.executeNextEvent();}, 0);
 	} else {
 		this.debug("fileDialogStart event not defined");
 	}
@@ -719,7 +732,8 @@ SWFUpload.prototype.uploadStart = function (file) {
 SWFUpload.prototype.uploadProgress = function (file, bytes_complete, bytes_total) {
 	var self = this;
 	if (typeof(self.uploadProgress_handler) === "function") {
-		setTimeout(function() { self.uploadProgress_handler(file, bytes_complete, bytes_total); }, 0);
+		this.eventQueue[this.eventQueue.length] = function() { self.uploadProgress_handler(file, bytes_complete, bytes_total); };
+		setTimeout(function () { self.executeNextEvent();}, 0);
 	} else {
 		this.debug("fileDialogStart event not defined");
 	}
@@ -730,7 +744,8 @@ server is available in server_data.	 The upload script must return some text or 
 SWFUpload.prototype.uploadComplete = function (file, server_data) {
 	var self = this;
 	if (typeof(self.uploadComplete_handler) === "function") {
-		setTimeout(function() { self.uploadComplete_handler(file, server_data); }, 0);
+		this.eventQueue[this.eventQueue.length] = function() { self.uploadComplete_handler(file, server_data); };
+		setTimeout(function () { self.executeNextEvent();}, 0);
 	} else {
 		this.debug("fileDialogStart event not defined");
 	}
@@ -742,7 +757,8 @@ SWFUpload.prototype.uploadComplete = function (file, server_data) {
 SWFUpload.prototype.fileComplete = function (file) {
 	var self = this;
 	if (typeof(self.fileComplete_handler) === "function") {
-		setTimeout(function() { self.fileComplete_handler(file); }, 0);
+		this.eventQueue[this.eventQueue.length] = function() { self.fileComplete_handler(file); };
+		setTimeout(function () { self.executeNextEvent();}, 0);
 	} else {
 		this.debug("fileDialogStart event not defined");
 	}
@@ -752,9 +768,11 @@ SWFUpload.prototype.fileComplete = function (file) {
 SWFUpload.prototype.debug = function (message) {
 	var self = this;
 	if (typeof(self.debug_handler) === "function") {
-		setTimeout(function() { self.debug_handler(message); }, 0);
+		this.eventQueue[this.eventQueue.length] = function() { self.debug_handler(message); };
+		setTimeout(function () { self.executeNextEvent();}, 0);
 	} else {
-		setTimeout(function() { self.debugMessage(message); }, 0);
+		this.eventQueue[this.eventQueue.length] = function() { self.debugMessage(message); };
+		setTimeout(function () { self.executeNextEvent();}, 0);
 	}
 };
 
@@ -762,7 +780,8 @@ SWFUpload.prototype.debug = function (message) {
 SWFUpload.prototype.uploadError = function (file, error_code, message) {
 	var self = this;
 	if (typeof(this.uploadError_handler) === "function") {
-		setTimeout(function() { self.uploadError_handler(file, error_code, message); }, 0);
+		this.eventQueue[this.eventQueue.length] = function() { self.uploadError_handler(file, error_code, message); };
+		setTimeout(function () { self.executeNextEvent();}, 0);
 	} else {
 		this.debug("fileDialogStart event not defined");
 	}

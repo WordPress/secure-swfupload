@@ -1,5 +1,11 @@
  * SWFUpload Revision 7.0 by Jacob Roberts, Sept 2007, linebyline.blogspot.com
-
+ 
+ * --------- Revision 7.0 beta 3 -----------
+ * + Added an "event queue".  Events are added to an array and executeEvent it called on a setTimeout. This prevents out of order issues that occur
+ *    in the Safari browser.
+ * + Added a check for the UPLOAD_COMPLETE_DATA event constant which only became available in Flash Player 9.0.28.
+ * - Removed old code block that was missed when moving from a Flash Timer to the JavaScript timeout (caused certain cancel events to be called twice)
+ 
  * --------- Revision 7.0 beta 2 -----------
  * = Changed ERROR_CODE_FILE_NOT_FOUND to ERROR_CODE_FILE_ID_NOT_FOUND
  * + Grouped the error code constants in objects for queue errors and upload errors.
