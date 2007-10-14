@@ -1,0 +1,136 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <title>SWFUpload Revision 7.0 beta 2 Demo</title>
+</head>
+
+<style type="text/css">
+	h1 /* Title */ {
+	
+	}
+	h2 /* Chapter Header */ {
+	
+	}
+	h3 /* Section Header */  {
+	
+	}
+	div.codeBlock {
+	
+	}
+	p {
+	
+	}
+	span.function  {
+	
+	}
+	span.parameter {
+	
+	}
+	
+	hr {
+	
+	}
+</style>
+
+<body>
+	<h1>SWFUpload Revision 7 Documentation</h1>
+	<h2>SWFUpload</h2>
+	<p>
+		<a href="http://swfupload.mammon.se">SWFUpload</a> is a tool/widget/control developed by <a href="http://www.mammon.se">Mammon.se</a>. It uses a combination Flash and JavaScript to
+		provide file upload functionality beyond what the basic browser provides with &lt;input type="file" /&gt;
+	</p>
+	<p>The main features that SWFUpload are:</p>
+	<p>
+		<ul>
+			<li>Select multiple files in the file browser dialog.</li>
+			<li>AJAX-style upload without a page refresh</li>
+			<li>Upload progress indicator</li>
+			<li>Graceful degradation for unsupported browsers.</li>
+			<li>Namespaced classes compatible with other JavaScript libraries (i.e., jQuery, Prototype, etc.)</li>
+		</ul>
+	</p>
+	<p>
+		The philosophy behind the design of SWFUpload is what makes it different from other Flash based upload tools.  SWFUpload leaves developers in control by leaving the UI in the browser.
+		Developers can use HTML, CSS, and JavaScript to tailer the upload UI to the needs of their site.  Upload status updates are made through a set of simple set of JavaScript events that
+		the developer overrides in order to update the webpage as need for their site.
+	</p>
+	
+	<h2>Revision 7</h2>
+	<p>Revision 7 is an extended version of SWFUpload that adds a number of features not found in the official SWFUpload release.  These include:</p>
+	<p>
+		<ul>
+			<li>Ability to send additional POST values with the upload.</li>
+			<li>Send per file POST values.</li>
+			<li>More refined JavaScript events.</li>
+			<li>Ability to update any SWFUpload settings dynamically.</li>
+			<li>Retrieve result data from the server.</li>
+			<li>Work-arounds for bugs in Flash not addressed in the official version.</li>
+			<li>Stop an upload without cancelling.</li>
+			<li>Upload files out of order.</li>
+			<li>Multi- &amp; Single-file selection dialogs.</li>
+			<li>Bug fixes for issues discussed in the SWFUpload forums:</li>
+			<li>
+				<ul>
+					<li>Flash fails to load on reload in I.E.</li>
+					<li>Flash fails to load on reload in Firefox unless the windows is scrolled back to the top.</li>
+					<li>Other misc race-conditions</li>
+				</ul>
+			</li>
+			<li>Prevents user from queueing more files than they are allowed to upload.</li>
+			<li>Properly handles zero-byte files.</li>
+			<li>uploadStart event allows JavaScript validation before the upload begins.</li>
+		</ul>
+	</p>
+	<p>
+		Revision 7 is a complete re-write of the SWFUpload code.  At Revision 4 code was submitted back to the SWFUpload developers which resulted in SWFUpload v1.0.2.  The &quot;Revisions&quot;
+		have under semi-active development while SWFUpload development has slowed/stopped.
+	</p>
+	<p>
+		Revision 7 continues the SWFUpload design goal of leaving the UI in the hands of developers and pushes it even further. While SWFUpload provides a default style-able UI Revision 7 provides
+		no UI features.
+	</p>
+	
+	<h2>Overview</h2>
+	<h3>HTML Upload</h3>
+	<p>
+		The standard HTML upload input box provides a box and a button to the user for selecting a file.  The file is submitted with the form.  The entire file must be uploaded before the next
+		page is displayed.  No pre-upload validation can be made on the file (e.g., file size limits or valid extensions).
+	</p>
+	<p>
+		The usage pattern for standard HTML uploads is simple, straight forward, and supported by nearly all browser.
+	</p>
+	<h3>SWFUpload</h3>
+	<p>
+		SWFUpoad uses a hidden Flash movie to handle file selection and upload.  JavaScript is used to activate the file selection dialog.  The file selection dialog is configured to allow the user
+		select only one file or multiple files.  The file types can be restricted so users only select the appropriate files (e.g., *.jpg;*.gif).
+	</p>
+	<p>
+		Once files are selected each is processed to check for valid file extensions and that the file is within size limits.  Flash calls several pre-defined JavaScript functions which
+		the developer overrides in order to update the page UI so users can see file progress or errors.
+	</p>
+	<p>
+		The uploaded file is submitted separately from the rest of the page and form.  Each file is uploaded separately which keeps the server-side upload handling script simple as it only ever
+		has to handle a single uploaded file at a time. Since Flash is providing the upload service the page does not have to be reloaded (behaving very much like
+		AJAX).  The usage pattern for SWFUpload is more like that of an AJAX application than that of standard HTML form.  Often the server-side script that receives the uploaded file is
+		different than the target of the page's form.  The page's form will be processed separately from the file upload.
+	</p>
+	<hr/>
+	<h2>SWFUpload JavaScript Object</h2>
+	<h3>Constructor</h3>
+	<p><span class="function">SWFUpload(<span class="parameter">settings object</span>)</span></p>
+	<p><b>Returns:</b> A SWFUpload instance</p>
+	<h3>Settings object</h3>
+	<p>The settings object provides the settings your SWFUpload instance will use upon initialization.</p>
+	<p>
+		<div class="code">
+{
+
+}
+	</div>
+	</p>
+
+	
+	
+	
+</body>
+</html>
