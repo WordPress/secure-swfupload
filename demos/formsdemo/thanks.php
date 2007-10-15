@@ -8,15 +8,15 @@ session_start();
 
 // Check for a degraded file upload, this means SWFUpload did not load and the user used the standard HTML upload
 $used_degraded = false;
-$resume_name = "";
-if (is_uploaded_file($_FILES["resume_degraded"]["tmp_name"])) {
-    $resume_name = $_FILES["resume_degraded"]["name"];
+$resume_id = "";
+if (isset($_FILES["resume_degraded"]) && is_uploaded_file($_FILES["resume_degraded"]["tmp_name"]) && $_FILES["resume_degraded"]["error"] == 0) {
+    $resume_id = $_FILES["resume_degraded"]["name"];
     $used_degraded = true;
 }
 
 // Check for the file id we should have gotten from SWFUpload
 if (isset($_POST["hidFileID"]) && $_POST["hidFileID"] != "" ) {
-	$resume_name = $_POST["hidFileID"];
+	$resume_id = $_POST["hidFileID"];
 }
 
 ?>
@@ -32,7 +32,7 @@ if (isset($_POST["hidFileID"]) && $_POST["hidFileID"] != "" ) {
 	<div class="title"><a class="likeParent" href="../index.php">SWFUpload (Revision 7.0 beta 2) Classic Form Demo</a></div>
 
 <?php
-if ($resume_name == "") {
+if ($resume_id == "") {
 ?>
 	<div class="content">Your resume was not received.</div>
 <?php
@@ -59,9 +59,9 @@ if ($resume_name == "") {
 				</td>
 			</tr>
 			<tr>
-				<td>Resume:
+				<td>Resume ID:
 				</td>
-				<td><?php echo htmlspecialchars($resume_name); ?>
+				<td><?php echo htmlspecialchars($resume_id); ?>
 				</td>
 			</tr>
 			<tr>
