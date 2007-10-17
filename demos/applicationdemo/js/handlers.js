@@ -208,7 +208,7 @@ FileProgress.prototype.ToggleCancel = function(show, upload_obj) {
 	this.fileProgressElement.childNodes[0].style.visibility = show ? "visible" : "hidden";
 	if (upload_obj) {
 		var file_id = this.file_progress_id;
-		this.fileProgressElement.childNodes[0].onclick = function() { upload_obj.cancelUpload(file_id); return false; };
+		this.fileProgressElement.childNodes[0].onclick = function() { upload_obj.cancelUpload(); return false; };
 	}
 }
 
