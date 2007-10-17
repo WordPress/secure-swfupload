@@ -694,9 +694,8 @@ SWFUpload.prototype.fileDialogComplete = function (num_files_selected) {
 	causes function calls to fail they are circled through JS -> Flash -> JS -> Flash.
 */
 SWFUpload.prototype.uploadStart = function (file) {
-	return true;
 	if (typeof(this.uploadStart_handler) === "function") {
-		return this.uploadStart_handler(files);
+		return this.uploadStart_handler(file);
 	} else {
 		this.debug("uploadStart event not defined");
 		return true;
