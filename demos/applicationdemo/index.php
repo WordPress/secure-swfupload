@@ -42,7 +42,7 @@
 				degraded_container_id : "degraded_container",
 
 				// Debug Settings
-				debug: false
+				debug: true
 			});
 			swfu.customSettings.upload_target = "divFileProgressContainer";
 		}

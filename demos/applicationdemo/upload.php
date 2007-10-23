@@ -79,4 +79,6 @@
 	$_SESSION["file_info"][$file_id] = $imagevariable;
 
 	echo $file_id;	// Return the file id to the script
+	
+	sleep(30);
 ?>

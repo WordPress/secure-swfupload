@@ -52,10 +52,11 @@ function uploadProgress(fileObj, bytesLoaded) {
 		progress.SetProgress(percent);
 		if (percent === 100) {
 			progress.SetStatus("Creating thumbnail...");
-			progress.ToggleCancel(false, this);
+			//progress.ToggleCancel(false);
+			progress.ToggleCancel(true, this, fileObj.id);
 		} else {
 			progress.SetStatus("Uploading...");
-			progress.ToggleCancel(true, this);
+			progress.ToggleCancel(true, this, fileObj.id);
 		}
 	} catch (ex) { this.debug(ex); }
 }
@@ -90,23 +91,15 @@ function fileComplete(fileObj) {
 }
 
 function uploadError(fileObj, error_code, message) {
+	var image_name =  "error.gif";
 	try {
 		switch(error_code) {
-			case SWFUpload.UPLOAD_ERROR.FILE_CANCELLED:
-				try {
-					var progress = new FileProgress(fileObj,  this.customSettings.upload_target);
-					progress.SetCancelled();
-					progress.SetStatus("Cancelled");
-					progress.ToggleCancel(false);
-				}
-				catch (ex) { this.debug(ex); }
-			break;
 			case SWFUpload.UPLOAD_ERROR.UPLOAD_STOPPED:
 				try {
 					var progress = new FileProgress(fileObj,  this.customSettings.upload_target);
 					progress.SetCancelled();
 					progress.SetStatus("Stopped");
-					progress.ToggleCancel(true);
+					progress.ToggleCancel(true, this, fileObj.id);
 				}
 				catch (ex) { this.debug(ex); }
 			case SWFUpload.UPLOAD_ERROR.UPLOAD_LIMIT_EXCEEDED:
@@ -114,7 +107,6 @@ function uploadError(fileObj, error_code, message) {
 			break;
 			default:
 				alert(message);
-				image_name = "error.gif";
 			break;
 		}
 
@@ -204,10 +196,9 @@ FileProgress.prototype.SetStatus = function(status) {
 	this.fileProgressElement.childNodes[2].innerHTML = status;
 }
 
-FileProgress.prototype.ToggleCancel = function(show, upload_obj) {
+FileProgress.prototype.ToggleCancel = function(show, upload_obj, file_id) {
 	this.fileProgressElement.childNodes[0].style.visibility = show ? "visible" : "hidden";
 	if (upload_obj) {
-		var file_id = this.file_progress_id;
 		this.fileProgressElement.childNodes[0].onclick = function() { upload_obj.cancelUpload(); return false; };
 	}
 }
