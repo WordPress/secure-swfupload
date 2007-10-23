@@ -52,7 +52,7 @@ function uploadProgress(fileObj, bytesLoaded) {
 		progress.SetProgress(percent);
 		if (percent === 100) {
 			progress.SetStatus("Creating thumbnail...");
-			//progress.ToggleCancel(false);
+			progress.ToggleCancel(false);
 			progress.ToggleCancel(true, this, fileObj.id);
 		} else {
 			progress.SetStatus("Uploading...");

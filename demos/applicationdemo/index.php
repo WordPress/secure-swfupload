@@ -42,7 +42,7 @@
 				degraded_container_id : "degraded_container",
 
 				// Debug Settings
-				debug: true
+				debug: false
 			});
 			swfu.customSettings.upload_target = "divFileProgressContainer";
 		}
@@ -58,14 +58,7 @@
 			</form>
 		</div>
 		<div id="divFileProgressContainer" style="height: 75px;"></div>
-		<div id="thumbnails">
-			<?php
-			if (isset($_SESSION["file_info"])) {
-				foreach ($_SESSION["file_info"] as $image_id => $value) {
-					echo '<img src="thumbnail.php?id='.$image_id.'" style="margin: 4px;" />';
-				}
-			} ?>
-		</div>
+		<div id="thumbnails"></div>
 	</div>
 	<div id="degraded_container">
 		SWFUpload has not loaded.  It may take a few moments.  SWFUpload requires JavaScript and Flash Player 8 or later.

@@ -112,7 +112,7 @@ SWFUpload.prototype.initSettings = function (init_settings) {
 
 	// Event Handlers
 	this.flashReady_handler         = SWFUpload.flashReady;	// This is a non-overrideable event handler
-	this.swfUploadLoaded_handler    = this.retrieveSetting(init_settings.swf_upload_loaded_handler,	    SWFUpload.swfUploadLoaded);
+	this.swfUploadLoaded_handler    = this.retrieveSetting(init_settings.swfupload_loaded_handler,	    SWFUpload.swfUploadLoaded);
 	
 	this.fileDialogStart_handler	= this.retrieveSetting(init_settings.file_dialog_start_handler,		SWFUpload.fileDialogStart);
 	this.fileQueued_handler			= this.retrieveSetting(init_settings.file_queued_handler,			SWFUpload.fileQueued);

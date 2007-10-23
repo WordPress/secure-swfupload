@@ -80,5 +80,4 @@
 
 	echo $file_id;	// Return the file id to the script
 	
-	sleep(30);
 ?>

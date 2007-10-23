@@ -5,7 +5,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" >
 <head>
-    <title>SWFUpload Revision 7.2 beta 2 Demo</title>
+    <title>SWFUpload Revision 7.2 beta 3 Demo</title>
 
 	<link href="../css/default.css" rel="stylesheet" type="text/css" />
 	<script type="text/javascript" src="../swfupload/swfupload.js"></script>
@@ -27,6 +27,8 @@
 				file_queue_limit : "1", // this isn't needed because the upload_limit will automatically place a queue limit
 
 				// Event handler settings
+				swfupload_loaded_handler : myShowUI,
+				
 				//file_dialog_start_handler : fileDialogStart,		// I don't need to override this handler
 				file_queued_handler : fileQueued,
 				file_queue_error_handler : fileQueueError,
@@ -72,7 +74,7 @@
 			txtReferences.onchange = validateForm;
 			
 			
-            this.showUI();  // Let SWFUpload finish loading the UI.
+            SWFUpload.swfUploadLoaded.apply(this);  // Let SWFUpload finish loading the UI.
 			validateForm();
         }
 		
@@ -129,7 +131,7 @@
 
 </head>
 <body>
-	<div class="title"><a class="likeParent" href="../index.php">SWFUpload (Revision 7.0 beta 2) Classic Form Demo</a></div>
+	<div class="title"><a class="likeParent" href="../index.php">SWFUpload (Revision 7.0 beta 3) Classic Form Demo</a></div>
 
 	<form id="form1" action="thanks.php" enctype="multipart/form-data" method="post">
 		<div class="content">

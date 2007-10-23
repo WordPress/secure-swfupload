@@ -4,7 +4,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" >
 <head>
-    <title>SWFUpload Revision 7.0 beta 2 Demo</title>
+    <title>SWFUpload Revision 7.0 beta 3 Demo</title>
 
 	<link href="../css/default.css" rel="stylesheet" type="text/css" />
 	<link href="css/featuresdemo.css" rel="stylesheet" type="text/css" />
@@ -31,7 +31,7 @@
 				file_upload_limit : "10",
 
 				// Event Handler Settings
-				
+				swfupload_loaded_handler : FeaturesDemoHandlers.swfUploadLoaded,	//  I've give SWFUpload my own showUI function so I can do some things as soon as SWFUpload loads
 				file_dialog_start_handler : FeaturesDemoHandlers.fileDialogStart,
 				file_queued_handler : FeaturesDemoHandlers.fileQueued,
 				file_queue_error_handler : FeaturesDemoHandlers.fileQueueError,
@@ -48,7 +48,6 @@
 				flash_url : "../swfupload/swfupload.swf",	// Relative to this file
 
 				// UI Settings
-				ui_function : FeaturesDemo.showUI,	//  I've give SWFUpload my own showUI function so I can do some things as soon as SWFUpload loads
 				ui_container_id : "divSWFUpload",		// When I use my own showUI I don't have to set these but I'm going to call SWFUpload's internal showUI (from my own showUI) so I'll need them set.
 				degraded_container_id : "divDegraded",
 
@@ -61,7 +60,7 @@
 
 </head>
 <body>
-	<div class="title"><a class="likeParent" href="../index.php">SWFUpload (Revision 7.0 beta 2) Features Demo</a></div>
+	<div class="title"><a class="likeParent" href="../index.php">SWFUpload (Revision 7.0 beta 3) Features Demo</a></div>
 	<form>
 		<div class="content">
 			<div id="divSWFUpload" style="display: none;">

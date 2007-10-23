@@ -1,8 +1,5 @@
 // Called instead of the SWFUpload _showUI method
 var FeaturesDemo = {
-	showUI: function() {
-		FeaturesDemo.start(this);  // This refers to the SWFObject because SWFUpload calls this with .apply(this).
-	},
 	start: function(swf_upload_instance) {
 		FeaturesDemo.SU = swf_upload_instance;
 

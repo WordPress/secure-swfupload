@@ -10,7 +10,7 @@
 ?>
 <html xmlns="http://www.w3.org/1999/xhtml" >
 <head>
-    <title>SWFUpload Revision 7.0 beta 2 Demo</title>
+    <title>SWFUpload Revision 7.0 beta 3 Demo</title>
 
 	<link href="../css/default.css" rel="stylesheet" type="text/css" />
 	<script type="text/javascript" src="../swfupload/swfupload.js"></script>
@@ -96,7 +96,7 @@
 
 </head>
 <body>
-	<div class="title"><a class="likeParent" href="../index.php">SWFUpload (Revision 7.0 beta 2) Multi-Upload Demo</a></div>
+	<div class="title"><a class="likeParent" href="../index.php">SWFUpload (Revision 7.0 beta 3) Multi-Upload Demo</a></div>
 	<form id="form1" action="index.php" method="post" enctype="multipart/form-data">
 		<div class="content">
 			<table>

@@ -23,13 +23,13 @@ if (isset($_POST["hidFileID"]) && $_POST["hidFileID"] != "" ) {
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" >
 <head>
-    <title>SWFUpload Revision 7.0 beta 2 Demo</title>
+    <title>SWFUpload Revision 7.0 beta 3 Demo</title>
 
 	<link href="../css/default.css" rel="stylesheet" type="text/css" />
 
 </head>
 <body>
-	<div class="title"><a class="likeParent" href="../index.php">SWFUpload (Revision 7.0 beta 2) Classic Form Demo</a></div>
+	<div class="title"><a class="likeParent" href="../index.php">SWFUpload (Revision 7.0 beta 3) Classic Form Demo</a></div>
 
 <?php
 if ($resume_id == "") {
