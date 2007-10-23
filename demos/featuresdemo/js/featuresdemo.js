@@ -283,6 +283,7 @@ var FeaturesDemo = {
 			file_types_description : FeaturesDemo.txtFileTypesDescription.value,
 			file_upload_limit : FeaturesDemo.txtFileUploadLimit.value,
 			file_queue_limit : FeaturesDemo.txtFileQueueLimit.value,
+			swfupload_loaded_handler : FeaturesDemoHandlers.swfUploadLoaded,
 			file_queued_handler : FeaturesDemoHandlers.fileQueued,
 			file_queue_error_handler : FeaturesDemoHandlers.fileQueueError,
 			upload_progress_handler : FeaturesDemoHandlers.uploadProgress,
@@ -294,7 +295,6 @@ var FeaturesDemo = {
 			flash_width : FeaturesDemo.txtFlashWidth.value,
 			flash_height : FeaturesDemo.txtFlashHeight.value,
 			flash_color : FeaturesDemo.txtFlashColor.value,
-			ui_function : FeaturesDemo.showUI,
 			ui_container_id : FeaturesDemo.SU.getSetting("ui_container_id"),
 			degraded_container_id : FeaturesDemo.SU.getSetting("degraded_container_id"),
 			debug: FeaturesDemo.cbDebug.checked
