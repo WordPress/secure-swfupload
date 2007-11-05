@@ -595,9 +595,6 @@ package {
 
 			// Start the upload if we found an item to upload
 			if (this.current_file_item != null) {
-				// Build the URLRequest
-				var request:URLRequest = this.BuildRequest();
-				
 				// Begin the upload
 				this.Debug("startFile(): File Reference found.  Starting upload to " + request.url + ". File ID: " + this.current_file_item.id);
 				this.Debug("Event: uploadStart : File ID: " + this.current_file_item.id);
@@ -614,6 +611,7 @@ package {
 						this.current_file_item.file_reference.addEventListener(DataEvent.UPLOAD_COMPLETE_DATA, this.ServerData_Handler);
 						
 						// Upload the file
+						var request:URLRequest = this.BuildRequest();
 						this.current_file_item.file_reference.upload(request, this.filePostName, false);
 					} catch (ex:Error) {
 						this.upload_errors++;

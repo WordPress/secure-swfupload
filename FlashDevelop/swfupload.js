@@ -8,7 +8,7 @@
  *
  * Development Notes:
  *  * This version of SWFUpload requires Flash Player 9.0.28 and should autodetect the correct flash version.
- *  * In Linux Flash Player 9 setting the post file variable name does not work. It is always set to "FileData".
+ *  * In Linux Flash Player 9 setting the post file variable name does not work. It is always set to "Filedata".
  *  * There is a lot of repeated code that could be refactored to single functions.  Feel free.
  *  * It's dangerous to do "circular calls" between Flash and JavaScript. I've taken steps to try to work around issues
  *     by having the event calls pipe through setTimeout.  However you should still avoid calling in to Flash from
@@ -94,8 +94,8 @@ SWFUpload.prototype.initSettings = function (init_settings) {
 	this.addSetting("post_params",		 		init_settings.post_params,		  		{});
 
 	// File Settings
-	this.addSetting("file_types",			  	init_settings.file_types,				"*.gif;*.jpg;*.png");
-	this.addSetting("file_types_description", 	init_settings.file_types_description, 	"Common Web Image Formats (gif, jpg, png)");
+	this.addSetting("file_types",			  	init_settings.file_types,				"*.*");
+	this.addSetting("file_types_description", 	init_settings.file_types_description, 	"All Files");
 	this.addSetting("file_size_limit",		  	init_settings.file_size_limit,			"1024");
 	this.addSetting("file_upload_limit",	  	init_settings.file_upload_limit,		"0");
 	this.addSetting("file_queue_limit",		  	init_settings.file_queue_limit,			"0");
@@ -108,7 +108,6 @@ SWFUpload.prototype.initSettings = function (init_settings) {
 
 	// Debug Settings
 	this.addSetting("debug_enabled", init_settings.debug,  false);
-	this.debug_enabled = this.getSetting("debug_enabled");
 
 	// Event Handlers
 	this.flashReady_handler         = SWFUpload.flashReady;	// This is a non-overrideable event handler
@@ -127,12 +126,8 @@ SWFUpload.prototype.initSettings = function (init_settings) {
 
 	this.debug_handler				= this.retrieveSetting(init_settings.debug_handler,			   		SWFUpload.debug);
 
-	// UI setting - These settings are used by the default swfUploadLoaded_handler and if SWFUpload is loaded successfully
-	// then the ui_containder is displayed (using display: block) and the degraded_container is hidden (display: none).
-	this.addSetting("ui_container_id",		 	init_settings.ui_container_id,		  	"");
-	this.addSetting("degraded_container_id", 	init_settings.degraded_container_id, 	"");
-
-	
+	// Other settings
+	this.customSettings = this.retrieveSetting(init_settings.custom_settings, {});
 };
 
 // loadFlash is a private method that generates the HTML tag for the Flash
@@ -267,7 +262,7 @@ SWFUpload.prototype.addSetting = function (name, value, default_value) {
 	return this.settings[name];
 };
 
-// Gets a setting.	Returns null if it wasn't found.
+// Gets a setting.	Returns empty string if not found.
 SWFUpload.prototype.getSetting = function (name) {
 	if (typeof(this.settings[name]) === "undefined") {
 		return "";
@@ -591,7 +586,6 @@ SWFUpload.prototype.setDebugEnabled = function (debug_enabled) {
 	if (movie_element !== null && typeof(movie_element.SetDebugEnabled) === "function") {
 		try {
 			this.addSetting("debug_enabled", debug_enabled);
-			this.debug_enabled = this.getSetting("debug_enabled");
 			movie_element.SetDebugEnabled(this.getSetting("debug_enabled"));
 		}
 		catch (ex) {
@@ -790,37 +784,12 @@ SWFUpload.flashReady = function () {
 	} catch (ex) {
 		this.debug(ex);
 	}
-}
-/* This is the default action when SWFUpload has loaded.  If you want something else to happen set
-   swfupload_loaded_handler in your settings.
-   By default the special ui_container_id and degraded_container_id settings are used to display the ui_container and
-   hide the degraded_container.
-*/
-SWFUpload.swfUploadLoaded = function () {
-	var ui_container_id, ui_target, degraded_container_id, degraded_target;
-	try {
-		ui_container_id = this.getSetting("ui_container_id");
-		
-		// Show the UI container
-		if (typeof(ui_container_id) === "string" && ui_container_id !== "") {
-			ui_target = document.getElementById(ui_container_id);
-			if (ui_target !== null) {
-				ui_target.style.display = "block";
+};
 
-				// Now take care of hiding the degraded UI
-				degraded_container_id = this.getSetting("degraded_container_id");
-				if (typeof(degraded_container_id) && degraded_container_id !== "") {
-					degraded_target = document.getElementById(degraded_container_id);
-					if (degraded_target !== null) {
-						degraded_target.style.display = "none";
-					}
-				}
-			}
-		}
-	} catch (ex) {
-		this.debug(ex);
-	}
-}
+/* This is a chance to something immediately after SWFUpload has loaded.
+   Like, hide the default/degraded upload form and display the SWFUpload form. */
+SWFUpload.swfUploadLoaded = function () {
+};
 
 /* This is a chance to do something before the browse window opens */
 SWFUpload.fileDialogStart = function () {
@@ -889,10 +858,10 @@ SWFUpload.uploadComplete = function (file, server_data) {
 SWFUpload.fileComplete = function (file) {
 };
 
-// Called by SWFUpload JavaScript and Flash flash functions when debug is enabled.
+// Called by SWFUpload JavaScript and Flash functions when debug is enabled.
 // Override this method in your settings to call your own debug message handler
 SWFUpload.debug = function (message) {
-	if (this.debug_enabled) {
+	if (this.getSetting("debug_enabled")) {
 		this.debugMessage(message);
 	}
 };
