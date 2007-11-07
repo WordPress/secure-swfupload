@@ -1,5 +1,18 @@
  * SWFUpload Revision 7.0 by Jacob Roberts, Sept 2007, linebyline.blogspot.com
  
+ * --------- Revision 7.0 -----------
+ * = Renamed uploadComplete to uploadSuccess and fileComplete to uploadComplete.  All started uploads call uploadComplete (even if cancelled or stopped) 
+ * = Changed startUpload validation failure behavior. Rather than cancelling the upload the file is now requeued. Devs can cancel.
+ *    or do whatever the need to in uploadError to handle the problem.
+ * + Added setStats fucntion that lets you change the file upload count, etc.  This will give more power over the queue limits. Not well tested.
+ * = Fixed fileQueueLimit/fileUploadLimit logic so it works correctly.
+ * = Moved the upload request building to a later point so that the post params and file params can be updated in uploadStart.
+ * - Removed the last of the UI stuff.
+ * + Started development on Plug-ins
+ * + Added modificationDate to FileItem (file object)
+ * + Added in_progress to getStats object
+ * = Renamed compeleted_uploads to successful_uploads in getStats object
+
  * --------- Revision 7.0 beta 3 -----------
  * + Added an "event queue".  Events are added to an array and executeEvent is called on a setTimeout. This prevents out of order issues that occur
  *    in the Safari browser.

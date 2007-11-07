@@ -13,7 +13,7 @@ package {
 		public static var FILE_STATUS_QUEUED:int		= -1;
 		public static var FILE_STATUS_IN_PROGRESS:int	= -2;
 		public static var FILE_STATUS_ERROR:int			= -3;
-		public static var FILE_STATUS_COMPLETE:int		= -4;
+		public static var FILE_STATUS_SUCCESS:int		= -4;
 		public static var FILE_STATUS_CANCELLED:int		= -5;
 		
 		public function FileItem(file_reference:FileReference, control_id:String)
@@ -39,7 +39,14 @@ package {
 		
 		// Create the simply file object that is passed to the browser
 		public function ToJavaScriptObject():Object {
-			var file_object:Object = { id: this.id, name: this.file_reference.name, size: this.file_reference.size, type: this.file_reference.type, creationdate: this.file_reference.creationDate };
+			var file_object:Object = {
+				id: this.id,
+				name: this.file_reference.name,
+				size: this.file_reference.size,
+				type: this.file_reference.type,
+				creationdate: this.file_reference.creationDate,
+				modificationdate: this.file_reference.modificationDate
+			};
 			file_object.post = this.GetPostObject();			
 		
 			return file_object;

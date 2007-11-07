@@ -121,8 +121,8 @@ SWFUpload.prototype.initSettings = function (init_settings) {
 	this.uploadStart_handler		= this.retrieveSetting(init_settings.upload_start_handler,			SWFUpload.uploadStart);
 	this.uploadProgress_handler		= this.retrieveSetting(init_settings.upload_progress_handler,		SWFUpload.uploadProgress);
 	this.uploadError_handler		= this.retrieveSetting(init_settings.upload_error_handler,			SWFUpload.uploadError);
+	this.uploadSuccess_handler		= this.retrieveSetting(init_settings.upload_success_handler,		SWFUpload.uploadSuccess);
 	this.uploadComplete_handler		= this.retrieveSetting(init_settings.upload_complete_handler,		SWFUpload.uploadComplete);
-	this.fileComplete_handler		= this.retrieveSetting(init_settings.file_complete_handler,			SWFUpload.fileComplete);
 
 	this.debug_handler				= this.retrieveSetting(init_settings.debug_handler,			   		SWFUpload.debug);
 
@@ -443,6 +443,20 @@ SWFUpload.prototype.getStats = function () {
 		this.debug("Could not find Flash element");
 	}
 };
+SWFUpload.prototype.setStats = function (stats_object) {
+	var self = this;
+	var movie_element = this.getMovieElement();
+	if (movie_element !== null && typeof(movie_element.SetStats) === "function") {
+		try {
+			movie_element.SetStats(stats_object);
+		}
+		catch (ex) {
+			self.debug("Could not call SetStats");
+		}
+	} else {
+		this.debug("Could not find Flash element");
+	}
+};
 
 SWFUpload.prototype.addFileParam = function (file_id, name, value) {
 	var self = this;
@@ -679,7 +693,7 @@ SWFUpload.prototype.fileDialogComplete = function (num_files_selected) {
 };
 
 /* Gets called when a file upload is about to be started.  Return true to continue the upload. Return false to stop the upload. 
-	If you return false then uploadError and fileComplete are called (like normal).
+	If you return false then uploadError and uploadComplete are called (like normal).
 	
 	This is a good place to do any file validation you need.
 	
@@ -708,9 +722,8 @@ SWFUpload.prototype.uploadProgress = function (file, bytes_complete, bytes_total
 };
 
 /* Called when an error occurs during an upload. Use error_code and the SWFUpload.UPLOAD_ERROR constants to determine
-   which error occurred. The fileComplete event is often called after an error code indicating that the next file is
-   ready for upload.  However for the UPLOAD_STOPPED and in some cases the UPLOAD_CANCELLED errors fileComplete will
-   not be called. */
+   which error occurred. The uploadComplete event is called after an error code indicating that the next file is
+   ready for upload.  For files cancelled out of order the uploadComplete event will not be called. */
 SWFUpload.prototype.uploadError = function (file, error_code, message) {
 	var self = this;
 	if (typeof(this.uploadError_handler) === "function") {
@@ -723,27 +736,27 @@ SWFUpload.prototype.uploadError = function (file, error_code, message) {
 
 /* This gets called when a file finishes uploading and the server-side upload script has completed and returned a 200 
 status code. Any text returned by the server is available in server_data. 
-**NOTE: The upload script MUST return some text or the uploadComplete and fileComplete events will not fire and the
+**NOTE: The upload script MUST return some text or the uploadSuccess and uploadComplete events will not fire and the
 upload will become 'stuck'. */
-SWFUpload.prototype.uploadComplete = function (file, server_data) {
+SWFUpload.prototype.uploadSuccess = function (file, server_data) {
 	var self = this;
-	if (typeof(self.uploadComplete_handler) === "function") {
-		this.eventQueue[this.eventQueue.length] = function() { self.uploadComplete_handler(file, server_data); };
+	if (typeof(self.uploadSuccess_handler) === "function") {
+		this.eventQueue[this.eventQueue.length] = function() { self.uploadSuccess_handler(file, server_data); };
 		setTimeout(function () { self.executeNextEvent();}, 0);
 	} else {
-		this.debug("uploadComplete event not defined");
+		this.debug("uploadSuccess event not defined");
 	}
 };
 
-/* fileComplete is called when the file is uploaded or an error occurred and SWFUpload is ready to make the next upload.
+/* uploadComplete is called when the file is uploaded or an error occurred and SWFUpload is ready to make the next upload.
    If you want the next upload to start to automatically you can call startUpload() from this event. */
-SWFUpload.prototype.fileComplete = function (file) {
+SWFUpload.prototype.uploadComplete = function (file) {
 	var self = this;
-	if (typeof(self.fileComplete_handler) === "function") {
-		this.eventQueue[this.eventQueue.length] = function() { self.fileComplete_handler(file); };
+	if (typeof(self.uploadComplete_handler) === "function") {
+		this.eventQueue[this.eventQueue.length] = function() { self.uploadComplete_handler(file); };
 		setTimeout(function () { self.executeNextEvent();}, 0);
 	} else {
-		this.debug("fileComplete event not defined");
+		this.debug("uploadComplete event not defined");
 	}
 };
 
@@ -831,12 +844,13 @@ SWFUpload.fileDialogComplete = function (num_files_selected) {
 };
 
 /* Gets called when a file upload is about to be started.  Return true to continue the upload. Return false to stop the upload. 
-	If you return false then the uploadError callback is called and then fileComplete (like normal).
+	If you return false then the uploadError callback is called and then uploadComplete (like normal).
 	
 	This is a good place to do any file validation you need.
 	
 	This is the only function that cannot be called on a setTimeout because it must return a value to Flash.
-	You MUST NOT make any calls in to Flash (e.i, changing settings, getting stats, etc).
+	You SHOULD NOT make any calls in to Flash (e.i, changing settings, getting stats, etc).  Flash Player bugs prevent
+	calls in to Flash from working reliably.
 */
 SWFUpload.uploadStart = function (file) {
 	return true;
@@ -848,14 +862,14 @@ SWFUpload.uploadProgress = function (file, bytes_complete, bytes_total) {
 };
 
 /* This gets called when a file finishes uploading and the upload script has completed and returned a 200 status code.	Any text returned by the
-server is available in server_data.	 The upload script must return some text or uploadComplete will not fire (neither will fileComplete). */
-SWFUpload.uploadComplete = function (file, server_data) {
+server is available in server_data.	 The upload script must return some text or uploadSuccess will not fire (neither will uploadComplete). */
+SWFUpload.uploadSuccess = function (file, server_data) {
 };
 
 /* This is called last.	 The file is uploaded or an error occurred and SWFUpload is ready to make the next upload.
 	If you want to automatically start the next file just call startUpload from here.
 */
-SWFUpload.fileComplete = function (file) {
+SWFUpload.uploadComplete = function (file) {
 };
 
 // Called by SWFUpload JavaScript and Flash functions when debug is enabled.
