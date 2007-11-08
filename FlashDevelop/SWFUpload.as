@@ -1,15 +1,8 @@
 package {
 	/*
 	* Todo:  
-	* 	I've updated the call backs and setting variables.  I've also added a file_status field to the FileItem.
-	* I need to update the upload start and complete methods.  I  need to update the internal event handlers.
-	* I need to add a method to retrieve the JS file object for any file.  I should look in to using array.splice
-	* to remove cancelled files from the array.
-	* 
-	* I need to update the JS file to match the SWF file.  Add default handlers for the new events.
-	*
-	* I need to create some "plug-ins" that do UI like v1.0.2 and some handlers to show how to do
-	* file validation and queue processing
+	* I should look in to using array.splice to remove cancelled files from the array.
+	* Add GetFile(file_id) function that returns the FileItem js object for any file (defaults to current or first in queue).
 	* */
 
 	import flash.display.Sprite;
@@ -189,6 +182,7 @@ package {
 				
 				ExternalInterface.addCallback("GetStats", this.GetStats);
 				ExternalInterface.addCallback("SetStats", this.SetStats);
+				ExternalInterface.addCallback("GetFile", this.GetFile);
 				
 				ExternalInterface.addCallback("AddFileParam", this.AddFileParam);
 				ExternalInterface.addCallback("RemoveFileParam", this.RemoveFileParam);
@@ -505,6 +499,29 @@ package {
 			this.queue_errors = typeof(stats["queue_errors"]) === "Number" ? stats["queue_errors"] : this.queue_errors;
 		}
 
+		private function GetFile(file_id:String):Object {
+			var file_index:Number = this.FindIndexInFileQueue(file_id);
+			if (file_index >= 0) {
+				var file:FileItem = this.file_queue[file_index];
+			} else {
+				if (this.current_file_item != null) {
+					file = this.current_file_item;
+				} else {
+					for (var i:Number = 0; i < this.file_queue.length; i++) {
+						file = this.file_queue[i];
+						if (file != null) break;
+					}
+				}
+			}
+			
+			if (file == null) {
+				return null;
+			} else {
+				return file.ToJavaScriptObject();
+			}
+			
+		}
+		
 		private function AddFileParam(file_id:String, name:String, value:String):Boolean {
 			var file_index:Number = this.FindIndexInFileQueue(file_id);
 			if (file_index >= 0) {

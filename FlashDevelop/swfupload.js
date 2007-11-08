@@ -457,6 +457,20 @@ SWFUpload.prototype.setStats = function (stats_object) {
 		this.debug("Could not find Flash element");
 	}
 };
+SWFUpload.prototype.getFile = function (file_id) {
+	var self = this;
+	var movie_element = this.getMovieElement();
+	if (movie_element !== null && typeof(movie_element.GetFile) === "function") {
+		try {
+			return movie_element.GetFile(file_id);
+		}
+		catch (ex) {
+			self.debug("Could not call GetFile");
+		}
+	} else {
+		this.debug("Could not find Flash element");
+	}
+};
 
 SWFUpload.prototype.addFileParam = function (file_id, name, value) {
 	var self = this;
