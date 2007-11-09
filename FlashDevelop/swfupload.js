@@ -21,6 +21,10 @@
 /* *********** */
 
 var SWFUpload = function (init_settings) {
+	this.initSWFUpload(init_settings);
+};
+
+SWFUpload.prototype.initSWFUpload = function (init_settings) {
 	// Remove background flicker in IE (read this: http://misterpixel.blogspot.com/2006/09/forensic-analysis-of-ie6.html)
 	// This doesn't have anything to do with SWFUpload but can help your UI behave better in IE.
 	try {
@@ -48,7 +52,7 @@ var SWFUpload = function (init_settings) {
 	} catch (ex2) {
 		this.debug(ex2);
 	}
-};
+}
 
 /* *************** */
 /* Static thingies */
@@ -624,8 +628,6 @@ SWFUpload.prototype.setDebugEnabled = function (debug_enabled) {
 	}
 };
 
-
-
 /* *******************************
 	Internal Event Callers
 	Don't override these! These event callers ensure that your custom event handlers
@@ -710,19 +712,37 @@ SWFUpload.prototype.fileDialogComplete = function (num_files_selected) {
 	If you return false then uploadError and uploadComplete are called (like normal).
 	
 	This is a good place to do any file validation you need.
-	
-	This is the only function that cannot be called on a setTimeout because it must return a value to Flash.
-	You SHOULD NOT make any calls in to Flash (i.e., changing settings, getting stats, etc).  A bug in the Flash Player
-	causes function calls to fail they are circled through JS -> Flash -> JS -> Flash.
-*/
+	*/
 SWFUpload.prototype.uploadStart = function (file) {
-	if (typeof(this.uploadStart_handler) === "function") {
-		return this.uploadStart_handler(file);
+	var self = this;
+	if (typeof(self.fileDialogComplete_handler) === "function") {
+		this.eventQueue[this.eventQueue.length] = function() { self.returnStartUpload(self.uploadStart_handler(file)); };
+		setTimeout(function () { self.executeNextEvent();}, 0);
 	} else {
 		this.debug("uploadStart event not defined");
-		return true;
 	}
 };
+
+/* Note: Internal use only.  This function returns the result of uploadStart to
+	flash.  Since returning values in the normal way can result in Flash/JS circular
+	call issues we split up the call in a Timeout.  This is transparent from the API
+	point of view.
+*/
+SWFUpload.prototype.returnStartUpload = function (return_value) {
+	var movie_element = this.getMovieElement();
+	if (movie_element !== null && typeof(movie_element.ReturnStartUpload) === "function") {
+		try {
+			movie_element.ReturnStartUpload(return_value);
+		}
+		catch (ex) {
+			this.debug("Could not call ReturnStartUpload");
+		}
+	} else {
+		this.debug("Could not find Flash element in returnStartUpload");
+	}
+};
+
+
 
 /* Called during upload as the file progresses. Use this event to update your UI. */
 SWFUpload.prototype.uploadProgress = function (file, bytes_complete, bytes_total) {
