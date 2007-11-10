@@ -77,7 +77,7 @@ var FeaturesDemoHandlers = {
 		} catch (ex) { this.debug(ex); }
 	},
 
-	uploadComplete: function (fileObj, server_data) {
+	uploadSuccess: function (fileObj, server_data) {
 		try {
 			var queue_string = fileObj.id + ":Done:" + fileObj.name;
 			FeaturesDemo.selQueue.value = fileObj.id;
@@ -144,7 +144,7 @@ var FeaturesDemoHandlers = {
 		} catch (ex) { this.debug(ex);}
 	},
 	
-	fileComplete : function(fileObj) {
+	uploadComplete : function(fileObj) {
 		try {
 			FeaturesDemo.selEventsFile.options[FeaturesDemo.selEventsFile.options.length] = new Option("File Complete: " + fileObj.id, "");
 

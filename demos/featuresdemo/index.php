@@ -39,17 +39,13 @@
 				upload_start_handler : FeaturesDemoHandlers.uploadStart,
 				upload_progress_handler : FeaturesDemoHandlers.uploadProgress,
 				upload_error_handler : FeaturesDemoHandlers.uploadError,
-				upload_complete_handler : FeaturesDemoHandlers.uploadComplete,
+				upload_success_handler : FeaturesDemoHandlers.uploadSuccess,
 				
-				file_complete_handler : FeaturesDemoHandlers.fileComplete,
+				upload_complete_handler : FeaturesDemoHandlers.uploadComplete,
 				debug_handler : FeaturesDemoHandlers.debug,
 				
 				// Flash Settings
 				flash_url : "../swfupload/swfupload.swf",	// Relative to this file
-
-				// UI Settings
-				ui_container_id : "divSWFUpload",		// When I use my own showUI I don't have to set these but I'm going to call SWFUpload's internal showUI (from my own showUI) so I'll need them set.
-				degraded_container_id : "divDegraded",
 
 				// Debug Settings
 				debug: true		// For the purposes of this demo I wan't debug info shown
