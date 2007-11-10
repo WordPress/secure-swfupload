@@ -1,6 +1,6 @@
- * SWFUpload Revision 7.0 by Jacob Roberts, Sept 2007, linebyline.blogspot.com
+ * SWFUpload v2.0 by Jacob Roberts, Nov 2007, www.swfupload.org, linebyline.blogspot.com
  
- * --------- Revision 7.0 -----------
+ * --------- Version 2.0 -----------
  * = Changed uploadStart event so it's part of the setTimeout/eventQueue workaround. This allows Flash functions to be called from uploadStart.
  * = Renamed uploadComplete to uploadSuccess and fileComplete to uploadComplete.  All started uploads call uploadComplete (even if cancelled or stopped) 
  * = Changed startUpload validation failure behavior. Rather than cancelling the upload the file is now requeued. Devs can cancel.

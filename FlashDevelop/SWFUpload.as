@@ -424,7 +424,7 @@ package {
 					this.current_file_item.file_reference.cancel();
 					this.current_file_item.file_status = FileItem.FILE_STATUS_CANCELLED;
 					this.upload_cancelled++;
-
+					
 					this.Debug("Event: fileCancelled: File ID: " + this.current_file_item.id + ". Cancelling current upload");
 					ExternalCall.UploadError(this.uploadError_Callback, this.ERROR_CODE_FILE_CANCELLED, this.current_file_item.ToJavaScriptObject(), "File Upload Cancelled.");
 
@@ -800,28 +800,52 @@ package {
 		}
 
 		private function BuildRequest():URLRequest {
-			// Build the Post values
-			var key:String;
-			var post:URLVariables = new URLVariables();
-			for (key in this.uploadPostObject) {
-				this.Debug("Global Post Item: " + key + "=" + this.uploadPostObject[key]);				
-				if (this.uploadPostObject.hasOwnProperty(key)) {
-					post[key] = this.uploadPostObject[key];
-				}
-			}
-			var file_post:Object = this.current_file_item.GetPostObject();
-			for (key in file_post) {
-				this.Debug("File Post Item: " + key + "=" + this.uploadPostObject[key]);				
-				if (file_post.hasOwnProperty(key)) {
-					post[key] = file_post[key];
-				}
-			}
-			
 			// Create the request object
+			var file_post:Object = this.current_file_item.GetPostObject();
+			var key:String;
 			var request:URLRequest = new URLRequest();
+			var url:String = this.uploadURL;
 			request.method = URLRequestMethod.POST;
-			request.url = this.uploadURL;
-			request.data = post;
+			
+			// Build the Post values
+			/*if (this.flash_8_mode){
+				var pairs:Array = new Array();
+				for (key in this.uploadPostObject) {
+					this.Debug("Global URL Item: " + key + "=" + this.uploadPostObject[key]);				
+					if (this.uploadPostObject.hasOwnProperty(key)) {
+						pairs.push(key + "=" + this.uploadPostObject[key]);
+					}
+				}
+
+				for (key in file_post) {
+					this.Debug("File Post Item: " + key + "=" + this.uploadPostObject[key]);				
+					if (file_post.hasOwnProperty(key)) {
+						pairs.push(key + "=" + file_post[key]);
+					}
+				}
+				
+				url = this.uploadURL  + (this.uploadURL.indexOf("?") > -1 ? "&" : "?") + pairs.join("&");
+				
+			} else {*/
+				var post:URLVariables = new URLVariables();
+				for (key in this.uploadPostObject) {
+					this.Debug("Global Post Item: " + key + "=" + this.uploadPostObject[key]);				
+					if (this.uploadPostObject.hasOwnProperty(key)) {
+						post[key] = this.uploadPostObject[key];
+					}
+				}
+
+				for (key in file_post) {
+					this.Debug("File Post Item: " + key + "=" + this.uploadPostObject[key]);				
+					if (file_post.hasOwnProperty(key)) {
+						post[key] = file_post[key];
+					}
+				}
+
+				request.data = post;
+			//}
+			
+			request.url = url;
 			
 			return request;
 		}
