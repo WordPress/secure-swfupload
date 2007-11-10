@@ -4,10 +4,10 @@
   <output>
     <movie disabled="False" />
     <movie input="" />
-    <movie path="swfupload.swf" />
+    <movie path="swfupload_f9.swf" />
     <movie fps="1" />
-    <movie width="300" />
-    <movie height="300" />
+    <movie width="1" />
+    <movie height="1" />
     <movie version="9" />
     <movie background="#FFFFFF" />
   </output>
@@ -58,9 +58,6 @@
   <!-- Class files to compile (other referenced classes will automatically be included) -->
   <compileTargets>
     <compile path="SWFUpload.as" />
-    <compile path="classes\SWFUpload.as" />
-    <compile path="SWFUpload\SWFUpload.as" />
-    <compile path="SWFUploadBob\SWFUpload.as" />
   </compileTargets>
   <!-- Paths to exclude from the Project Explorer tree -->
   <hiddenPaths>

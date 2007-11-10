@@ -1,8 +1,5 @@
 package {
-	import flash.net.FileReference;
 	import flash.external.ExternalInterface;
-	import flash.utils.Timer;
-	import flash.events.TimerEvent;
 
 	internal class ExternalCall
 	{
@@ -30,8 +27,8 @@ package {
 			
 		}
 		
-		public static function UploadStart(callback:String, file_object:Object):Boolean  {
-			return ExternalInterface.call(callback, EscapeMessage(file_object));
+		public static function UploadStart(callback:String, file_object:Object):void  {
+			ExternalInterface.call(callback, EscapeMessage(file_object));
 		}
 		
 		public static function UploadProgress(callback:String, file_object:Object, bytes_loaded:uint, bytes_total:uint):void {

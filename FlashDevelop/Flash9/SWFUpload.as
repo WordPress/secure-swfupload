@@ -26,7 +26,7 @@ package {
 			var SWFUpload:SWFUpload = new SWFUpload();
 		}
 		
-		private const build_number:String = "SWFUPLOAD 2.0 2007-11-08 0001";
+		private const build_number:String = "SWFUPLOAD 2.0 FP9 2007-11-10 0002";
 		
 		// State tracking variables
 		private var fileBrowserMany:FileReferenceList = new FileReferenceList();
@@ -121,6 +121,7 @@ package {
 
 			this.debug_Callback              = "SWFUpload.instances[\"" + this.movieName + "\"].debug";
 
+			
 			// Get the Flash Vars
 			this.uploadURL = root.loaderInfo.parameters.uploadURL;
 			this.filePostName = root.loaderInfo.parameters.filePostName;
@@ -290,7 +291,7 @@ package {
 			} else {
 				var remaining_uploads:Number = this.fileUploadLimit - this.successful_uploads - this.queued_uploads;
 				if (remaining_uploads < 0) remaining_uploads = 0;
-				if (this.fileQueueLimit == 0) {
+				if (this.fileQueueLimit == 0 || this.fileQueueLimit >= remaining_uploads) {
 					queue_slots_remaining = remaining_uploads;
 				} else if (this.fileQueueLimit < remaining_uploads) {
 					queue_slots_remaining = this.fileQueueLimit;
@@ -639,55 +640,6 @@ package {
 				this.Debug("Event: uploadStart : File ID: " + this.current_file_item.id);
 				ExternalCall.UploadStart(this.uploadStart_Callback, this.current_file_item.ToJavaScriptObject());
 				
-				/* // Note: This code was moved to ReturnUploadStart as a work-around to the Flash/JS circular call issue
-				var start_upload:Boolean = ExternalCall.UploadStart(this.uploadStart_Callback, this.current_file_item.ToJavaScriptObject());
-				
-				// Validate the file
-				if (start_upload) {
-					try {
-						// Set the event handlers
-						this.current_file_item.file_reference.addEventListener(ProgressEvent.PROGRESS, this.FileProgress_Handler);
-						this.current_file_item.file_reference.addEventListener(IOErrorEvent.IO_ERROR, this.IOError_Handler);
-						this.current_file_item.file_reference.addEventListener(SecurityErrorEvent.SECURITY_ERROR, this.SecurityError_Handler);
-						this.current_file_item.file_reference.addEventListener(HTTPStatusEvent.HTTP_STATUS, this.HTTPError_Handler);
-						this.current_file_item.file_reference.addEventListener(DataEvent.UPLOAD_COMPLETE_DATA, this.ServerData_Handler);
-						
-						// Upload the file
-						var request:URLRequest = this.BuildRequest();
-						
-						this.Debug("startFile(): File Reference found. startUpload event returned true.  Starting upload to " + request.url + " for File ID: " + this.current_file_item.id);
-						this.current_file_item.file_reference.upload(request, this.filePostName, false);
-					} catch (ex:Error) {
-						this.upload_errors++;
-						this.current_file_item.file_status = FileItem.FILE_STATUS_ERROR;
-						var message:String = ex.errorID + "\n" + ex.name + "\n" + ex.message + "\n" + ex.getStackTrace();
-						this.Debug("Event: uploadError(): Unhandled exception: " + message);
-						ExternalCall.UploadError(this.uploadError_Callback, this.ERROR_CODE_UPLOAD_FAILED, this.current_file_item.ToJavaScriptObject(), message);
-						
-						this.UploadComplete();
-					}
-					this.current_file_item.file_status = FileItem.FILE_STATUS_IN_PROGRESS;
-
-				} else {
-					this.Debug("Event: uploadError : Call to uploadStart returned false. Not uploading file.");
-					
-					// Remove the event handlers
-					this.current_file_item.file_reference.removeEventListener(ProgressEvent.PROGRESS, this.FileProgress_Handler);
-					this.current_file_item.file_reference.removeEventListener(IOErrorEvent.IO_ERROR, this.IOError_Handler);
-					this.current_file_item.file_reference.removeEventListener(SecurityErrorEvent.SECURITY_ERROR, this.SecurityError_Handler);
-					this.current_file_item.file_reference.removeEventListener(HTTPStatusEvent.HTTP_STATUS, this.HTTPError_Handler);
-					this.current_file_item.file_reference.removeEventListener(DataEvent.UPLOAD_COMPLETE_DATA, this.ServerData_Handler);
-
-					// Re-queue the FileItem
-					this.current_file_item.file_status = FileItem.FILE_STATUS_QUEUED;
-					var js_object:Object = this.current_file_item.ToJavaScriptObject();
-					this.file_queue.unshift(this.current_file_item);
-					this.current_file_item = null;
-					
-					ExternalCall.UploadError(this.uploadError_Callback, this.ERROR_CODE_FILE_VALIDATION_FAILED, js_object, "Call to uploadStart return false. Not uploading file.");
-					this.Debug("startFile(): upload failed startUpload validation event. File re-queued.");
-				}
-				*/
 			}
 			// Otherwise we've would have looped through all the FileItems. This means the queue is empty)
 			else {
@@ -801,51 +753,28 @@ package {
 
 		private function BuildRequest():URLRequest {
 			// Create the request object
+			var request:URLRequest = new URLRequest();
+			request.method = URLRequestMethod.POST;
+			request.url = this.uploadURL;
+		
 			var file_post:Object = this.current_file_item.GetPostObject();
 			var key:String;
-			var request:URLRequest = new URLRequest();
-			var url:String = this.uploadURL;
-			request.method = URLRequestMethod.POST;
-			
-			// Build the Post values
-			/*if (this.flash_8_mode){
-				var pairs:Array = new Array();
-				for (key in this.uploadPostObject) {
-					this.Debug("Global URL Item: " + key + "=" + this.uploadPostObject[key]);				
-					if (this.uploadPostObject.hasOwnProperty(key)) {
-						pairs.push(key + "=" + this.uploadPostObject[key]);
-					}
+			var post:URLVariables = new URLVariables();
+			for (key in this.uploadPostObject) {
+				this.Debug("Global Post Item: " + key + "=" + this.uploadPostObject[key]);				
+				if (this.uploadPostObject.hasOwnProperty(key)) {
+					post[key] = this.uploadPostObject[key];
 				}
+			}
 
-				for (key in file_post) {
-					this.Debug("File Post Item: " + key + "=" + this.uploadPostObject[key]);				
-					if (file_post.hasOwnProperty(key)) {
-						pairs.push(key + "=" + file_post[key]);
-					}
+			for (key in file_post) {
+				this.Debug("File Post Item: " + key + "=" + this.uploadPostObject[key]);				
+				if (file_post.hasOwnProperty(key)) {
+					post[key] = file_post[key];
 				}
-				
-				url = this.uploadURL  + (this.uploadURL.indexOf("?") > -1 ? "&" : "?") + pairs.join("&");
-				
-			} else {*/
-				var post:URLVariables = new URLVariables();
-				for (key in this.uploadPostObject) {
-					this.Debug("Global Post Item: " + key + "=" + this.uploadPostObject[key]);				
-					if (this.uploadPostObject.hasOwnProperty(key)) {
-						post[key] = this.uploadPostObject[key];
-					}
-				}
+			}
 
-				for (key in file_post) {
-					this.Debug("File Post Item: " + key + "=" + this.uploadPostObject[key]);				
-					if (file_post.hasOwnProperty(key)) {
-						post[key] = file_post[key];
-					}
-				}
-
-				request.data = post;
-			//}
-			
-			request.url = url;
+			request.data = post;
 			
 			return request;
 		}

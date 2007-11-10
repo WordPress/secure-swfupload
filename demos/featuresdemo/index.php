@@ -4,7 +4,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" >
 <head>
-    <title>SWFUpload Revision 7.0 beta 3 Demo</title>
+    <title>SWFUpload v2.0 Demo</title>
 
 	<link href="../css/default.css" rel="stylesheet" type="text/css" />
 	<link href="css/featuresdemo.css" rel="stylesheet" type="text/css" />
@@ -45,7 +45,7 @@
 				debug_handler : FeaturesDemoHandlers.debug,
 				
 				// Flash Settings
-				flash_url : "../swfupload/swfupload.swf",	// Relative to this file
+				flash_url : "../swfupload/swfupload_f8.swf",	// Relative to this file
 
 				// Debug Settings
 				debug: true		// For the purposes of this demo I wan't debug info shown
@@ -56,15 +56,17 @@
 
 </head>
 <body>
-	<div class="title"><a class="likeParent" href="../index.php">SWFUpload (Revision 7.0 beta 3) Features Demo</a></div>
+	<div class="title"><a class="likeParent" href="../index.php">SWFUpload v2.0 Features Demo</a></div>
 	<form>
 		<div class="content">
 			<div id="divSWFUpload" style="display: none;">
-				The Features Demo allows you to experiment with all the features and settings that SWFUpload R5 offers.<br />
+				The Features Demo allows you to experiment with all the features and settings that SWFUpload v2.0 offers.<br />
 				<br />
 				Some settings are not allowed to be changed because it is either not technically possible or because it would break the demo. The
-				unchangeable settings are: flash_url, upload_url, ui_function, ui_container_id, and degraded_container_id.  Changes to
+				unchangeable settings are: upload_url, ui_function, ui_container_id, and degraded_container_id.  Changes to
 				these text boxes will be ignored.<br />
+				<br />
+				You can change between the SWFUpload v2.0 for Flash Player 8 and SWFUpload v2.0 for Flash Player 9 by changing the flash_url setting (replace the 8 with a 9).
 				<br />
 				Your PHP Session ID: <?php echo session_id(); ?>
 				<table class="layout">

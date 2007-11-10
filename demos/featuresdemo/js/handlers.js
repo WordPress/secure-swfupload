@@ -83,9 +83,9 @@ var FeaturesDemoHandlers = {
 			FeaturesDemo.selQueue.value = fileObj.id;
 			FeaturesDemo.selQueue.options[FeaturesDemo.selQueue.selectedIndex].text = queue_string;
 
-			FeaturesDemo.selEventsFile.options[FeaturesDemo.selEventsFile.options.length] = new Option("Upload Complete: " + fileObj.id, "");
+			FeaturesDemo.selEventsFile.options[FeaturesDemo.selEventsFile.options.length] = new Option("Upload Success: " + fileObj.id, "");
 
-			FeaturesDemo.divServerData.innerHTML = server_data;
+			FeaturesDemo.divServerData.innerHTML = typeof(server_data) === "undefined" ? "" : server_data;
 		} catch (ex) { this.debug(ex); }
 	},
 
@@ -146,7 +146,7 @@ var FeaturesDemoHandlers = {
 	
 	uploadComplete : function(fileObj) {
 		try {
-			FeaturesDemo.selEventsFile.options[FeaturesDemo.selEventsFile.options.length] = new Option("File Complete: " + fileObj.id, "");
+			FeaturesDemo.selEventsFile.options[FeaturesDemo.selEventsFile.options.length] = new Option("Upload Complete: " + fileObj.id, "");
 
 			// See if the setting for uploading the entire queue is enabled and do it.
 			if (FeaturesDemo.upload_all && this.getStats().files_queued > 0) {
@@ -172,9 +172,8 @@ var FeaturesDemoHandlers = {
 				}
 			}
 		} catch (ex) {}
-		
 		try {
-			if (this.debug_enabled) {
+			if (this.getSetting("debug_enabled")) {
 				this.debugMessage(message);
 			}
 		} catch (ex) { }

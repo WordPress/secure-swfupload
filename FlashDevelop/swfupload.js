@@ -1,5 +1,5 @@
 /**
- * SWFUpload Revision 7.0 by Jacob Roberts, Oct 2007, http://linebyline.blogspot.com
+ * SWFUpload v2.0 by Jacob Roberts, Nov 2007, http://www.swfupload.org, http://linebyline.blogspot.com
  * -------- -------- -------- -------- -------- -------- -------- --------
  * SWFUpload is (c) 2006 Lars Huring and Mammon Media and is released under the MIT License:
  * http://www.opensource.org/licenses/mit-license.php
@@ -716,7 +716,7 @@ SWFUpload.prototype.fileDialogComplete = function (num_files_selected) {
 SWFUpload.prototype.uploadStart = function (file) {
 	var self = this;
 	if (typeof(self.fileDialogComplete_handler) === "function") {
-		this.eventQueue[this.eventQueue.length] = function() { self.returnStartUpload(self.uploadStart_handler(file)); };
+		this.eventQueue[this.eventQueue.length] = function() { self.returnUploadStart(self.uploadStart_handler(file)); };
 		setTimeout(function () { self.executeNextEvent();}, 0);
 	} else {
 		this.debug("uploadStart event not defined");
@@ -728,17 +728,17 @@ SWFUpload.prototype.uploadStart = function (file) {
 	call issues we split up the call in a Timeout.  This is transparent from the API
 	point of view.
 */
-SWFUpload.prototype.returnStartUpload = function (return_value) {
+SWFUpload.prototype.returnUploadStart = function (return_value) {
 	var movie_element = this.getMovieElement();
-	if (movie_element !== null && typeof(movie_element.ReturnStartUpload) === "function") {
+	if (movie_element !== null && typeof(movie_element.ReturnUploadStart) === "function") {
 		try {
-			movie_element.ReturnStartUpload(return_value);
+			movie_element.ReturnUploadStart(return_value);
 		}
 		catch (ex) {
-			this.debug("Could not call ReturnStartUpload");
+			this.debug("Could not call ReturnUploadStart");
 		}
 	} else {
-		this.debug("Could not find Flash element in returnStartUpload");
+		this.debug("Could not find Flash element in returnUploadStart");
 	}
 };
 
