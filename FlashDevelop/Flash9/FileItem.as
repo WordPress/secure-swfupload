@@ -45,7 +45,8 @@ package {
 				size: this.file_reference.size,
 				type: this.file_reference.type,
 				creationdate: this.file_reference.creationDate,
-				modificationdate: this.file_reference.modificationDate
+				modificationdate: this.file_reference.modificationDate,
+				filestatus: this.file_status
 			};
 			file_object.post = this.GetPostObject();			
 		

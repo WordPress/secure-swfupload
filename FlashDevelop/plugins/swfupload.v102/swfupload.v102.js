@@ -23,15 +23,14 @@ if (typeof(SWFUpload) === "function") {
 			this.initSettings(init_settings);
 			this.loadFlash();
 
-			this.debugSettings();
+			this.displayDebugInfo();
 
 		} catch (ex2) {
 			this.debug(ex2);
-		}
-
-		
+		}	
 	};
-	SWFUpload.prototype.initSettings(init_settings) {
+	
+	SWFUpload.prototype.initSettings = function (init_settings) {
 		// Store v1.0.2 settings
 		this.customSettings["target"] 					= this.retrieveSetting(init_settings["target"], "");
 		this.customSettings["create_ui"] 				= this.retrieveSetting(init_settings["create_ui"], false);
@@ -97,7 +96,7 @@ if (typeof(SWFUpload) === "function") {
 		this.cancelFile = SWFUpload.v102.cancelFile;
 		this.cancelQueue = SWFUpload.v102.cancelQueue;
 		this.debugSettings = SWFUpload.v102.debugSettings;
-	}
+	};
 
 	// Emulate the v1.0.2 events
 	SWFUpload.v102.swfUploadLoaded = function() {
@@ -138,8 +137,18 @@ if (typeof(SWFUpload) === "function") {
 			this.debug("Exception in swfUploadLoaded");
 			this.debug(ex);
 		}
-	}
+	};
 
+	SWFUpload.v102.fileQueued = function(file) {
+		var stats = this.getStats();
+		var total_files = stats.successful_uploads + stats.upload_errors + stats.files_queued;
+
+		var v102fileQueued = this.customSettings["upload_file_queued_callback"];
+		if (typeof(v102fileQueued) === "function")  {
+			v102fileQueued.call(this, file, total_files);
+		}
+	};
+	
 	SWFUpload.v102.fileDialogComplete = function(num_selected) {
 		if (!!this.customSettings["auto_upload"]) {
 			this.startUpload();
@@ -148,8 +157,11 @@ if (typeof(SWFUpload) === "function") {
 	
 	SWFUpload.v102.uploadStart = function (file) {
 		var callback = this.customSettings["upload_file_start_callback"];
+		var stats = this.getStats();
+		var current_file_number = stats.successful_uploads + stats.upload_errors + 1;
+		var total_files = stats.successful_uploads + stats.upload_errors + stats.files_queued;
 		if (typeof(callback) === "function") {
-			callback.call(this, file);
+			callback.call(this, file, current_file_number, total_files);
 		}
 		
 		return true;
@@ -172,15 +184,44 @@ if (typeof(SWFUpload) === "function") {
 	SWFUpload.v102.uploadComplete = function (file) {
 		var stats = this.getStats();
 		
-		if (stats["files_queued"] > 0 && !this.customSettings["queue_cancelled_flag"]) {
+		if (stats.files_queued > 0 && !this.customSettings["queue_cancelled_flag"]) {
+			// Automatically start the next upload (if the queue wasn't cancelled)
 			this.startUpload();
+		} else if (stats.files_queued === 0 && !this.customSettings["queue_cancelled_flag"]) {
+			// Call Queue Complete if there are no more files queued and the queue wasn't cancelled
+			var callback = this.customSettings["upload_queue_complete_callback"];
+			if (typeof(callback) === "function") {
+				callback.call(this, file);
+			}
 		} else {
+			// Don't do anything. Remove the queue cancelled flag (if the queue was cancelled it will be set again)
 			this.customSettings["queue_cancelled_flag"] = false;
 		}
-	}
+	};
 	
 	
 	SWFUpload.v102.uploadError = function (file, error_code, msg) {
+		var translated_error_code = SWFUpload.v102.translateErrorCode(error_code);
+		switch (error_code) {
+			case SWFUpload.UPLOAD_ERROR.FILE_CANCELLED:
+				var stats = this.getStats();
+				var total_files = stats.successful_uploads + stats.upload_errors + stats.files_queued;
+				var callback = this.customSettings["upload_file_cancel_callback"];
+				if (typeof(callback) === "function") {
+					callback.call(this, file, total_files);
+				}
+				break;
+			defaut:
+				var error_callback = this.customSettings["upload_file_error_callback"];
+				if (error_callback === null || typeof(error_callback) !== "function") {
+					SWFUpload.v102.defaultHandleErrors.call(this, translated_error_code, file, msg);
+				} else {
+					error_callback.call(this, translated_error_code, file, msg);
+				}
+		}		
+	};
+	
+	SWFUpload.v102.translateErrorCode = function (error_code) {
 		var translated_error_code = 0;
 		switch (error_code) {
 			case SWFUpload.QUEUE_ERROR.QUEUE_LIMIT_EXCEEDED:
@@ -215,20 +256,15 @@ if (typeof(SWFUpload) === "function") {
 				break;
 			case SWFUpload.UPLOAD_ERROR.FILE_CANCELLED:
 				translated_error_code = -10;
+				// FIX ME - call the upload_cancelled_callback
 				break;
 			case SWFUpload.UPLOAD_ERROR.UPLOAD_STOPPED:
 				translated_error_code = -30;
 				break;
-		}		
-		
-		var error_callback = this.customSettings["upload_file_error_callback"];
-		if (error_callback === null || typeof(error_callback) !== "function") {
-			SWFUpload.v102.defaultHandleErrors.call(this, translated_error_code, file, msg);
-		} else {
-			error_callback.call(this, translated_error_code, file, msg);
 		}
+		
+		return translated_error_code;
 	};
-	
 	
 	// Default error handling.
 	SWFUpload.v102.defaultHandleErrors = function(errcode, file, msg) {
@@ -286,12 +322,9 @@ if (typeof(SWFUpload) === "function") {
 			this.cancelUpload();
 			stats = this.getStats();
 		}
+		
+		if (status.in_progress === 0) {
+			this.customSettings["queue_cancelled_flag"] = false;
+		}
 	};
-	SWFUpload.v102.debugSettings = function() {
-		// List the settings the same as v1.0.2 would
-	};
-	
-	
-	
-	
 }
