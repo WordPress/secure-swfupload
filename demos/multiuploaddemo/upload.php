@@ -12,6 +12,7 @@
 		exit(0);
 	}
 	
+	sleep(5);
 	//$rnd_bit = rand(0, 99);
 
 	//$upload_path = str_replace("\\", "/", realpath(dirname($_SERVER['SCRIPT_FILENAME']))) . "/uploads/";

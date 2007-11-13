@@ -10,10 +10,12 @@
 ?>
 <html xmlns="http://www.w3.org/1999/xhtml" >
 <head>
-    <title>SWFUpload Revision 7.0 beta 3 Demo</title>
+    <title>SWFUpload v2.0 Demo</title>
 
 	<link href="../css/default.css" rel="stylesheet" type="text/css" />
 	<script type="text/javascript" src="../swfupload/swfupload.js"></script>
+	<script type="text/javascript" src="js/swfupload.graceful_degradation.js"></script>
+	<script type="text/javascript" src="js/swfupload.queue.js"></script>
 	<script type="text/javascript" src="js/handlers.js"></script>
 	<script type="text/javascript">
 		var upload1, upload2;
@@ -39,21 +41,23 @@
 				upload_start_handler : uploadStart,
 				upload_progress_handler : uploadProgress,
 				upload_error_handler : uploadError,
+				upload_success_handler : uploadSuccess,
 				upload_complete_handler : uploadComplete,
-				file_complete_handler : fileComplete,
 
 				// Flash Settings
-				flash_url : "../swfupload/swfupload.swf",	// Relative to this file (or you can use absolute paths)
+				flash_url : "../swfupload/swfupload_f8.swf",	// Relative to this file (or you can use absolute paths)
+				
+				swfupload_element_id : "flashUI1",		// Setting from graceful degradation plugin
+				degraded_element_id : "degradedUI1",	// Setting from graceful degradation plugin
 
-				// UI Settings
-				ui_container_id : "flashUI1",
-				degraded_container_id : "degradedUI1",
-
+				custom_settings : {
+					progressTarget : "fsUploadProgress1",
+					cancelButtonId : "btnCancel1"
+				},
+				
 				// Debug Settings
 				debug: false
 			});
-			upload1.customSettings.progressTarget = "fsUploadProgress1";	// Add an additional setting that will later be used by the handler.
-			upload1.customSettings.cancelButtonId = "btnCancel1";			// Add an additional setting that will later be used by the handler.
 
 			upload2 = new SWFUpload({
 				// Backend Settings
@@ -75,29 +79,33 @@
 				upload_start_handler : uploadStart,
 				upload_progress_handler : uploadProgress,
 				upload_error_handler : uploadError,
+				upload_success_handler : uploadSuccess,
 				upload_complete_handler : uploadComplete,
-				file_complete_handler : fileComplete,
 
 				// Flash Settings
-				flash_url : "../swfupload/swfupload.swf",	// Relative to this file (or you can use absolute paths)
+				flash_url : "../swfupload/swfupload_f8.swf",	// Relative to this file (or you can use absolute paths)
 
-				// UI Settings
-				ui_container_id : "flashUI2",
-				degraded_container_id : "degradedUI2",
+				swfupload_element_id : "flashUI2",		// Setting from graceful degradation plugin
+				degraded_element_id : "degradedUI2",	// Setting from graceful degradation plugin
+
+				custom_settings : {
+					progressTarget : "fsUploadProgress2",
+					cancelButtonId : "btnCancel2"
+				},
 
 				// Debug Settings
 				debug: false
 			});
-			upload2.customSettings.progressTarget = "fsUploadProgress2";	// Add an additional setting that will later be used by the handler.
-			upload2.customSettings.cancelButtonId = "btnCancel2";			// Add an additional setting that will later be used by the handler.
 
 	     }
 	</script>
 
 </head>
 <body>
-	<div class="title"><a class="likeParent" href="../index.php">SWFUpload (Revision 7.0 beta 3) Multi-Upload Demo</a></div>
+	<div class="title"><a class="likeParent" href="../index.php">SWFUpload v2.0 Multi-Upload Demo</a></div>
 	<form id="form1" action="index.php" method="post" enctype="multipart/form-data">
+		<div>This page demonstrates how multiple instances of SWFUpload can be loaded on the same page.
+			It also demonstrates the use of the graceful degradation plugin and the queue plugin.</div>
 		<div class="content">
 			<table>
 				<tr valign="top">

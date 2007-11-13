@@ -54,7 +54,7 @@ function uploadProgress(fileObj, bytesLoaded, bytesTotal) {
 	} catch (e) { }
 }
 
-function uploadComplete(fileObj, server_data) {
+function uploadSuccess(fileObj, server_data) {
 	try {
 		fileObj.id = "singlefile";	// This makes it so FileProgress only makes a single UI element, instead of one for each file
 		var progress = new FileProgress(fileObj, this.customSettings.progress_target);
@@ -72,7 +72,7 @@ function uploadComplete(fileObj, server_data) {
 	} catch (e) { }
 }
 
-function fileComplete(fileObj) {
+function uploadComplete(fileObj) {
 	try {
 		if (this.customSettings.upload_successful) {
 			document.getElementById("btnBrowse").disabled = "true";

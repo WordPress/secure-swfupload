@@ -1,14 +1,11 @@
-<?php
-	session_start();
-	$_SESSION["resume_name"] = "";
-?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" >
 <head>
-    <title>SWFUpload Revision 7.2 beta 3 Demo</title>
+    <title>SWFUpload v2.0 Demo</title>
 
 	<link href="../css/default.css" rel="stylesheet" type="text/css" />
 	<script type="text/javascript" src="../swfupload/swfupload.js"></script>
+	<script type="text/javascript" src="js/swfupload.graceful_degradation.js"></script>
 	<script type="text/javascript" src="js/handlers.js"></script>
 	<script type="text/javascript">
 		var swf_upload_control;
@@ -37,24 +34,24 @@
 				//upload_start_handler : uploadStart,	// I could do some client/JavaScript validation here, but I don't need to.
 				upload_progress_handler : uploadProgress,
 				upload_error_handler : uploadError,
+				upload_success_handler : uploadSuccess,
 				upload_complete_handler : uploadComplete,
-				file_complete_handler : fileComplete,
 
 				// Flash Settings
-				flash_url : "../swfupload/swfupload.swf",	// Relative to this file
+				flash_url : "../swfupload/swfupload_f9.swf",	// Relative to this file
 
 				// UI settings
-                ui_function: myShowUI,	// I'm using a custom UI function rather than SWFUpload's default
-				ui_container_id : "flashUI",
-				degraded_container_id : "degradedUI",
+				swfupload_element_id : "flashUI",		// setting for the graceful degradation plugin
+				degraded_element_id : "degradedUI",
 
+				custom_settings : {
+					progress_target : "fsUploadProgress",
+					upload_successful : false
+				},
+				
 				// Debug settings
-				debug: true
+				debug: false
 			});
-            // This is a setting that my Handlers will use. It's not part of SWFUpload
-            // But I can add it to the SWFUpload object and then use it where I need to
-			swf_upload_control.customSettings.progress_target = "fsUploadProgress";
-			swf_upload_control.customSettings.upload_successful = false;
 
         }
 
@@ -131,10 +128,12 @@
 
 </head>
 <body>
-	<div class="title"><a class="likeParent" href="../index.php">SWFUpload (Revision 7.0 beta 3) Classic Form Demo</a></div>
+	<div class="title"><a class="likeParent" href="../index.php">SWFUpload v2.0 Classic Form Demo</a></div>
 
 	<form id="form1" action="thanks.php" enctype="multipart/form-data" method="post">
 		<div class="content">
+			<div>This demo shows how SWFUpload might be combined with an HTML form.  It also demonstrates graceful degradation (using the graceful degradation plugin).
+			This demo also demonstrates the use of the server_data parameter.  This demo requires Flash Player 9+</div>
 			<fieldset >
 				<legend>Submit your Application</legend>
 				<table style="vertical-align:top;">

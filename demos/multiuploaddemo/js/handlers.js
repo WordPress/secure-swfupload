@@ -77,12 +77,12 @@ function fileQueueError(fileObj, error_code, message) {
 
 function fileDialogComplete(num_files_queued) {
 	try {
-	if (this.getStats().files_queued > 0) {
-		document.getElementById(this.customSettings.cancelButtonId).disabled = false;
-	}
-	
-	/* I want auto start and I can do that here */
-	this.startUpload();
+		if (this.getStats().files_queued > 0) {
+			document.getElementById(this.customSettings.cancelButtonId).disabled = false;
+		}
+		
+		/* I want auto start and I can do that here */
+		this.startUpload();
 	} catch (ex)  {
         this.debug(ex);
 	}
@@ -111,7 +111,7 @@ function uploadProgress(fileObj, bytesLoaded, bytesTotal) {
 	} catch (ex) { this.debug(ex); }
 }
 
-function uploadComplete(fileObj, server_data) {
+function uploadSuccess(fileObj, server_data) {
 	try {
 		var progress = new FileProgress(fileObj, this.customSettings.progressTarget);
 		progress.SetComplete();
@@ -121,7 +121,7 @@ function uploadComplete(fileObj, server_data) {
 	} catch (ex) { this.debug(ex); }
 }
 
-function fileComplete(fileObj) {
+function uploadComplete(fileObj) {
 	try {
 		/*  I want the next upload to continue automatically so I'll call startUpload here */
 		if (this.getStats().files_queued === 0) {

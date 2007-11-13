@@ -61,7 +61,7 @@ function uploadProgress(fileObj, bytesLoaded) {
 	} catch (ex) { this.debug(ex); }
 }
 
-function uploadComplete(fileObj, server_data) {
+function uploadSuccess(fileObj, server_data) {
 	try {
 		// upload.php returns the thumbnail id in the server_data, use that to retrieve the thumbnail for display
 		
@@ -76,7 +76,7 @@ function uploadComplete(fileObj, server_data) {
 	} catch (ex) { this.debug(ex); }
 }
 
-function fileComplete(fileObj) {
+function uploadComplete(fileObj) {
 	try {
 		/*  I want the next upload to continue automatically so I'll call startUpload here */
 		if (this.getStats().files_queued > 0) {

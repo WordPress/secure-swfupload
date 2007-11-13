@@ -149,7 +149,7 @@ SWFUpload.prototype.loadFlash = function () {
 	try {
 		target_element = document.getElementsByTagName("body")[0];
 		if (typeof(target_element) === "undefined" || target_element === null) {
-			this.debug('Could not find an element to add the Flash too. Failed to find element for "flash_container_id" or the BODY element.');
+			this.debug('Could not find the BODY element. SWFUpload failed to load.');
 			return false;
 		}
 	} catch (ex) {
@@ -291,7 +291,7 @@ SWFUpload.prototype.retrieveSetting = function (value, default_value) {
 SWFUpload.prototype.displayDebugInfo = function () {
 	var key, debug_message = "";
 
-	debug_message += "----- SWFUPLOAD SETTINGS     ----\nID: " + this.getMovieElement().id + "\n";
+	debug_message += "----- SWFUPLOAD SETTINGS     ----\nID: " + this.moveName + "\n";
 
 	debug_message += this.outputObject(this.settings);
 
