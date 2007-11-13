@@ -697,6 +697,7 @@ package {
 				this.current_file_item = null;
 				
 				ExternalCall.UploadError(this.uploadError_Callback, this.ERROR_CODE_FILE_VALIDATION_FAILED, js_object, "Call to uploadStart return false. Not uploading file.");
+				ExternalCall.UploadComplete(this.uploadComplete_Callback, js_object);
 				this.Debug("startFile(): upload rejected by startUpload event. File re-queued.");
 			}
 		}

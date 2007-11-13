@@ -1,18 +1,21 @@
  * SWFUpload v2.0 by Jacob Roberts, Nov 2007, www.swfupload.org, linebyline.blogspot.com
  
  * --------- Version 2.0 -----------
+ * + Re-created SWFUpload in Actionscript v2 for Flash 8 compatibility. Flash 8 loses POST and Server Data features.  The two versions are otherwise fully compatible.
+ *    Flash 8 uses URL to pass post_params/file_params.
  * = Changed uploadStart event so it's part of the setTimeout/eventQueue workaround. This allows Flash functions to be called from uploadStart.
- * = Renamed uploadComplete to uploadSuccess and fileComplete to uploadComplete.  All started uploads call uploadComplete (even if cancelled or stopped) 
- * = Changed startUpload validation failure behavior. Rather than cancelling the upload the file is now requeued. Devs can cancel.
+ * = Renamed uploadComplete to uploadSuccess and fileComplete to uploadComplete.  All started uploads call uploadComplete (even if cancelled or stopped).
+ * = Changed startUpload validation failure behavior. Rather than cancelling the upload the file is now requeued. Devs can cancel
  *    or do whatever the need to in uploadError to handle the problem.
- * + Added setStats fucntion that lets you change the file upload count, etc.  This will give more power over the queue limits. Not well tested.
  * = Fixed fileQueueLimit/fileUploadLimit logic so it works correctly.
  * = Moved the upload request building to a later point so that the post params and file params can be updated in uploadStart.
- * - Removed the last of the UI stuff.
- * + Started development on Plug-ins
+ * - Removed the last of the UI stuff (ui_container, degraded_container).
+ * + Started development on Plug-ins. Graceful Degradation, v1.0.2, Cookies, Queue Handling
+ * = Fixed missing file_status field in FileItem.
  * + Added modificationDate to FileItem (file object)
- * + Added in_progress to getStats object
+ * + Added setStats function that lets you change the file upload count, etc.  This will give more power over the queue limits. Not well tested.
  * = Renamed compeleted_uploads to successful_uploads in getStats object
+ * + Added in_progress to getStats object
 
  * --------- Revision 7.0 beta 3 -----------
  * + Added an "event queue".  Events are added to an array and executeEvent is called on a setTimeout. This prevents out of order issues that occur
