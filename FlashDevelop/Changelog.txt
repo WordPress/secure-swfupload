@@ -1,5 +1,8 @@
  * SWFUpload v2.0 by Jacob Roberts, Nov 2007, www.swfupload.org, linebyline.blogspot.com
  
+ * --------- Version 2.0.1 -----------
+ * = Fixed a bug where zero-byte files would stop file the queuing process.
+
  * --------- Version 2.0 -----------
  * + Re-created SWFUpload in Actionscript v2 for Flash 8 compatibility. Flash 8 loses POST and Server Data features.  The two versions are otherwise fully compatible.
  *    Flash 8 uses URL to pass post_params/file_params.
