@@ -1,6 +1,6 @@
 package {
 	/*
-	* Todo:  
+	* Todo:
 	* I should look in to using array.splice to remove cancelled files from the array.
 	* Add GetFile(file_id) function that returns the FileItem js object for any file (defaults to current or first in queue).
 	* */
@@ -26,7 +26,7 @@ package {
 			var SWFUpload:SWFUpload = new SWFUpload();
 		}
 		
-		private const build_number:String = "SWFUPLOAD 2.0 FP9 2007-11-10 0002";
+		private const build_number:String = "SWFUPLOAD 2.0 FP9 2007-11-19 0002";
 		
 		// State tracking variables
 		private var fileBrowserMany:FileReferenceList = new FileReferenceList();
@@ -208,7 +208,7 @@ package {
 			if (flash.net.FileReferenceList && flash.net.FileReference && flash.net.URLRequest && flash.external.ExternalInterface && flash.external.ExternalInterface.available && DataEvent.UPLOAD_COMPLETE_DATA) {
 				ExternalCall.Simple(this.flashReady_Callback);
 			} else {
-				this.Debug("Feature Detection Failed");				
+				this.Debug("Feature Detection Failed");
 			}
 		}
 
@@ -307,29 +307,40 @@ package {
 				for (var i:Number = 0; i < file_reference_list.length; i++) {
 					var file_item:FileItem = new FileItem(file_reference_list[i], this.movieName);
 
-					// Check the size, if it's within the limit add it to the upload list.
-					var size_result:Number = this.CheckFileSize(file_item);
-					var is_valid_filetype:Boolean = this.CheckFileType(file_item);
-					if(size_result == 0 && is_valid_filetype) {
-						this.Debug("Event: fileQueued : File ID: " + file_item.id);
-						this.file_queue.push(file_item);
-						this.queued_uploads++;
-						ExternalCall.FileQueued(this.fileQueued_Callback, file_item.ToJavaScriptObject());
-					} 
-					else if (!is_valid_filetype) {
-						this.Debug("Event: fileQueueError : File not of a valid type.");
+					// Verify that the file is accessible. Zero byte files and possibly other conditions can cause a file to be inaccessible.
+					var jsFileObj:Object = file_item.ToJavaScriptObject();
+					var is_valid_file_reference:Boolean = (jsFileObj.filestatus !== FileItem.FILE_STATUS_ERROR);
+					
+					if (is_valid_file_reference) {
+						// Check the size, if it's within the limit add it to the upload list.
+						var size_result:Number = this.CheckFileSize(file_item);
+						var is_valid_filetype:Boolean = this.CheckFileType(file_item);
+						if(size_result == 0 && is_valid_filetype) {
+							this.Debug("Event: fileQueued : File ID: " + file_item.id);
+							file_item.file_status = FileItem.FILE_STATUS_QUEUED;
+							this.file_queue.push(file_item);
+							this.queued_uploads++;
+							ExternalCall.FileQueued(this.fileQueued_Callback, file_item.ToJavaScriptObject());
+						}
+						else if (!is_valid_filetype) {
+							this.Debug("Event: fileQueueError : File not of a valid type.");
+							this.queue_errors++;
+							ExternalCall.FileQueueError(this.fileQueueError_Callback, this.ERROR_CODE_INVALID_FILETYPE, file_item.ToJavaScriptObject(), "File is not an allowed file type.");
+						}
+						else if (size_result > 0) {
+							this.Debug("Event: fileQueueError : File exceeds size limit.");
+							this.queue_errors++;
+							ExternalCall.FileQueueError(this.fileQueueError_Callback, this.ERROR_CODE_FILE_EXCEEDS_SIZE_LIMIT, file_item.ToJavaScriptObject(), "File size exceeds allowed limit.");
+						} else if (size_result < 0) {
+							this.Debug("Event: fileQueueError : File is zero bytes.");
+							this.queue_errors++;
+							ExternalCall.FileQueueError(this.fileQueueError_Callback, this.ERROR_CODE_ZERO_BYTE_FILE, file_item.ToJavaScriptObject(), "File is zero bytes and cannot be uploaded.");
+						}
+					} else {
+						this.Debug("Event: fileQueueError : File is zero bytes or FileReference is invalid.");
 						this.queue_errors++;
-						ExternalCall.FileQueueError(this.fileQueueError_Callback, this.ERROR_CODE_INVALID_FILETYPE, file_item.ToJavaScriptObject(), "File is not an allowed file type.");
+						ExternalCall.FileQueueError(this.fileQueueError_Callback, this.ERROR_CODE_ZERO_BYTE_FILE, file_item.ToJavaScriptObject(), "File is zero bytes or cannot be accessed and cannot be uploaded.");
 					}
-					else if (size_result > 0) {
-						this.Debug("Event: fileQueueError : File exceeds size limit.");
-						this.queue_errors++;
-						ExternalCall.FileQueueError(this.fileQueueError_Callback, this.ERROR_CODE_FILE_EXCEEDS_SIZE_LIMIT, file_item.ToJavaScriptObject(), "File size exceeds allowed limit.");
-					} else if (size_result < 0) {
-						this.Debug("Event: fileQueueError : File is zero bytes.");
-						this.queue_errors++;
-						ExternalCall.FileQueueError(this.fileQueueError_Callback, this.ERROR_CODE_ZERO_BYTE_FILE, file_item.ToJavaScriptObject(), "File is zero bytes and cannot be uploaded.");
-					} 
 				}
 			}
 			
@@ -485,7 +496,7 @@ package {
 		}
 		
 		private function GetStats():Object {
-			return {	
+			return {
 				in_progress : this.current_file_item == null ? 0 : 1,
 				files_queued : this.queued_uploads,
 				successful_uploads : this.successful_uploads,
@@ -731,7 +742,7 @@ package {
 		private function CheckFileType(file_item:FileItem):Boolean {
 			// If no extensions are defined then a *.* was passed and the check is unnecessary
 			if (this.valid_file_extensions.length == 0) {
-				return true;				
+				return true;
 			}
 			
 			var fileRef:FileReference = file_item.file_reference;
@@ -762,14 +773,14 @@ package {
 			var key:String;
 			var post:URLVariables = new URLVariables();
 			for (key in this.uploadPostObject) {
-				this.Debug("Global Post Item: " + key + "=" + this.uploadPostObject[key]);				
+				this.Debug("Global Post Item: " + key + "=" + this.uploadPostObject[key]);
 				if (this.uploadPostObject.hasOwnProperty(key)) {
 					post[key] = this.uploadPostObject[key];
 				}
 			}
 
 			for (key in file_post) {
-				this.Debug("File Post Item: " + key + "=" + this.uploadPostObject[key]);				
+				this.Debug("File Post Item: " + key + "=" + this.uploadPostObject[key]);
 				if (file_post.hasOwnProperty(key)) {
 					post[key] = file_post[key];
 				}

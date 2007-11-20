@@ -45,7 +45,7 @@
 				debug_handler : FeaturesDemoHandlers.debug,
 				
 				// Flash Settings
-				flash_url : "../swfupload/swfupload_f8.swf",	// Relative to this file
+				flash_url : "../swfupload/swfupload_f9.swf",	// Relative to this file
 
 				// Debug Settings
 				debug: true		// For the purposes of this demo I wan't debug info shown
