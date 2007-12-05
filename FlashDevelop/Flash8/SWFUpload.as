@@ -1,7 +1,7 @@
 /*
-* Todo:  
-* I should look in to using array.splice to remove cancelled files from the array.
-* Add GetFile(file_id) function that returns the FileItem js object for any file (defaults to current or first in queue).
+* Todo:
+* In SWFUpload v3 the file_queue and file_index should be merged. This probably means we'll remove FileItem.id and just
+* use indexes everywhere.
 * */
 
 import flash.net.FileReferenceList;
@@ -16,10 +16,17 @@ class SWFUpload {
 	// Cause SWFUpload to start as soon as the movie starts
 	public static function main():Void
 	{
+		// Code to attempt to fix "flash script running slowly" error messages
+		var counter:Number = 0;
+		_root.onEnterFrame = function () {
+			if (++counter > 100) counter = 0;
+		};
+
+		// Start SWFUpload
 		var SWFUpload:SWFUpload = new SWFUpload();
 	}
 	
-	private var build_number:String = "SWFUPLOAD 2.0 FP8 2007-11-10 0002";
+	private var build_number:String = "SWFUPLOAD 2.0.1 FP8 2007-12-05 0001";
 	
 	// State tracking variables
 	private var fileBrowserMany:FileReferenceList = new FileReferenceList();
@@ -27,6 +34,8 @@ class SWFUpload {
 
 	private var file_queue:Array = new Array();		// holds a list of all items that are to be uploaded.
 	private var current_file_item:FileItem = null;	// the item that is currently being uploaded.
+	
+	private var file_index:Array = new Array();
 
 	private var successful_uploads:Number = 0;		// Tracks the uploads that have been completed
 	private var queue_errors:Number = 0;			// Tracks files rejected during queueing
@@ -67,6 +76,11 @@ class SWFUpload {
 	private var debugEnabled:Boolean;
 
 	// Error code "constants"
+	// Size check constants
+	private var SIZE_TOO_BIG:Number		= 1;
+	private var SIZE_ZERO_BYTE:Number	= -1;
+	private var SIZE_OK:Number			= 0;
+	
 	// Queue errors
 	private var ERROR_CODE_QUEUE_LIMIT_EXCEEDED:Number 			= -100;
 	private var ERROR_CODE_FILE_EXCEEDS_SIZE_LIMIT:Number 		= -110;
@@ -191,6 +205,7 @@ class SWFUpload {
 			ExternalInterface.addCallback("GetStats", this, this.GetStats);
 			ExternalInterface.addCallback("SetStats", this, this.SetStats);
 			ExternalInterface.addCallback("GetFile", this, this.GetFile);
+			ExternalInterface.addCallback("GetFileByIndex", this, this.GetFileByIndex);
 			
 			ExternalInterface.addCallback("AddFileParam", this, this.AddFileParam);
 			ExternalInterface.addCallback("RemoveFileParam", this, this.RemoveFileParam);
@@ -214,7 +229,7 @@ class SWFUpload {
 		if (flash.net.FileReferenceList && flash.net.FileReference && flash.external.ExternalInterface && flash.external.ExternalInterface.available) {
 			ExternalCall.Simple(this.flashReady_Callback);
 		} else {
-			this.Debug("Feature Detection Failed");				
+			this.Debug("Feature Detection Failed");
 		}
 	}
 
@@ -312,30 +327,43 @@ class SWFUpload {
 			// Process each selected file
 			for (var i:Number = 0; i < file_reference_list.length; i++) {
 				var file_item:FileItem = new FileItem(file_reference_list[i], this.movieName);
+				
+				// Add the file to the index
+				file_item.index = this.file_index.length;
+				this.file_index[file_item.index] = file_item;
 
-				// Check the size, if it's within the limit add it to the upload list.
+				// The the file to see if it is acceptable
 				var size_result:Number = this.CheckFileSize(file_item);
 				var is_valid_filetype:Boolean = this.CheckFileType(file_item);
-				if(size_result == 0 && is_valid_filetype) {
+				
+				if(size_result == this.SIZE_OK && is_valid_filetype) {
 					this.Debug("Event: fileQueued : File ID: " + file_item.id);
 					this.file_queue.push(file_item);
 					this.queued_uploads++;
 					ExternalCall.FileQueued(this.fileQueued_Callback, file_item.ToJavaScriptObject());
-				} 
+				}
 				else if (!is_valid_filetype) {
+					file_item.file_reference = null; 	// Cleanup the object
 					this.Debug("Event: fileQueueError : File not of a valid type.");
 					this.queue_errors++;
 					ExternalCall.FileQueueError(this.fileQueueError_Callback, this.ERROR_CODE_INVALID_FILETYPE, file_item.ToJavaScriptObject(), "File is not an allowed file type.");
 				}
-				else if (size_result > 0) {
+				else if (size_result == this.SIZE_TOO_BIG) {
+					file_item.file_reference = null; 	// Cleanup the object
 					this.Debug("Event: fileQueueError : File exceeds size limit.");
 					this.queue_errors++;
 					ExternalCall.FileQueueError(this.fileQueueError_Callback, this.ERROR_CODE_FILE_EXCEEDS_SIZE_LIMIT, file_item.ToJavaScriptObject(), "File size exceeds allowed limit.");
-				} else if (size_result < 0) {
+				}
+				else if (size_result == this.SIZE_ZERO_BYTE) {
+					file_item.file_reference = null; 	// Cleanup the object
 					this.Debug("Event: fileQueueError : File is zero bytes.");
 					this.queue_errors++;
 					ExternalCall.FileQueueError(this.fileQueueError_Callback, this.ERROR_CODE_ZERO_BYTE_FILE, file_item.ToJavaScriptObject(), "File is zero bytes and cannot be uploaded.");
-				} 
+				}
+				else {
+					file_item.file_reference = null; 	// Cleanup the object
+					this.Debug("Entered an unexpected state checking the file in Select_Handler");
+				}
 			}
 		}
 		
@@ -452,6 +480,8 @@ class SWFUpload {
 
 					// Cancel the file (just for good measure) and make the callback
 					file_item.file_reference.cancel();
+					file_item.file_reference.removeListener(this.file_reference_listener);
+					file_item.file_reference = null;
 
 					this.Debug("Event: uploadError : " + file_item.id + ". Cancelling queued upload");
 					this.Debug("Event: uploadError : " + file_item.id + ". Cancelling queued upload");
@@ -479,6 +509,8 @@ class SWFUpload {
 
 				// Cancel the file (just for good measure) and make the callback
 				file_item.file_reference.cancel();
+				file_item.file_reference.removeListener(this.file_reference_listener);
+				file_item.file_reference = null;
 
 				this.Debug("Event: uploadError : " + file_item.id + ". Cancelling queued upload");
 				
@@ -493,7 +525,7 @@ class SWFUpload {
 	}
 	
 	private function GetStats():Object {
-		return {	
+		return {
 			in_progress : this.current_file_item == null ? 0 : 1,
 			files_queued : this.queued_uploads,
 			successful_uploads : this.successful_uploads,
@@ -531,6 +563,13 @@ class SWFUpload {
 			return file.ToJavaScriptObject();
 		}
 		
+	}
+	private function GetFileByIndex(index:Number):Object {
+		if (index < 0 || index > this.file_index.length - 1) {
+			return null;
+		} else {
+			return this.file_index[index].ToJavaScriptObject();
+		}
 	}
 	
 	private function AddFileParam(file_id:String, name:String, value:String):Boolean {
@@ -709,6 +748,10 @@ class SWFUpload {
 	// Once this event files a new upload can be started.
 	private function UploadComplete():Void {
 		var jsFileObj:Object = this.current_file_item.ToJavaScriptObject();
+		
+		this.current_file_item.file_reference.removeListener(this.file_reference_listener);
+		this.current_file_item.file_reference = null;
+		
 		this.current_file_item = null;
 		this.queued_uploads--;
 
@@ -720,21 +763,21 @@ class SWFUpload {
 	/* *************************************************************
 		Utility Functions
 	*************************************************************** */
-	// Check the size of the file against the allowed file size. If it is less the return TRUE. If it is too large return FALSE
+	// Check the size of the file against the allowed file size.
 	private function CheckFileSize(file_item:FileItem):Number {
 		if (file_item.file_reference.size == 0) {
-			return -1;
+			return this.SIZE_ZERO_BYTE;
 		} else if (this.fileSizeLimit != 0 && file_item.file_reference.size > (this.fileSizeLimit * 1000)) {
-			return 1;
+			return this.SIZE_TOO_BIG;
 		} else {
-			return 0;
+			return this.SIZE_OK;
 		}
 	}
 	
 	private function CheckFileType(file_item:FileItem):Boolean {
 		// If no extensions are defined then a *.* was passed and the check is unnecessary
 		if (this.valid_file_extensions.length == 0) {
-			return true;				
+			return true;
 		}
 		
 		var fileRef:FileReference = file_item.file_reference;
@@ -764,14 +807,14 @@ class SWFUpload {
 		
 		var pairs:Array = new Array();
 		for (key in this.uploadPostObject) {
-			this.Debug("Global URL Item: " + key + "=" + this.uploadPostObject[key]);				
+			this.Debug("Global URL Item: " + key + "=" + this.uploadPostObject[key]);
 			if (this.uploadPostObject.hasOwnProperty(key)) {
 				pairs.push(key + "=" + this.uploadPostObject[key]);
 			}
 		}
 
 		for (key in file_post) {
-			this.Debug("File Post Item: " + key + "=" + this.uploadPostObject[key]);				
+			this.Debug("File Post Item: " + key + "=" + this.uploadPostObject[key]);
 			if (file_post.hasOwnProperty(key)) {
 				pairs.push(escape(key) + "=" + escape(file_post[key]));
 			}

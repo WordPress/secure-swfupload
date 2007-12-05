@@ -5,6 +5,7 @@ package {
 	* Add GetFile(file_id) function that returns the FileItem js object for any file (defaults to current or first in queue).
 	* */
 
+	import flash.display.Stage;
 	import flash.display.Sprite;
 	import flash.net.FileReferenceList;
 	import flash.net.FileReference;
@@ -26,7 +27,7 @@ package {
 			var SWFUpload:SWFUpload = new SWFUpload();
 		}
 		
-		private const build_number:String = "SWFUPLOAD 2.0 FP9 2007-11-19 0002";
+		private const build_number:String = "SWFUPLOAD 2.0.1 FP9 2007-12-05 0001";
 		
 		// State tracking variables
 		private var fileBrowserMany:FileReferenceList = new FileReferenceList();
@@ -35,6 +36,8 @@ package {
 		private var file_queue:Array = new Array();		// holds a list of all items that are to be uploaded.
 		private var current_file_item:FileItem = null;	// the item that is currently being uploaded.
 
+		private var file_index:Array = new Array();
+		
 		private var successful_uploads:Number = 0;		// Tracks the uploads that have been completed
 		private var queue_errors:Number = 0;			// Tracks files rejected during queueing
 		private var upload_errors:Number = 0;			// Tracks files that fail upload
@@ -72,6 +75,11 @@ package {
 		private var debugEnabled:Boolean;
 
 		// Error code "constants"
+		// Size check constants
+		private var SIZE_TOO_BIG:Number		= 1;
+		private var SIZE_ZERO_BYTE:Number	= -1;
+		private var SIZE_OK:Number			= 0;
+
 		// Queue errors
 		private var ERROR_CODE_QUEUE_LIMIT_EXCEEDED:Number 			= -100;
 		private var ERROR_CODE_FILE_EXCEEDS_SIZE_LIMIT:Number 		= -110;
@@ -92,6 +100,10 @@ package {
 
 		public function SWFUpload() {
 			Security.allowDomain("*");	// Allow uploading to any domain
+			
+			// Keep Flash Player busy so it doesn't show the "flash script is running slowly" error
+			var counter:Number = 0;
+			root.addEventListener(Event.ENTER_FRAME, function ():void { if (++counter > 100) counter = 100; });
 
 			// Setup file FileReferenceList events
 			this.fileBrowserMany.addEventListener(Event.SELECT, this.Select_Many_Handler);
@@ -185,6 +197,7 @@ package {
 				ExternalInterface.addCallback("GetStats", this.GetStats);
 				ExternalInterface.addCallback("SetStats", this.SetStats);
 				ExternalInterface.addCallback("GetFile", this.GetFile);
+				ExternalInterface.addCallback("GetFileByIndex", this.GetFileByIndex);
 				
 				ExternalInterface.addCallback("AddFileParam", this.AddFileParam);
 				ExternalInterface.addCallback("RemoveFileParam", this.RemoveFileParam);
@@ -307,6 +320,10 @@ package {
 				for (var i:Number = 0; i < file_reference_list.length; i++) {
 					var file_item:FileItem = new FileItem(file_reference_list[i], this.movieName);
 
+					// Add the file to the index
+					file_item.index = this.file_index.length;
+					this.file_index[file_item.index] = file_item;
+
 					// Verify that the file is accessible. Zero byte files and possibly other conditions can cause a file to be inaccessible.
 					var jsFileObj:Object = file_item.ToJavaScriptObject();
 					var is_valid_file_reference:Boolean = (jsFileObj.filestatus !== FileItem.FILE_STATUS_ERROR);
@@ -315,7 +332,7 @@ package {
 						// Check the size, if it's within the limit add it to the upload list.
 						var size_result:Number = this.CheckFileSize(file_item);
 						var is_valid_filetype:Boolean = this.CheckFileType(file_item);
-						if(size_result == 0 && is_valid_filetype) {
+						if(size_result == this.SIZE_OK && is_valid_filetype) {
 							this.Debug("Event: fileQueued : File ID: " + file_item.id);
 							file_item.file_status = FileItem.FILE_STATUS_QUEUED;
 							this.file_queue.push(file_item);
@@ -323,20 +340,24 @@ package {
 							ExternalCall.FileQueued(this.fileQueued_Callback, file_item.ToJavaScriptObject());
 						}
 						else if (!is_valid_filetype) {
+							file_item.file_reference = null; 	// Cleanup the object
 							this.Debug("Event: fileQueueError : File not of a valid type.");
 							this.queue_errors++;
 							ExternalCall.FileQueueError(this.fileQueueError_Callback, this.ERROR_CODE_INVALID_FILETYPE, file_item.ToJavaScriptObject(), "File is not an allowed file type.");
 						}
-						else if (size_result > 0) {
+						else if (size_result == this.SIZE_TOO_BIG) {
+							file_item.file_reference = null; 	// Cleanup the object
 							this.Debug("Event: fileQueueError : File exceeds size limit.");
 							this.queue_errors++;
 							ExternalCall.FileQueueError(this.fileQueueError_Callback, this.ERROR_CODE_FILE_EXCEEDS_SIZE_LIMIT, file_item.ToJavaScriptObject(), "File size exceeds allowed limit.");
-						} else if (size_result < 0) {
+						} else if (size_result == this.SIZE_ZERO_BYTE) {
+							file_item.file_reference = null; 	// Cleanup the object
 							this.Debug("Event: fileQueueError : File is zero bytes.");
 							this.queue_errors++;
 							ExternalCall.FileQueueError(this.fileQueueError_Callback, this.ERROR_CODE_ZERO_BYTE_FILE, file_item.ToJavaScriptObject(), "File is zero bytes and cannot be uploaded.");
 						}
 					} else {
+						file_item.file_reference = null; 	// Cleanup the object
 						this.Debug("Event: fileQueueError : File is zero bytes or FileReference is invalid.");
 						this.queue_errors++;
 						ExternalCall.FileQueueError(this.fileQueueError_Callback, this.ERROR_CODE_ZERO_BYTE_FILE, file_item.ToJavaScriptObject(), "File is zero bytes or cannot be accessed and cannot be uploaded.");
@@ -405,11 +426,7 @@ package {
 				this.current_file_item.file_status = FileItem.FILE_STATUS_QUEUED;
 				
 				// Remove the event handlers
-				this.current_file_item.file_reference.removeEventListener(ProgressEvent.PROGRESS, this.FileProgress_Handler);
-				this.current_file_item.file_reference.removeEventListener(IOErrorEvent.IO_ERROR, this.IOError_Handler);
-				this.current_file_item.file_reference.removeEventListener(SecurityErrorEvent.SECURITY_ERROR, this.SecurityError_Handler);
-				this.current_file_item.file_reference.removeEventListener(HTTPStatusEvent.HTTP_STATUS, this.HTTPError_Handler);
-				this.current_file_item.file_reference.removeEventListener(DataEvent.UPLOAD_COMPLETE_DATA, this.ServerData_Handler);
+				this.removeFileReferenceEventListeners(this.current_file_item);
 
 				this.file_queue.unshift(this.current_file_item);
 				var js_object:Object = this.current_file_item.ToJavaScriptObject();
@@ -455,6 +472,9 @@ package {
 
 						// Cancel the file (just for good measure) and make the callback
 						file_item.file_reference.cancel();
+						this.removeFileReferenceEventListeners(file_item);
+						file_item.file_reference = null;
+						
 
 						this.Debug("Event: uploadError : " + file_item.id + ". Cancelling queued upload");
 						this.Debug("Event: uploadError : " + file_item.id + ". Cancelling queued upload");
@@ -482,6 +502,8 @@ package {
 
 					// Cancel the file (just for good measure) and make the callback
 					file_item.file_reference.cancel();
+					this.removeFileReferenceEventListeners(file_item);
+					file_item.file_reference = null;
 
 					this.Debug("Event: uploadError : " + file_item.id + ". Cancelling queued upload");
 					
@@ -535,6 +557,14 @@ package {
 			
 		}
 		
+		private function GetFileByIndex(index:Number):Object {
+			if (index < 0 || index > this.file_index.length - 1) {
+				return null;
+			} else {
+				return this.file_index[index].ToJavaScriptObject();
+			}
+		}
+
 		private function AddFileParam(file_id:String, name:String, value:String):Boolean {
 			var file_index:Number = this.FindIndexInFileQueue(file_id);
 			if (file_index >= 0) {
@@ -695,11 +725,7 @@ package {
 				this.Debug("Event: uploadError : Call to uploadStart returned false. Not uploading file.");
 				
 				// Remove the event handlers
-				this.current_file_item.file_reference.removeEventListener(ProgressEvent.PROGRESS, this.FileProgress_Handler);
-				this.current_file_item.file_reference.removeEventListener(IOErrorEvent.IO_ERROR, this.IOError_Handler);
-				this.current_file_item.file_reference.removeEventListener(SecurityErrorEvent.SECURITY_ERROR, this.SecurityError_Handler);
-				this.current_file_item.file_reference.removeEventListener(HTTPStatusEvent.HTTP_STATUS, this.HTTPError_Handler);
-				this.current_file_item.file_reference.removeEventListener(DataEvent.UPLOAD_COMPLETE_DATA, this.ServerData_Handler);
+				this.removeFileReferenceEventListeners(this.current_file_item);
 
 				// Re-queue the FileItem
 				this.current_file_item.file_status = FileItem.FILE_STATUS_QUEUED;
@@ -717,6 +743,9 @@ package {
 		// Once this event files a new upload can be started.
 		private function UploadComplete():void {
 			var jsFileObj:Object = this.current_file_item.ToJavaScriptObject();
+			
+			this.removeFileReferenceEventListeners(this.current_file_item);
+			this.current_file_item.file_reference = null;
 			this.current_file_item = null;
 			this.queued_uploads--;
 
@@ -731,11 +760,11 @@ package {
 		// Check the size of the file against the allowed file size. If it is less the return TRUE. If it is too large return FALSE
 		private function CheckFileSize(file_item:FileItem):Number {
 			if (file_item.file_reference.size == 0) {
-				return -1;
+				return this.SIZE_ZERO_BYTE;
 			} else if (this.fileSizeLimit != 0 && file_item.file_reference.size > (this.fileSizeLimit * 1000)) {
-				return 1;
+				return this.SIZE_TOO_BIG;
 			} else {
-				return 0;
+				return this.SIZE_OK;
 			}
 		}
 		
@@ -875,6 +904,16 @@ package {
 				}
 			}
 			this.uploadPostObject = post_object;
+		}
+		
+		private function removeFileReferenceEventListeners(file_item:FileItem):void {
+			if (file_item != null && file_item.file_reference != null) {
+				file_item.file_reference.removeEventListener(ProgressEvent.PROGRESS, this.FileProgress_Handler);
+				file_item.file_reference.removeEventListener(IOErrorEvent.IO_ERROR, this.IOError_Handler);
+				file_item.file_reference.removeEventListener(SecurityErrorEvent.SECURITY_ERROR, this.SecurityError_Handler);
+				file_item.file_reference.removeEventListener(HTTPStatusEvent.HTTP_STATUS, this.HTTPError_Handler);
+				file_item.file_reference.removeEventListener(DataEvent.UPLOAD_COMPLETE_DATA, this.ServerData_Handler);
+			}
 		}
 
 	}

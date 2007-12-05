@@ -2,7 +2,13 @@
  
  * --------- Version 2.0.1 -----------
  * = Fixed a bug where zero-byte files would stop file the queuing process.
-
+ * = Finished updating Features Demo
+ * + Added GetFileByIndex(i) that gets a JavaScript File Object.  The index never changes. Finished files continue to be available.
+ *    The JavaScript GetFile function will accept a file_id or an index.
+ * + Added CheckFileSize constants to replace the magic numbers
+ * + Added some code in an attempt to fix "Script is running slowly" error messages
+ * = Better cleanup of FileReference objects
+ 
  * --------- Version 2.0 -----------
  * + Re-created SWFUpload in Actionscript v2 for Flash 8 compatibility. Flash 8 loses POST and Server Data features.  The two versions are otherwise fully compatible.
  *    Flash 8 uses URL to pass post_params/file_params.

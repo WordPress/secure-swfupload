@@ -8,7 +8,9 @@ package {
 		private var postObject:Object;
 		public var file_reference:FileReference;
 		public var id:String;
+		public var index:Number = -1;
 		public var file_status:int = 0;
+		private var js_object:Object;
 		
 		public static var FILE_STATUS_QUEUED:int		= -1;
 		public static var FILE_STATUS_IN_PROGRESS:int	= -2;
@@ -24,6 +26,25 @@ package {
 			this.id = control_id + "_" + (FileItem.file_id_sequence++);
 			this.file_status = FileItem.FILE_STATUS_NEW;
 			
+			this.js_object = {
+				id: this.id,
+				index: this.index,
+				post: this.GetPostObject()
+			};
+			
+			// Cleanly attempt to retrieve the FileReference info
+			// this can fail and so is wrapped in try..catch
+			try {
+				this.js_object.name = this.file_reference.name;
+				this.js_object.size = this.file_reference.size;
+				this.js_object.type = this.file_reference.type;
+				this.js_object.creationdate = this.file_reference.creationDate;
+				this.js_object.modificationdate = this.file_reference.modificationDate;
+			} catch (ex:Error) {
+				this.file_status = FileItem.FILE_STATUS_ERROR;
+			}
+			
+			this.js_object.filestatus = this.file_status;
 		}
 		
 		public function AddParam(name:String, value:String):void {
@@ -40,31 +61,10 @@ package {
 		
 		// Create the simply file object that is passed to the browser
 		public function ToJavaScriptObject():Object {
-			var file_object:Object = {
-				id: this.id,
-				name: "",
-				size: 0,
-				type: "",
-				creationdate: null,
-				modificationdate: null,
-				filestatus: this.file_status
-			};
-			
-			// Cleanly attempt to retrieve the FileReference info
-			// this can fail and so is wrapped in try..catch
-			try {
-				file_object.name = this.file_reference.name;
-				file_object.size = this.file_reference.size;
-				file_object.type = this.file_reference.type;
-				file_object.creationdate = this.file_reference.creationDate;
-				file_object.modificationdate = this.file_reference.modificationDate;
-			} catch (ex:Error) {
-				file_object.filestatus = FileItem.FILE_STATUS_ERROR;
-			}
-			
-			file_object.post = this.GetPostObject();
+			this.js_object.file_status = this.file_status;
+			this.js_object.post = this.GetPostObject();
 		
-			return file_object;
+			return this.js_object;
 		}
 		
 		public function toString():String {
