@@ -15,7 +15,7 @@
  *     within the event handler methods.  Especially the "startUpload" event since it cannot use the setTimeout hack.
  */
 
- 
+
 /* *********** */
 /* Constructor */
 /* *********** */
@@ -337,7 +337,7 @@ SWFUpload.prototype.selectFile = function () {
 		}
 		catch (ex) {
 			this.debug("Could not call SelectFile: " + ex);
-		} 
+		}
 	} else {
 		this.debug("Could not find Flash element");
 	}
@@ -352,7 +352,7 @@ SWFUpload.prototype.selectFiles = function () {
 		}
 		catch (ex) {
 			this.debug("Could not call SelectFiles: " + ex);
-		} 
+		}
 	} else {
 		this.debug("Could not find Flash element");
 	}
@@ -369,13 +369,13 @@ SWFUpload.prototype.startUpload = function (file_id) {
 	var movie_element = this.getMovieElement();
 	if (movie_element !== null && typeof(movie_element.StartUpload) === "function") {
 		setTimeout(
-			function () { 
+			function () {
 				try {
 					movie_element.StartUpload(file_id);
 				}
 				catch (ex) {
 					self.debug("Could not call StartUpload: " + ex);
-				} 
+				}
 			}, 0
 		);
 	} else {
@@ -393,7 +393,7 @@ SWFUpload.prototype.cancelUpload = function (file_id) {
 		}
 		catch (ex) {
 			this.debug("Could not call CancelUpload: " + ex);
-		} 
+		}
 	} else {
 		this.debug("Could not find Flash element");
 	}
@@ -409,7 +409,7 @@ SWFUpload.prototype.stopUpload = function () {
 		}
 		catch (ex) {
 			this.debug("Could not call StopUpload: " + ex);
-		} 
+		}
 	} else {
 		this.debug("Could not find Flash element");
 	}
@@ -464,16 +464,29 @@ SWFUpload.prototype.setStats = function (stats_object) {
 SWFUpload.prototype.getFile = function (file_id) {
 	var self = this;
 	var movie_element = this.getMovieElement();
-	if (movie_element !== null && typeof(movie_element.GetFile) === "function") {
-		try {
-			return movie_element.GetFile(file_id);
-		}
-		catch (ex) {
-			self.debug("Could not call GetFile");
-		}
-	} else {
-		this.debug("Could not find Flash element");
-	}
+			if (typeof(file_id) === "number") {
+				if (movie_element !== null && typeof(movie_element.GetFileByIndex) === "function") {
+					try {
+						return movie_element.GetFileByIndex(file_id);
+					}
+					catch (ex) {
+						self.debug("Could not call GetFileByIndex");
+					}
+				} else {
+					this.debug("Could not find Flash element");
+				}
+			} else {
+				if (movie_element !== null && typeof(movie_element.GetFile) === "function") {
+					try {
+						return movie_element.GetFile(file_id);
+					}
+					catch (ex) {
+						self.debug("Could not call GetFile");
+					}
+				} else {
+					this.debug("Could not find Flash element");
+				}
+			}
 };
 
 SWFUpload.prototype.addFileParam = function (file_id, name, value) {
@@ -708,7 +721,7 @@ SWFUpload.prototype.fileDialogComplete = function (num_files_selected) {
 	}
 };
 
-/* Gets called when a file upload is about to be started.  Return true to continue the upload. Return false to stop the upload. 
+/* Gets called when a file upload is about to be started.  Return true to continue the upload. Return false to stop the upload.
 	If you return false then uploadError and uploadComplete are called (like normal).
 	
 	This is a good place to do any file validation you need.
@@ -768,8 +781,8 @@ SWFUpload.prototype.uploadError = function (file, error_code, message) {
 	}
 };
 
-/* This gets called when a file finishes uploading and the server-side upload script has completed and returned a 200 
-status code. Any text returned by the server is available in server_data. 
+/* This gets called when a file finishes uploading and the server-side upload script has completed and returned a 200
+status code. Any text returned by the server is available in server_data.
 **NOTE: The upload script MUST return some text or the uploadSuccess and uploadComplete events will not fire and the
 upload will become 'stuck'. */
 SWFUpload.prototype.uploadSuccess = function (file, server_data) {
@@ -877,7 +890,7 @@ SWFUpload.fileQueueError = function (file, error_code, message) {
 SWFUpload.fileDialogComplete = function (num_files_selected) {
 };
 
-/* Gets called when a file upload is about to be started.  Return true to continue the upload. Return false to stop the upload. 
+/* Gets called when a file upload is about to be started.  Return true to continue the upload. Return false to stop the upload.
 	If you return false then the uploadError callback is called and then uploadComplete (like normal).
 	
 	This is a good place to do any file validation you need.
