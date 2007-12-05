@@ -1,4 +1,5 @@
 <?php
+	// Get the session Id passed from SWFUpload. We have to do this to work-around the Flash Player Cookie Bug
 	if (isset($_POST["PHPSESSID"])) {
 		session_id($_POST["PHPSESSID"]);
 	}

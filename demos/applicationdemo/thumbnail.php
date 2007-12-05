@@ -1,4 +1,8 @@
 <?php
+	// This script accepts an ID and looks in the user's session for stored thumbnail data.
+	// It then streams the data to the browser as an image
+	
+	// Work around the Flash Player Cookie Bug
 	if (isset($_POST["PHPSESSID"])) {
 		session_id($_POST["PHPSESSID"]);
 	}

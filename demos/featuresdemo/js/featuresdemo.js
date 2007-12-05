@@ -20,8 +20,7 @@ var FeaturesDemo = {
 		FeaturesDemo.btnUpdateDynamicSettings.onclick = function() { try { FeaturesDemo.updateDynamicSettings(); } catch (ex) {} return false; };
 		FeaturesDemo.btnReloadSWFUpload.onclick = function() { try { FeaturesDemo.reloadSWFUpload(); } catch (ex) {} return false; };
 
-		document.getElementById("divSWFUpload").style.display = "block";
-		document.getElementById("divDegraded").style.display = "none";
+		document.getElementById("spanLoadStatus").innerHTML = "loaded";
 	},
 	cacheFields: function() {
 		if (FeaturesDemo.is_cached) return;
@@ -58,9 +57,6 @@ var FeaturesDemo = {
 		FeaturesDemo.txtFlashWidth = document.getElementById("txtFlashWidth");
 		FeaturesDemo.txtFlashHeight = document.getElementById("txtFlashHeight");
 		FeaturesDemo.txtFlashColor = document.getElementById("txtFlashColor");
-		FeaturesDemo.txtUIFunction = document.getElementById("txtUIFunction");
-		FeaturesDemo.txtUIContainerID = document.getElementById("txtUIContainerID");
-		FeaturesDemo.txtDegradedContainerID = document.getElementById("txtDegradedContainerID");
 		FeaturesDemo.cbDebug = document.getElementById("cbDebug");
 		FeaturesDemo.btnReloadSWFUpload = document.getElementById("btnReloadSWFUpload");
 		FeaturesDemo.selEventsQueue = document.getElementById("selEventsQueue");
@@ -91,9 +87,6 @@ var FeaturesDemo = {
 		FeaturesDemo.txtFlashWidth.value = "";
 		FeaturesDemo.txtFlashHeight.value = "";
 		FeaturesDemo.txtFlashColor.value = "";
-		FeaturesDemo.txtUIFunction.value = "";
-		FeaturesDemo.txtUIContainerID.value = "";
-		FeaturesDemo.txtDegradedContainerID.value = "";
 		FeaturesDemo.cbDebug.checked = false;
 		FeaturesDemo.selEventsQueue.options.length = 0;
 		FeaturesDemo.selEventsFile.options.length = 0;
@@ -126,9 +119,6 @@ var FeaturesDemo = {
 		FeaturesDemo.txtFlashWidth.value = FeaturesDemo.SU.getSetting("flash_width");
 		FeaturesDemo.txtFlashHeight.value = FeaturesDemo.SU.getSetting("flash_height");
 		FeaturesDemo.txtFlashColor.value = FeaturesDemo.SU.getSetting("flash_color");
-		FeaturesDemo.txtUIFunction.value = FeaturesDemo.SU.getSetting("ui_function");
-		FeaturesDemo.txtUIContainerID.value = FeaturesDemo.SU.getSetting("ui_container_id");
-		FeaturesDemo.txtDegradedContainerID.value = FeaturesDemo.SU.getSetting("degraded_container_id");
 		FeaturesDemo.cbDebug.checked = FeaturesDemo.SU.getSetting("debug_enabled");
 	},
 
@@ -178,7 +168,7 @@ var FeaturesDemo = {
 		while (files_left > 0) {
 			FeaturesDemo.SU.cancelUpload();
 			files_left = FeaturesDemo.SU.getStats().files_queued;
-		} 
+		}
 	},
 	addFileParam: function() {
 		if (FeaturesDemo.selQueue.selectedIndex == -1) {
@@ -295,8 +285,6 @@ var FeaturesDemo = {
 			flash_width : FeaturesDemo.txtFlashWidth.value,
 			flash_height : FeaturesDemo.txtFlashHeight.value,
 			flash_color : FeaturesDemo.txtFlashColor.value,
-			ui_container_id : FeaturesDemo.SU.getSetting("ui_container_id"),
-			degraded_container_id : FeaturesDemo.SU.getSetting("degraded_container_id"),
 			debug: FeaturesDemo.cbDebug.checked
 		}
 
