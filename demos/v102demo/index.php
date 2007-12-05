@@ -49,7 +49,7 @@
 	<body>
 		<div class="title"><a class="likeParent" href="../index.php">SWFUpload v2.0 - v1.0.2 Plugin Demo</a></div>
 		<div class="content">
-			<div>This demo shows how to use the SWFUpload v1.0.2 Plugin.  This demo is a recreation of the <a href="http://swfupload.mammon.se">swfupload.mammon.se</a> demo with only small modifications to the CSS file.</div>
+			<div>This demo shows how to use the SWFUpload v1.0.2 Plugin.  This demo is a recreation of the swfupload.mammon.se demo (now defunct) with only small modifications to the CSS file.</div>
 			
 			<h3>Demo</h3>
 			<p>Replace contents of a div with links for uploading and browsing, degrades gracefully if flash/javascript isn't accessible</p>
