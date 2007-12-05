@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" >
 <head>
-    <title>SWFUpload Revision 7.0 beta 2 Demo</title>
+    <title>SWFUpload v2 Documentation</title>
 </head>
 
 <style type="text/css">
@@ -12,15 +12,23 @@
 		margin-left: 5px;
 	}
 	h3 /* Section Header */  {
-		margin-left: 10px;
+		margin-left: 15px;
 	}
+	h4 {
+		margin-left: 20px;
+	}
+	
+	h5 {
+		margin-left: 25px;
+	}
+	
 	div.codeBlock {
 		font-family: Courier New;
 		margin-left: 50px;
 		white-space: pre;
 	}
 	p {
-		margin-left: 25px;
+		margin-left: 35px;
 	}
 	span.function  {
 		font-weight: bold;
@@ -34,7 +42,7 @@
 		margin-right: 25px;
 	}
 	
-	ul {
+	ul, ol {
 		list-style-position: inside;
 		margin: 0;
 		padding: 0;
@@ -43,69 +51,77 @@
 	li {
 		padding-left: 15px;
 	}
+	
+	code {
+		display: block;
+		border: solid 1px #EFEFEF;
+		background-color: #FAFAFA;
+		padding: 15px;
+		margin-left: 25px;
+
+		white-space: pre;
+		
+		
+	}
 </style>
 
 <body>
-	<h1>SWFUpload Revision 7 Documentation</h1>
+	<h1>SWFUpload v2 Documentation</h1>
 	<h2>SWFUpload</h2>
 	<p>
-		<a href="http://swfupload.mammon.se">SWFUpload</a> is a client-side tool developed by <a href="http://www.mammon.se">Mammon.se</a>. It uses a combination Flash and JavaScript to
-		provide file upload functionality beyond what the basic browser provides with &lt;input type="file" /&gt;
+		<a href="http://www.swfupload.org">SWFUpload</a> is a client-side file upload tool originally developed by <a href="http://www.vinterwebb.se/">Vinterwebb.se</a>. It uses a combination of Flash and JavaScript to
+		provide file upload functionality beyond what the basic browser provides with the &lt;input type="file" /&gt; tag.
 	</p>
 	<p>The main features that SWFUpload provides are:</p>
 	<p>
 		<ul>
-			<li>Select multiple files in the file browser dialog.</li>
+			<li>The ability to select multiple files in the file browser dialog.</li>
 			<li>AJAX-style uploading without a page refresh.</li>
-			<li>Upload progress indicator.</li>
+			<li>Upload progress events.</li>
 			<li>Graceful degradation for unsupported browsers.</li>
 			<li>Namespaced classes compatible with other JavaScript libraries (i.e., jQuery, Prototype, etc.).</li>
+			<li>Flash 8 and Flash 9 support.</li>
 		</ul>
 	</p>
 	<p>
-		SWFUpload is differentiated from other Flash based upload tools by the philosophy
+		SWFUpload is different from other Flash based upload tools because of the philosophy
 		behind its design.  SWFUpload gives developers control by leaving the UI in the browser.
-		Developers can use HTML, CSS, and JavaScript to tailer the upload UI to the needs and
+		Developers can use XHTML, CSS, and JavaScript to tailor the upload UI to the needs and
 		style of their site.  Upload status updates are made through a set of simple JavaScript events.
-		The developer uses these events to update the webpage as need for their site.
+		The developer uses these events to update the webpage as the file upload progresses.
 	</p>
 	
-	<h2>Revision 7</h2>
+	<h2>SWFUpload v2</h2>
 	<p>
-		Revision 7 is an extended version of SWFUpload that adds a number of features not found
-		in the official SWFUpload release.  These include:
+		SWFUpload v2 includes new advanced features, improved stability, Flash Player
+		bug work-arounds and a helpful set of Plug-ins. New features include:
 	</p>
 	<p>
 		<ul>
-			<li>The ability to send additional POST values with the uploads.</li>
-			<li>Sending per file POST values.</li>
-			<li>More refined JavaScript events.</li>
-			<li>The ability to update SWFUpload settings dynamically.</li>
-			<li>Retrieve result data from the server.</li>
+			<li>The ability to send additional POST values with the uploads (Flash 9 version).</li>
+			<li>Sending per file POST/GET values.</li>
+			<li>More intuitive events.</li>
+			<li>Settings dynamically updateable.</li>
+			<li>Retrieve result data from the server (Flash 9 version).</li>
 			<li>Stop an upload without cancelling.</li>
 			<li>Upload files out of order.</li>
 			<li>Multi- &amp; Single-file selection dialogs.</li>
-			<li>Prevents user from queueing more files than they are allowed to upload.</li>
+			<li>Queue size, files uploaded and file size limits.</li>
 			<li>Properly handles zero-byte files.</li>
-			<li>JavaScript validation before the upload begins.</li>
-			<li>Work-arounds for bugs in Flash not addressed in the official version.</li>
-			<li>Bug fixes for issues discussed in the SWFUpload forums:</li>
-			<li>
+			<li>Pre-upload validation event.</li>
+			<li>Work-arounds for bugs in Flash not addressed in v1.0.2.</li>
+			<li>Bug fixes from v1.0.2:
 				<ul>
 					<li>Flash fails to load on reload in I.E.</li>
 					<li>Flash fails to load on reload in Firefox unless the windows is scrolled back to the top.</li>
-					<li>Other misc race-conditions.</li>
+					<li>Race-conditions when files are cached.</li>
 				</ul>
 			</li>
+			<li>ASP.Net Forms compatibility</li>
 		</ul>
 	</p>
 	<p>
-		Revision 7 is a complete re-write of the SWFUpload (v0.8.3) code.  At Revision 4 the code was submitted back to the
-		SWFUpload developers which resulted in SWFUpload v1.0.2.  The &quot;Revisions&quot; have continued under active development
-		while Official SWFUpload development has slowed/stopped.
-	</p>
-	<p>
-		Revision 7 continues the SWFUpload design goal of leaving the UI in the hands of developers and extends it even further.
+		SWFUpload v2 continues the SWFUpload design goal of leaving the UI in the hands of developers and extends it even further.
 	</p>
 	
 	<h2>Overview</h2>
@@ -126,18 +142,123 @@
 		The file types can be restricted so users only select the appropriate files (e.g., *.jpg;*.gif).
 	</p>
 	<p>
-		Once files are selected each is processed to check for valid file extensions and that the file is within size limits.
-		Flash calls several pre-defined JavaScript callback functions which the developer overrides in order to update the
-		page's UI so users can see file progress or errors.
+		Once files are selected each is processed and validated.  As the file is processed and upload by Flash
+		JavaScript events are fired which the developer overrides in order to update the page UI. Providing
+		upload status and error messages in real-time.
 	</p>
 	<p>
 		The uploaded file is submitted separately from the rest of the page and form.  Each file is uploaded
-		individually which keeps the server-side upload handling script simple as it only ever has to handle a
+		individually which keeps the server-side upload handling script simple as it only has to handle a
 		single uploaded file at a time. Since Flash is providing the upload service the page does not have to
-		be reloaded.  The usage pattern for SWFUpload is more like that of an AJAX application than that of
-		standard HTML form.  Often the server-side script that receives the uploaded file is different than
-		the target of the page's form.  The page's form will be processed separately from the file upload.
+		be submitted or reloaded.  The usage pattern for SWFUpload is more like that of an AJAX application than that of
+		a standard HTML form.  The page's form will be processed separately from the file upload.
 	</p>
+	<hr />
+	<h2>Getting Started</h2>
+	<p>SWFUpload is not a drag &amp; drop upload control.  It requires knowledge of JavaScript and the DOM.  Several demos are available that
+	show what some things SWFUpload is capable of and how to accomplish common tasks.</p>
+	
+	<p>SWFUpload consists of 4 pieces:</p>
+	<ol>
+		<li>Initialization and Settings</li>
+		<li>JavaScript library: SWFUpload.js</li>
+		<li>Flash Control: SWFUpload_f8.swf or SWFupload_f9.swf</li>
+		<li>The Event Handlers</li>
+	</ol>
+	
+	<p>Most problems implementing SWFUpload are caused by incorrect settings or poorly built event handlers.</p>
+	
+	<h3>Initialization and Settings</h3>
+	<p>SWFUpload must be initialized on the page.  This is commonly done in the window.onload event.  The SWFUpload constructor requires a settings object.
+	The settings object is often passed directly to the constructor as an object literal.</p>
+	<p>A reference to the initialized SWFUpload object should be kept as it is needed to display the File Selection Dialog and to start uploads.</p>
+	
+	<p><strong>Example:</strong> Initializing SWFUpload with an object literal</p>
+	
+	<code>var swfu;
+	
+window.onload = function () {
+	swfu = new SWFUpload({
+		upload_url : "http://www.swfupload.org/upload.php",
+		flash_url : "http://www.swfupload.org/swfupload_f9.swf",
+		file_size_limit : "20480"
+	});
+};</code>
+
+	<p><strong>Example:</strong> Initializing SWFUpload with a settings object stored in a variable</p>
+
+	<code>var swfu;
+	
+window.onload = function () {
+	var settings_object = {
+		upload_url : "http://www.swfupload.org/upload.php",
+		flash_url : "http://www.swfupload.org/swfupload_f9.swf",
+		file_size_limit : "20480"
+	};
+	
+	swfu = new SWFUpload(settings_object);
+};</code>
+
+	<h3>JavaScript library</h3>
+	<p>The JavaScript library file (swfupload.js) should be included on the page where the user will interact and upload pages.  It is compatible
+	with both Flash Player 8 and Flash Player 9 SWFUpload versions.</p>
+	<p>Once a SWFUpload object has been created access to several functions become available which allow the developer to control SWFUpload.</p>
+	
+	<p><strong>Example:</strong> Adding SWFUpload.js to a page</p>
+	
+	<code>
+&lt;script type="text/javascript" src="http://www.swfupload.org/swfupload.js"&gt;&lt;/script&gt;
+	</code>
+	
+	<p><strong>Example:</strong> Initializing SWFUpload with the required settings and binding selectFiles to a button.</p>
+	<code>var swfu = new SWFUpload({
+	upload_url : "http://www.swfupload.org/upload.php",
+	flash_url : "http://www.swfupload.org/swfupload_f9.swf"
+});
+
+document.getElementById("BrowseButton").onclick = function () { swfu.selectFiles(); };
+</code>
+
+	<h3>Flash Control</h3>
+	<p>The SWFUpload JavaScript library dynamically loads the Flash Control (swfupload_f8.swf/swfupload_f9.swf).  The Flash Control comes in two
+	versions.  One version supports Flash Player 8 and greater.  It provides greater compatibility while sacrificing some features.  The other
+	supports Flash Player 9.0.28 and greater.  It provides additional features while sacrificing compatibility with Flash Player 8 users.</p>
+	
+	<p>The location of the Flash Control file must be provide in the SWFUpload settings object during setup.</p>
+	
+	<p>The Flash Control is an invisible Flash Movie that handles file browsing, validation and upload.  It does not provide any User Interface
+	components but communications with JavaScript to notify the browser when updates to the page need to be made.</p>
+	
+	<h3>The Event Handlers</h3>
+	
+	<p>Developers must create a set of JavaScript functions that handle SWFUpload events.  These functions are called as different important events occur.</p>
+	
+	<p>By handling the SWFUpload events developers can provide feedback regarding the upload progress, error messages, and upload completion.</p>
+	
+	<p><strong>Example:</strong> SWFUpload event handlers and initialization.</p>
+	
+	<code>// The uploadStart event handler.  This function variable is assigned to upload_start_handler in the settings object
+var uploadStartEventHandler = function (file) {
+	var continue_with_upload = true;
+	
+	return continue_with_upload;
+};
+
+// The uploadSuccess event handler.  This function variable is assigned to upload_success_handler in the settings object
+var uploadSuccessEventHandler = function (file, server_data) {
+	alert("The file " + file.name + " has been delivered to the server. The server responded with " + server_data);
+};
+
+// Create the SWFUpload Object
+var swfu = new SWFUpload({
+	upload_url : "http://www.swfupload.org/upload.php",
+	flash_url : "http://www.swfupload.org/swfupload_f9.swf",
+	file_size_limit : "20480",
+	
+	upload_start_handler : uploadStartEventHandler,
+	upload_success_handler : uploadSuccessEventHandler
+});</code>
+
 	<hr />
 
 	<h2>SWFUpload JavaScript Object</h2>
@@ -146,42 +267,371 @@
 
 	<p><span class="function">SWFUpload(<span class="parameter">settings object</span>)</span></p>
 	<p><b>Returns:</b> A SWFUpload instance</p>
-	<h3>Settings object</h3>
-	<p>The settings object provides the settings your SWFUpload instance will use upon initialization.</p>
-	<p>
-		<div class="codeBlock">
-{
+	<code>var swfupload_instance = new SWFUpload(settings_object);</code>
 
-}
-	</div>
+	<h3>Globals and Constants</h3>
+	<p>
+		Several globals and constants are associated with the SWFUpload object. These are useful for
+		advanced SWFUpload applications and for handling errors.  These are considered read-only.
 	</p>
-	<h3>Properties</h3>
+	<h4>SWFUpload.instances</h4>
+	<p>SWFUpload.instances is an array containing a reference to each SWFUpload instance loaded on a page. The Flash Player
+	relies on this array in order to call the correct event handlers.  SWFUpload.instances is indexed by the movieName property.</p>
+	<p><em>Note:</em> SWFUpload.instances is not a true JavaScript array.  It is actually a simple object.</p>
+
+	<h4>SWFUpload.movieCount</h4>
+	<p>SWFUpoad.movieCount is a global that tracks the number on SWFUpload instances that have been created and helps to ensure each movie is
+	given a unique movieName.</p>
+
+	<h4>SWFUpload.QUEUE_ERROR</h4>
+	<p>SWFUpload.QUEUE_ERROR is a simple object that contains Queue Error code constants.  It is generally used to determine which error code was sent
+	in the fileQueueError event.</p>
 	
+	<h4>SWFUpload.UPLOAD_ERROR</h4>
+	<p>SWFUpload.UPLOAD_ERROR is a simple object that contains Upload Error code constants.  It is generally used to determine which error code was sent
+	in the uploadError event.</p>
+
+	<h4>SWFUpload.FILE_STATUS</h4>
+	<p>SWFUpload.FILE_STATUS is a simple object that contains File Status code constants.  It can be used to check the file status property on the File object.</p>
+
+	<h4>Default Event handlers</h4>
+	<p>The SWFUpload library provides a set of default event handlers. These are used by the library to ensure that something is available to call even when you do
+	not define custom event handlers.  They should not be over-written when defining custom event handlers.  Custom event handlers should be defined separately 
+	and bound using the settings object.</p>
+
+	<h3>Properties</h3>
+	<p>
+		The following list of properties are intended for your use as described below. Using other properties or
+		writing to read-only properties can cause SWFUpload to malfunction.
+	</p>
+	<h4>customSettings (read/write)</h4>
+	<p>
+		The customSettings property is an empty JavaScript object that can be used to store data associated with
+		an instance of SWFUpload.  The customSettings' contents can be initialized using the custom_settings setting.
+	</p>
+	<p><strong>Note:</strong> Some plug-ins use the customSettings object for their internal operation.  Use caution when over-writing
+	the entire customSettings object.</p>
+	<p><strong>Example:</strong></p>
+	<code>// Initialize SWFUpload with some custom settings
+var swfu = new SWFUpload({
+	custom_settings : {
+		custom_setting_1 : "custom_setting_value_1",
+		custom_setting_2 : "custom_setting_value_2",
+		custom_setting_n : "custom_setting_value_n",
+	}
+});
+
+swfu.customSettings.custom_setting_1 = "custom_setting_value_1";	// Change an existing custom setting
+swfu.customSettings.myNewCustomSetting = "new custom setting value";	// Add a new custom setting
+
+// Overwrite the customSettings with a completely new object
+swfu.customSettings = {
+	custom_setting_A : "custom_setting_value_A",
+	custom_setting_B : "custom_setting_value_B"
+};
+	</code>
+
+	<h4>movieName</h4>
+	<p>Contains the SWFUpload instance unique movie name.  This value is passed to Flash and is used to facilitate Flash to JavaScript communication.
+	This value is used to index the instance in the SWFUpload.instances array.</p>
+
 	<h3>Methods</h3>
+	<p>The following methods are used to operate SWFUpload.  Some are bound to element (e.g., buttons) click event handlers and others are used inside
+	SWFUpload event handlers.</p>
+	
+	<h4>object addSetting(<span class="parameter">setting_name</span>, <span class="parameter">value</span>, <span class="parameter">default_value</span>)</h4>
+	<p>The addSetting function sets a setting value.  If the value is undefined then the default_value is used.  The function is used by SWFUpload
+	during initialization.  Using addSetting to update a setting will not change the setting in the Flash Control.</p>
+	<p>addSetting returns the value that was stored in the setting.</p>
+	
+	<h4>object getSetting(<span class="parameter">setting_name</span>)</h4>
+	<p>The getSetting function retieves the value of a setting.  If the setting is not found an empty string is returned.</p>
+	
+	<h4>object retrieveSetting(<span class="parameter">setting_value</span>, <span class="parameter">default_value</span>)</h4>
+	<p>The retrieveSetting function is similar to the addSetting function except it does not modify the internal settings object.  retrieveSetting
+	returns the setting_value unless it is undefined in which case it returns the default_value</p>
+	<p>This is a utility function.</p>
+	
+	<h4>void displayDebugInfo()</h4>
+	<p>The displayDebugInfo outputs SWFUpload settings using the debug event.  This function is automatically called after initilization if the debug setting is 'true'</p>
+	
+	<h4>void selectFile()</h4>
+	<p>selectFile causes the Flash Control to display a File Selection Dialog window.  A single file may be selected from the Dialog window.</p>
+	<p>Calling selectFile begins the File Event Chain.</p>
+	
+	<h4>void selectFiles()</h4>
+	<p>selectFiles causes the Flash Control to display a File Selection Dialog window.  A multiple files may be selected from the Dialog window.</p>
+	<p>Calling selectFiles begins the File Event Chain.</p>
+
+	<h4>void startUpload(<span class="parameter">file_id</span>)</h4>
+	<p>startUpload causes the file specified by the file_id paramter to start the upload process.  If the file_id parameter is omitted or undefined then the first file in the queue is uploaded.</p>
+	
+	<p>Calling startUpload begins the Upload Event Chain.</p>
+	
+	<h4>void cancelUpload(<span class="parameter">file_id</span>)</h4>
+	
+	<p>cancelUpload cancels the file specified by the file_id parameter.  The file is then removed from the queue.</p>
+	<p>If the file_id paramter is omitted or undefined then the first file in the queue is cancelled.</p>
+	<p>If the file cancelled is currently being uploaded then the uploadError event is fired.</p>
+	
+	<h4>void stopUpload()</h4>
+
+	<p>stopUpload stops and re-queues the file currently being uploaded.</p>
+	<p>After the uploading file is stopped the uploadError event is fired. If no file is being uploaded then nothing happens and no event is fired.</p>
+	
+	<h4>object getStats()</h4>
+	<p>Retrieves the stats object.</p>
+	
+	<h4>void setStats(<span class="parameter">stats_object</span>)</h4>
+	<p>The Stats Object may be modified.  This is useful if you wish to change the number of successful uploads or upload errors after an upload
+	has completed.</p>
+	
+	<h4>object getFile(<span class="parameter">file_id</span>|<span class="parameter">index</span>)</h4>
+	<p>getFile is used to retrieve a File Object from the queue.  The file retrieved by passing in a file id (the id property from a file object) or a file index (the index property from a file object).</p>
+	<p>When getting a file by file_id only files in the queue are available.  If the file is not found null is returned.</p>
+	<p>When getting a file by index all queued (or files that generated a queue error) are available.  If the index is out of range then null is returned</p>
+	
+	<h4>bool addFileParam(<span class="parameter">file_id</span>, <span class="parameter">name, <span class="parameter">value</span>)</h4>
+	<p>The addFileParam function adds a name/value pair that will be sent in the POST with the file specified by the file_id parameter.</p>
+	<p>The name/value pair will only be sent with the file it is added to.  To send name/value pairs with all uploads use the post_param setting.</p>
+	
+	<h4>bool removeFileParam(<span class="parameter">file_id</span>, <span class="parameter">name</span>)</h4>
+	<p>The removeFileParam function removes a name/value pair from a file upload that was added using addFileParam.</p>
+	<p>If the name/value pair was not found then 'false' is returned.</p>
+	
+	
+	<h4>void setUploadURL(<span class="parameter">url</span>)</h4>
+	<p>Dynamically modifies the upload_url setting.</p>
+	
+	<h4>void setPostParams(<span class="parameter">param_object</span>)</h4>
+	<p>Dynamically modifies the post_params setting.  Any previous values are over-written.  The param_object should be a simple JavaScript object.  All names and values must be strings.</p>
+
+	<h4>void setFileTypes(<span class="parameter">types</span>, <span class="parameter">description</span>)</h4>
+	<p>Dynamically updates the file_types and file_types_description settings.  Both parameters are required.</p>
+	
+	<h4>void setFileSizeLimit(<span class="parameter">file_size_limit</span>)</h4>
+	<p>Dynamically modifies the file_size_limit setting. This applies to all future files that are queued.  The file_size_limit parameter should be in bytes.</p>
+	
+	<h4>void setFileUploadLimit(<span class="parameter">file_upload_limit</span>)</h4>
+	<p>Dynamically modifies the file_upload_limit setting. The special value zero (0) indicates "no limit".</p>
+
+	<h4>void setFileQueueLimit(<span class="parameter">file_queue_limit</span>)</h4>
+	<p>Dynamically modifies the file_queue_limit setting. The special value zero (0) indicates "no limit".</p>
+
+	<h4>void setFilePostName(<span class="parameter">file_post_name</span>)</h4>
+	<p>Dynamically modifies the file_post_name setting. The Linux Flash Player ignores this setting.</p>
+	
+	<h4>void setDebugEnabled(<span class="parameter">debug_enabled</span>)</h4>
+	<p>Dynamically enables or disables debug output.  The debug_enabled parameter should be a boolean true or false.</p>
 
 	<h3>Events</h3>
-	<p><span class="function">flashReady()</span></p>
-	<p><span class="function">swfUploadLoaded()</span></p>
-	<p><span class="function">fileDialogStart(<span class="parameter"></span>)</span></p>
-	<p><span class="function">fileQueued(<span class="parameter">file object</span>)</span></p>
-	<p><span class="function">fileQueueError(<span class="parameter">file object</span>, <span class="parameter">error code</span>, <span class="parameter">message</span>)</span></p>
-	<p><span class="function">fileDialogComplete(<span class="parameter">number of files selected</span>)</span></p>
-	<p><span class="function">uploadStart(<span class="parameter">file object</span>)</span></p>
-	<p><span class="function">uploadProgress(<span class="parameter">file object</span>, <span class="parameter">bytes complete</span>, <span class="parameter">total bytes</span>)</span></p>
-	<p><span class="function">uploadError(<span class="parameter">file object</span>, <span class="parameter">error code</span>, <span class="parameter">message</span>)</span></p>
-	<p><span class="function">uploadComplete(<span class="parameter">file object</span>, <span class="parameter">server data</span>)</span></p>
-	<p><span class="function">uploadfileComplete(<span class="parameter">file object</span>)</span></p>
-	<p><span class="function">debug(<span class="parameter">message</span>)</span></p>
-	<hr />
-	<h2>Initializing SWFUpload</h2>
-	<p>Example of creating an instance.  Talk about using customSettings.  Talk about overriding swfUploadLoaded and ui_container_id, degraded_container_id.</p>
-	<hr />
-	<h2>Interacting with the SWFUpload instance</h2>
+	<p>SWFUpload fires various events during its operation.  These events can be handled by the developer to update the UI, change behavior, or report errors.</p>
+	<p>All SWFUpload events are called in the context of a SWFUpload instance.  This means that the 'this' object refers to the SWFUpload instance that
+	fired the event.</p>
 	
+	<h4><span class="function">flashReady()</span></h4>
+	<p>flashReady is an internal event that should not be overwritten.  It is called by the Flash Control to notify SWFUpload that the Flash
+	movie has loaded and is ready to accept commands.</p>
+	
+	<h4><span class="function">swfUploadLoaded()</span></h4>
+	<p>The swfUploadLoaded event is fired by flashReady.  It is overridable.  When swfUploadLoaded is called it is safe to call SWFUpload methods.</p>
+	
+	<h4><span class="function">fileDialogStart(<span class="parameter"></span>)</span></h4>
+	<p>fileDialogStart is fired after selectFile for selectFiles is called. This event is fired immediately before the File Selection Dialog
+	window is displayed. However, the event may not execute until after the Dialog window is closed.</p>
+	
+	<h4><span class="function">fileQueued(<span class="parameter">file object</span>)</span></h4>
+	<p>The fileQueued event is fired for each file that is queued after the File Selection Dialog window is closed.</p>
+	
+	<h4><span class="function">fileQueueError(<span class="parameter">file object</span>, <span class="parameter">error code</span>, <span class="parameter">message</span>)</span></h4>
+	<p>The fileQueueError event is fired for each file that was not queued after the File Selection Dialog window is closed.  A file may not not be queued
+	for several reasons such as, the file exceeds the file size, the file is empty or a file or queue limit has been exceeded.</p>
+	<p>The reason for the queue error is specified by the error code parameter.  The error code corresponds to SWFUpload.QUEUE_ERROR contant.</p>
+	
+	<h4><span class="function">fileDialogComplete(<span class="parameter">number of files selected</span>)</span></h4>
+	<p>The fileDialogComplete event fires after the File Selection Dialog window has been closed and all the selected files have been processed.</p>
+	<p>If you want file uploading to begin automatically this is a good place to call 'this.startUpload()'</p>
+	
+	<h4><span class="function">uploadStart(<span class="parameter">file object</span>)</span></h4>
+	<p>uploadStart is called immediately before the file is uploaded.  This event provides an oppurtunity to perform any last minute validation, add post
+	params or do any other work before the file is uploaded.</p>
+	
+	<p>The upload can be cancelled by returning 'false' from uploadStart.  If you return 'true' or do not return any value then the upload proceeds.  Returning
+	'false' will cause an uploadError event to fired.</p>
+	
+	<h4><span class="function">uploadProgress(<span class="parameter">file object</span>, <span class="parameter">bytes complete</span>, <span class="parameter">total bytes</span>)</span></h4>
+	<p>The uploadProgress event is fired periodically by the Flash Control.  This event is useful for providing UI updates on the page.</p>
+	<p><strong>Note:</strong> The Linux Flash Player fires a single uploadProgress event after the entire file has been uploaded.  This is a bug in
+	the Linux Flash Player that we cannot work around.</p>
+	
+	<h4><span class="function">uploadError(<span class="parameter">file object</span>, <span class="parameter">error code</span>, <span class="parameter">message</span>)</span></h4>
+	<p>The uploadError event is fired any time an upload is interrupted or does not complete successfully.  The error code parameter indicates the type of error
+	that occurred. The error code parameter specifies a constant in SWFUpload.UPLOAD_ERROR.</p>
+	<p>Stopping, Cancelling or returning 'false' from uploadStart will cause uploadError to fire.  Upload error will not fire for files that are cancelled
+	but still waiting in the queue.</p>
+	
+	<h4><span class="function">uploadSuccess(<span class="parameter">file object</span>, <span class="parameter">server data</span>)</span></h4>
+	<p>uploadSuccess is fired when an upload completes and the server returns a HTTP 200 status code.  Any data outputted by the server is available
+	in the server data parameter (Flash Player 9 version only).</p>
+	<p>At this point the upload is not yet complete.  Another upload cannot be started from uploadSuccess.</p>
+	
+	<h4><span class="function">uploadComplete(<span class="parameter">file object</span>)</span></h4>
+	<p>uploadComplete is always fired at the end of an upload cycle (after uploadError or uploadSuccess).  At this point the upload is complete and
+	another upload can be started.</p>
+	<p>If you want the next upload to start automatically this is a good place to call this.uploadStart().  Use caution calling uploadStart inside
+	the uploadComplete event if you are trying to cancel all the uploads in a queue.</p>
+	
+	<h4><span class="function">debug(<span class="parameter">message</span>)</span></h4>
+	<p>The debug event is called by the SWFUpload library and the Flash Control when the debug setting is set to 'true'.  If the debug
+	event is not overridden then SWFUpload writes debug messages to the SWFUpload console (a text box dynamically added to the end of the page body).</p>
+	
+	<h3>SWFUpload Utility Objects</h3>
+	<h4>Settings object</h4>
+	<p>The settings object is a JavaScript object that provides the settings for the SWFUpload instance. <strong>Each setting should only appear once.</strong>  Many settings
+	are optional and provide suitable default values if omitted.  See the setting details for required and optional settings.</p>
+	<p><strong>Example:</strong></p>
+	<code>{
+	upload_url : "http://www.swfupload.org/upload.php",
+	file_post_name : "Filedata",
+	post_params : {
+		"post_param_name_1" : "post_param_value_1",
+		"post_param_name_2" : "post_param_value_2",
+		"post_param_name_n" : "post_param_value_n"
+	},
+	file_types : "*.jpg;*.gif",
+	file_types_description: "Web Image Files",
+	file_size_limit : "1024",
+	file_upload_limit : 10,
+	file_queue_limit : 2,
+	flash_url : "http://www.swfupload.org/swfupload_f9.swf",
+	flash_width : "1px",
+	flash_height : "1px",
+	flash_color : "#FFFFFF",
+	debug : false,
+	
+	swfupload_loaded_handler : swfupload_loaded_function,
+	file_dialog_start_handler : file_dialog_start_function,
+	file_queued_handler : file_queued_function,
+	file_queue_error_handler : file_queue_error_function,
+	file_dialog_complete_handler : file_dialog_complete_function,
+	upload_start_handler : upload_start_function,
+	upload_progress_handler : upload_progress_function,
+	upload_error_handler : upload_error_function,
+	upload_success_handler : upload_success_function,
+	upload_complete_handler : upload_complete_function,
+	debug_handler : debug_function,
+	
+	custom_settings : {
+		custom_setting_1 : "custom_setting_value_1",
+		custom_setting_2 : "custom_setting_value_2",
+		custom_setting_n : "custom_setting_value_n",
+	}
+}</code>
+
+	<h4>File Object</h4>
+	<p>The file object is passed to several event handlers.  It contains information about the file.</p>
+	<code>{
+	id : string,			// SWFUpload file id, used for starting or cancelling and upload
+	index : number,			// The index of this file for use in getFile(i)
+	name : string,			// The file name. The path is not included.
+	size : number,			// The file size in bytes
+	type : string,			// The file type as reported by the client operating system
+	creationdate : Date,		// The date the file was created
+	modificationdate : Date,	// The date the file was last modified
+	filestatus : number,		// The file's current status. Use SWFUpload.FILE_STATUS to interpret the value.
+	
+}</code>
+
+	<h4>Stats Object</h4>
+	<p>The Stats object provides information about the upload queue.</p>
+	<p>That stats object contains the following properties:</p>
+	<code>{
+	in_progress : number		// 1 or 0 indicating if a file upload is currently in progress
+	files_queued : number		// The number of files currently in the queue
+	successful_uploads : number	// The number of files that have uploaded successfully (caused uploadSuccess to be fired)
+	upload_errors : number		// The number of files that have had errors (excluding cancelled files)
+	upload_cancelled : number	// The number of files that have been cancelled
+	queue_errors : number		// The number of files that caused fileQueueError to be fired
+}</code>
+
+	<hr />
+	<h2>SWFUpload Plug-ins</h2>
+	
+	<p>With SWFUpload v2.0 several plugins have been introduced.  They are provided to help with common tasks associated with implementing SWFUpload.</p>
+	<p>Currently most of the documentation for using the plugis is contained in the plugin JavaScript file.</p>
+	
+	<h3>Graceful Degradation</h3>
+	
+	<p>This plugin provides additional settings and logic for automatically hiding and showing page elements based on
+	whether SWFUpload loads.</p>
+
+	<h3>Document Ready</h3>
+	<p>This plugin provides some functions for loading SWFUpload as soon as possible, rather than waiting until window.onload fires.
+	This is similar to Document Ready functionality found in JavaScript Libraries like Prototype and jQuery.  It should not be mixed
+	with other Document Ready libraries</p>
+	
+	<h3>SWFUpload v1.0.2 Compatibility</h3>
+	<p>Creates compatibility with v1.0.2.  Using this plugin you should be able to drop SWFUpload v2.0 in to a v1.0.2 page</p>
+	
+	<h3>Cookies</h3>
+	<p>In response to the Flash Cookie Bug the Cookies Plugin automatically retrieves your browser's cookies and sends them
+	with the uploads.  The are sent as POST or GET variables to the upload url.</p>
+	
+	<h3>Flash Detection Kit</h3>
+	<p>This plugin is yet to be developed</p>
+	<p>This plugin will implement Adobe's Flash Detection Kit for SWFUpload providing more advanced Flash Detection and upgrade features.</p>
+	
+	<h3>Queue Handling</h3>
+	<p>This plugin provides Queue Handling features such as entire queue uploading, entire queue cancelling and automatic starting of uploads after being queued.</p>
+
+	<hr />
+	<h2>Known Issues</h2>
+	<p>The Flash Player and many Browsers have bugs that have a direct impact on the performance of SWFUpload.  While we have worked
+	hard to get around many issues there are some things we cannot fix.</p>
+	<h3>Cancelling in Linux</h3>
+	<p>Flash 8 and older Flash 9 Players for Linux cause the browser to crash if an upload is cancelled.  Newer Flash 9 Players behave better.</p>
+	<h3>Progress in Linux</h3>
+	<p>The Flash Player in Linux sends a single uploadProgress event after the file has finished uploading.</p>
+	<h3>Proxies</h3>
+	<p>The Flash Player may not properly use proxies.  It does not handle authenticating proxies well (if at all) and will some-times crash.</p>
+	<p>Some anti-virus software uses a proxy to scan uploads and cause SWFUpload to believe the entire file has been uploaded.  SWFUpload will fire uploadProgress events very quickly
+	and will then wait until the proxy completes its upload.</p>
+	<h3>Apache mod_security</h3>
+	<p>Apache's mod_security validates POST to the server.  Flash Player has implemented an invalid POST for file uploads and so servers implementing
+	mod_security will reject the upload.  mod_security can be disabled using your .htaccess file</p>
+	<h3>SSL</h3>
+	<p>There have been some reports that the Flash Player cannot upload through SSL.  The issue has not been pinned down but uploading over SSL may be unreliable.</p>
+	<h3>Authentication</h3>
+	<p>HTTP Authentication is not well supported by Flash Player.  Later versions of Flash Player behave better.  Old version of Flash Player would crash the browser.</p>
+	<h3>Prematurely terminated connections</h3>
+	<p>Prematurely ending the response (such as a Response.end() in ASP.Net) can sometimes cause successful uploads to be reported as failed.</p>
+	<h3>Filedata in Linux</h3>
+	<p>The Filedata value (file_post_name setting) is ignored in Linux Flash Player</p>
+	<h3>uploadSuccess &amp; Server Data</h3>
+	<p>The uploadSuccess will not fire if no data is returned from the server.  This is especially problematic on the Mac Flash Player.</p>
+	<h3>Cookie issue</h3>
+	<p>On Windows the Non-IE Flash Player plugin (FireFox, Opera, Safari, etc) sends the IE cookes regardless of the browser used.  This breaks authentication and sessions for many server-side scripting technologies.</p>
+	<p>Developers should manually pass Session ID information and manually restore Sessions on the Server Side if they wish to use Sessions</p>
+	<h3>ExternalInterface bugs</h3>
+	<p>Flash Player does not properly escape data when communication with the browser/JavaScript.  SWFUpload goes to great lengths to work-around this issue.  If this
+	bug is fixed in future Flash Players/Browsers then SWFUpload will send extra escaped data.</p>
+	<h3>Server Data length bugs</h3>
+	<p>Very long server data is corrupted on Mac and Linux Flash Players.  Server data will be truncated, garbled, and/or repeated.  We recommend
+	keeping data returned from the server short and concise.</p>
+
+<div id="incompleteDocs" style="display: none;">
+	<h2>Interacting with the SWFUpload instance</h2>
+
+	<p>Talk about the method calls</p>
+	<p>Upload method calls (stop, cancel, start)</p>
+	<p>Settings method calls (setX)</p>
+	<p>File &amp; Status methods (getStats, getFile)</p>
+
 	<hr />
 	<h2>Using the Events</h2>
 	<p>Events should only be overridden using the settings object.  They cannot be overridden dynamically.  Overridding the events directly on the instance
-	will break the event call safety mechanisms built in to SWFUpload.</p>
+	can break the event call safety mechanisms built in to SWFUpload.</p>
+	<p>Talk about the event flow</p>
 	<p>Talk in detail about each event and what kind of things can/should be done in each</p>
 	<hr />
 	<h2>Handling Queue Errors</h2>
@@ -190,6 +640,7 @@
 	<h2>Handling Upload Errors</h2>
 	<p>Go over error code constants and event flows</p>
 	<hr />
+	
 	<h2>Common Coding Solutions</h2>
 	<p>Starting uploads automatically on queue</p>
 	<p>Starting the next upload automatically</p>
@@ -199,9 +650,6 @@
 	<p>Sending POST values with all uploads</p>
 	
 	<hr />
-	<h2>Graceful Degredation</h2>
-	<p>Talk about swfUploadLoaded default event.</p>
-	<hr />
 	<h2>Server-side upload handling</h2>
 	<p>Talk about how to handle uploads from SWFUpload on the server. Talk about returning errors and returning data.</p>
 	<p>Talk about HTTP Auth and SSL</p>
@@ -209,13 +657,6 @@
 	<h3>CakePHP</h3>
 	<h3>ASP.Net</h3>
 	<h3>Ruby on Rails</h3>
-	<hr />
-	<h2>Known Issues</h2>
-	<p>Cancelling in Linux</p>
-	<p>Filedata in Linux</p>
-	<p>Server Data on Mac</p>
-	<p>Cookie issue</p>
-	<p>ExternalInterface bugs</p>
 	<hr />
 	<h2>The Demos explained</h2>
 	<h3>Application Demo</h3>
@@ -226,6 +667,7 @@
 	<h2>Browsers</h2>
 	<p>Talk about which browsers are supported and tested.</p>
 	<hr />
-	<h2>History of the Revisions</h2>
+	<h2>History of SWFUpload</h2>
+</div>
 </body>
 </html>
