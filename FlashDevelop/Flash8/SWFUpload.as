@@ -326,10 +326,7 @@ class SWFUpload {
 		} else {
 			// Process each selected file
 			for (var i:Number = 0; i < file_reference_list.length; i++) {
-				var file_item:FileItem = new FileItem(file_reference_list[i], this.movieName);
-				
-				// Add the file to the index
-				file_item.index = this.file_index.length;
+				var file_item:FileItem = new FileItem(file_reference_list[i], this.movieName, this.file_index.length);
 				this.file_index[file_item.index] = file_item;
 
 				// The the file to see if it is acceptable

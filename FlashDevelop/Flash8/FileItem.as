@@ -18,12 +18,13 @@ class FileItem
 	public static var FILE_STATUS_CANCELLED:Number		= -5;
 	public static var FILE_STATUS_NEW:Number			= -6;	// This file status should never be sent to JavaScript
 	
-	public function FileItem(file_reference:FileReference, control_id:String)
+	public function FileItem(file_reference:FileReference, control_id:String, index:Number)
 	{
 		this.postObject = {};
 		this.file_reference = file_reference;
 		this.id = control_id + "_" + (FileItem.file_id_sequence++);
 		this.file_status = FileItem.FILE_STATUS_QUEUED;
+		this.index = index;
 		
 		this.js_object = {
 			id: this.id,
