@@ -6,14 +6,14 @@
 <head runat="server">
     <title>SWFUpload Revision v2.0 Application Demo (ASP.Net 2.0)</title>
 	<link href="default.css" rel="stylesheet" type="text/css" />
-	<script type="text/javascript" src="swfupload.js"></script>
+	<script type="text/javascript" src="../swfupload/swfupload.js"></script>
 	<script type="text/javascript" src="js/handlers.js"></script>
 	<script type="text/javascript">
 		var swfu;
 		window.onload = function () {
 			swfu = new SWFUpload({
 				// Backend Settings
-				upload_url: "upload.aspx",	// Relative to the SWF file
+				upload_url: "../applicationdemo.net/upload.aspx",	// Relative to the SWF file
                 post_params : {
                     "ASPSESSID" : "<%=Session.SessionID %>"
                 },
@@ -35,7 +35,7 @@
 				upload_complete_handler : uploadComplete,
 
 				// Flash Settings
-				flash_url : "swfupload_f9.swf",	// Relative to this file
+				flash_url : "../swfupload/swfupload_f9.swf",	// Relative to this file
 
 				custom_settings : {
 					upload_target : "divFileProgressContainer"

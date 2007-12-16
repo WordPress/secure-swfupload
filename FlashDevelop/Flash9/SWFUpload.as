@@ -525,10 +525,10 @@ package {
 			};
 		}
 		private function SetStats(stats:Object):void {
-			this.successful_uploads = typeof(stats["successful_uploads"]) === "Number" ? stats["successful_uploads"] : this.successful_uploads;
-			this.upload_errors = typeof(stats["upload_errors"]) === "Number" ? stats["upload_errors"] : this.upload_errors;
-			this.upload_cancelled = typeof(stats["upload_cancelled"]) === "Number" ? stats["upload_cancelled"] : this.upload_cancelled;
-			this.queue_errors = typeof(stats["queue_errors"]) === "Number" ? stats["queue_errors"] : this.queue_errors;
+			this.successful_uploads = typeof(stats["successful_uploads"]) === "number" ? stats["successful_uploads"] : this.successful_uploads;
+			this.upload_errors = typeof(stats["upload_errors"]) === "number" ? stats["upload_errors"] : this.upload_errors;
+			this.upload_cancelled = typeof(stats["upload_cancelled"]) === "number" ? stats["upload_cancelled"] : this.upload_cancelled;
+			this.queue_errors = typeof(stats["queue_errors"]) === "number" ? stats["queue_errors"] : this.queue_errors;
 		}
 
 		private function GetFile(file_id:String):Object {
