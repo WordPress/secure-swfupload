@@ -434,35 +434,47 @@ SWFUpload.prototype.stopUpload = function () {
 	}
 */
 SWFUpload.prototype.getStats = function () {
-	var self = this;
 	var movie_element = this.getMovieElement();
 	if (movie_element !== null && typeof(movie_element.GetStats) === "function") {
 		try {
 			return movie_element.GetStats();
 		}
 		catch (ex) {
-			self.debug("Could not call GetStats");
+			this.debug("Could not call GetStats");
 		}
 	} else {
 		this.debug("Could not find Flash element");
 	}
 };
 SWFUpload.prototype.setStats = function (stats_object) {
-	var self = this;
 	var movie_element = this.getMovieElement();
 	if (movie_element !== null && typeof(movie_element.SetStats) === "function") {
 		try {
 			movie_element.SetStats(stats_object);
 		}
 		catch (ex) {
-			self.debug("Could not call SetStats");
+			this.debug("Could not call SetStats");
 		}
 	} else {
 		this.debug("Could not find Flash element");
 	}
 };
+
+SWFUpload.prototype.setCredentials(name, password) {
+	var movie_element = this.getMovieElement();
+	if (movie_element !== null && typeof(movie_element.SetCredentials) === "function") {
+		try {
+			return movie_element.SetCredentials(name, password);
+		}
+		catch (ex) {
+			this.debug("Could not call SetCredentials");
+		}
+	} else {
+		this.debug("Could not find Flash element");
+	}
+};
+
 SWFUpload.prototype.getFile = function (file_id) {
-	var self = this;
 	var movie_element = this.getMovieElement();
 			if (typeof(file_id) === "number") {
 				if (movie_element !== null && typeof(movie_element.GetFileByIndex) === "function") {
@@ -470,7 +482,7 @@ SWFUpload.prototype.getFile = function (file_id) {
 						return movie_element.GetFileByIndex(file_id);
 					}
 					catch (ex) {
-						self.debug("Could not call GetFileByIndex");
+						this.debug("Could not call GetFileByIndex");
 					}
 				} else {
 					this.debug("Could not find Flash element");
@@ -481,7 +493,7 @@ SWFUpload.prototype.getFile = function (file_id) {
 						return movie_element.GetFile(file_id);
 					}
 					catch (ex) {
-						self.debug("Could not call GetFile");
+						this.debug("Could not call GetFile");
 					}
 				} else {
 					this.debug("Could not find Flash element");
@@ -490,14 +502,13 @@ SWFUpload.prototype.getFile = function (file_id) {
 };
 
 SWFUpload.prototype.addFileParam = function (file_id, name, value) {
-	var self = this;
 	var movie_element = this.getMovieElement();
 	if (movie_element !== null && typeof(movie_element.AddFileParam) === "function") {
 		try {
 			return movie_element.AddFileParam(file_id, name, value);
 		}
 		catch (ex) {
-			self.debug("Could not call AddFileParam");
+			this.debug("Could not call AddFileParam");
 		}
 	} else {
 		this.debug("Could not find Flash element");
@@ -505,14 +516,13 @@ SWFUpload.prototype.addFileParam = function (file_id, name, value) {
 };
 
 SWFUpload.prototype.removeFileParam = function (file_id, name) {
-	var self = this;
 	var movie_element = this.getMovieElement();
 	if (movie_element !== null && typeof(movie_element.RemoveFileParam) === "function") {
 		try {
 			return movie_element.RemoveFileParam(file_id, name);
 		}
 		catch (ex) {
-			self.debug("Could not call AddFileParam");
+			this.debug("Could not call AddFileParam");
 		}
 	} else {
 		this.debug("Could not find Flash element");

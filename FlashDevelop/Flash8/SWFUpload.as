@@ -520,6 +520,10 @@ class SWFUpload {
 		}
 
 	}
+
+	private function SetCredentials(name:String, password:String):Void {
+		this.Debug("Credentials are not supported in SWFUpload for Flash 8");
+	}
 	
 	private function GetStats():Object {
 		return {

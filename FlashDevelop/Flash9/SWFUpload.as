@@ -74,6 +74,9 @@ package {
 		private var fileQueueLimit:Number = 0;
 		private var debugEnabled:Boolean;
 
+		private var credentials_name:String = "";
+		private var credentials_password:String = "";
+
 		// Error code "constants"
 		// Size check constants
 		private var SIZE_TOO_BIG:Number		= 1;
@@ -198,6 +201,7 @@ package {
 				ExternalInterface.addCallback("SetStats", this.SetStats);
 				ExternalInterface.addCallback("GetFile", this.GetFile);
 				ExternalInterface.addCallback("GetFileByIndex", this.GetFileByIndex);
+				ExternalInterface.addCallback("SetCredentials", this.SetCredentials);
 				
 				ExternalInterface.addCallback("AddFileParam", this.AddFileParam);
 				ExternalInterface.addCallback("RemoveFileParam", this.RemoveFileParam);
@@ -514,6 +518,11 @@ package {
 
 		}
 		
+		private function SetCredentials(name:String, password:String):void {
+			this.credentials_name = name;
+			this.credentials_password = password;
+		}
+		
 		private function GetStats():Object {
 			return {
 				in_progress : this.current_file_item == null ? 0 : 1,
@@ -794,6 +803,14 @@ package {
 			var request:URLRequest = new URLRequest();
 			request.method = URLRequestMethod.POST;
 			request.url = this.uploadURL;
+			
+			/*if (this.credentials_name != "") {
+				request.shouldAuthenticate = true;
+				request.setLoginCredentials(this.credentials_name, this.credentials_password);
+			} else {
+				request.shouldAuthenticate = false;
+				request.setLoginCredentials("", "");
+			}*/
 		
 			var file_post:Object = this.current_file_item.GetPostObject();
 			var key:String;
