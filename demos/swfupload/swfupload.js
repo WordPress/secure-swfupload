@@ -460,7 +460,7 @@ SWFUpload.prototype.setStats = function (stats_object) {
 	}
 };
 
-SWFUpload.prototype.setCredentials(name, password) {
+SWFUpload.prototype.setCredentials = function(name, password) {
 	var movie_element = this.getMovieElement();
 	if (movie_element !== null && typeof(movie_element.SetCredentials) === "function") {
 		try {
