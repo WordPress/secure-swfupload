@@ -169,8 +169,7 @@ class SWFUpload {
 		}
 
 		try {
-			this.fileSizeLimit = Number(_root.fileSizeLimit);
-			if (this.fileSizeLimit < 0) this.fileSizeLimit = 0;
+			this.SetFileSizeLimit(_root.fileSizeLimit);
 		} catch (ex:Object) {
 			this.fileSizeLimit = 0;
 		}
@@ -615,9 +614,41 @@ class SWFUpload {
 		this.LoadFileExensions(this.fileTypes);
 	}
 
-	private function SetFileSizeLimit(bytes:Number):Void {
-		if (bytes < 0) bytes = 0;
-		this.fileSizeLimit = bytes;
+	// Set the file size limit.  Accepts a number and a unit.  If the unit is
+	// omitted then kilobytes is assumed.
+	// This method does not provide robust parsing but should be sufficient
+	// ie. "1000 200 KB MB GB" is parsed as 1000 KB because it begins with 1000 and has "KB" first
+	// If a value cannot be parsed then the limit is set to zero which SWFUpload treats as unlimited
+	private function SetFileSizeLimit(size:String):Void {
+		var value:Number = 0;
+		var unit:String = "kb";
+		
+		// Trim white space
+		size = size.toLowerCase();
+		//size = trim(size);
+		
+		// Get Value part
+		value = parseInt(size, 10);
+		if (isNaN(value) || value < 0) value = 0;
+		
+		// Get Unit part
+		var b_idx = size.indexOf("b");
+		if (b_idx > 0) {
+			unit = size.substr(b_idx - 1, b_idx);
+		} else if (b_idx === 0) {
+			unit = "b";
+		}
+		
+		// Determine Multiplier
+		var multiplier:Number = 1024;
+		if (unit === "b")
+			multiplier = 1;
+		else if (unit === "mb")
+			multiplier = 1048576;
+		else if (unit === "gb")
+			multiplier = 1073741824;
+			
+		this.fileSizeLimit = value * multiplier;
 	}
 	
 	private function SetFileUploadLimit(file_upload_limit:Number):Void {
@@ -769,7 +800,7 @@ class SWFUpload {
 	private function CheckFileSize(file_item:FileItem):Number {
 		if (file_item.file_reference.size == 0) {
 			return this.SIZE_ZERO_BYTE;
-		} else if (this.fileSizeLimit != 0 && file_item.file_reference.size > (this.fileSizeLimit * 1000)) {
+		} else if (this.fileSizeLimit != 0 && file_item.file_reference.size > this.fileSizeLimit) {
 			return this.SIZE_TOO_BIG;
 		} else {
 			return this.SIZE_OK;
@@ -849,7 +880,7 @@ class SWFUpload {
 			+ "File Types String:      " + this.fileTypes + "\n"
 			+ "Parsed File Types:      " + this.valid_file_extensions.toString() + "\n"
 			+ "File Types Description: " + this.fileTypesDescription + "\n"
-			+ "File Size Limit:        " + this.fileSizeLimit + "\n"
+			+ "File Size Limit:        " + this.fileSizeLimit + " bytes\n"
 			+ "File Upload Limit:      " + this.fileUploadLimit + "\n"
 			+ "File Queue Limit:       " + this.fileQueueLimit + "\n"
 			+ "Post Params:\n";
@@ -912,5 +943,4 @@ class SWFUpload {
 		}
 		this.uploadPostObject = post_object;
 	}
-
 }

@@ -164,11 +164,11 @@ package {
 			}
 
 			try {
-				this.fileSizeLimit = Number(root.loaderInfo.parameters.fileSizeLimit);
-				if (this.fileSizeLimit < 0) this.fileSizeLimit = 0;
+				this.SetFileSizeLimit(String(root.loaderInfo.parameters.fileSizeLimit));
 			} catch (ex:Object) {
 				this.fileSizeLimit = 0;
 			}
+			
 
 			try {
 				this.fileUploadLimit = Number(root.loaderInfo.parameters.fileUploadLimit);
@@ -612,9 +612,42 @@ package {
 			this.LoadFileExensions(this.fileTypes);
 		}
 
-		private function SetFileSizeLimit(bytes:Number):void {
-			if (bytes < 0) bytes = 0;
-			this.fileSizeLimit = bytes;
+		// Sets the file size limit.  Accepts size values with units: 100 b, 1KB, 23Mb, 4 Gb
+		// Parsing is not robust. "100 200 MB KB B GB" parses as "100 MB"
+		private function SetFileSizeLimit(size:String):void {
+			var value:Number = 0;
+			var unit:String = "kb";
+			
+			// Trim the string
+			var trimPattern:RegExp = /^\s*|\s*$/;
+			
+			size = size.toLowerCase();
+			size = size.replace(trimPattern, "");
+
+			
+			// Get the value part
+			var values:Array = size.match(/^\d+/);
+			if (values !== null && values.length > 0) {
+				value = parseInt(values[0]);
+			}
+			if (isNaN(value) || value < 0) value = 0;
+			
+			// Get the units part
+			var units:Array = size.match(/(b|kb|mb|gb)/);
+			if (units != null && units.length > 0) {
+				unit = units[0];
+			}
+			
+			// Set the multiplier for converting the unit to bytes
+			var multiplier:Number = 1024;
+			if (unit === "b")
+				multiplier = 1;
+			else if (unit === "mb")
+				multiplier = 1048576;
+			else if (unit === "gb")
+				multiplier = 1073741824;
+			
+			this.fileSizeLimit = value * multiplier;
 		}
 		
 		private function SetFileUploadLimit(file_upload_limit:Number):void {
@@ -767,7 +800,7 @@ package {
 		private function CheckFileSize(file_item:FileItem):Number {
 			if (file_item.file_reference.size == 0) {
 				return this.SIZE_ZERO_BYTE;
-			} else if (this.fileSizeLimit != 0 && file_item.file_reference.size > (this.fileSizeLimit * 1000)) {
+			} else if (this.fileSizeLimit != 0 && file_item.file_reference.size > this.fileSizeLimit) {
 				return this.SIZE_TOO_BIG;
 			} else {
 				return this.SIZE_OK;
@@ -856,7 +889,7 @@ package {
 			debug_info += "File Types String:      " + this.fileTypes + "\n";
 			debug_info += "Parsed File Types:      " + this.valid_file_extensions.toString() + "\n";
 			debug_info += "File Types Description: " + this.fileTypesDescription + "\n";
-			debug_info += "File Size Limit:        " + this.fileSizeLimit + "\n";
+			debug_info += "File Size Limit:        " + this.fileSizeLimit + " bytes\n";
 			debug_info += "File Upload Limit:      " + this.fileUploadLimit + "\n";
 			debug_info += "File Queue Limit:       " + this.fileQueueLimit + "\n";
 			debug_info += "Post Params:\n";
