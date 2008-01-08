@@ -662,12 +662,19 @@ SWFUpload.prototype.setDebugEnabled = function (debug_enabled) {
    Use a ui_function setting if you want to control the UI loading after the flash has loaded.
 */
 SWFUpload.prototype.flashReady = function () {
+	// Check that the movie element is loaded correctly with its ExternalInterface methods defined
+	var movie_element = this.getMovieElement();
+	if (movie_element === null || typeof(movie_element.StartUpload) !== "function") {
+		this.debug("ExternalInterface methods failed to initialize.");
+		return;
+	}
+	
 	var self = this;
-	if (typeof(self.fileDialogStart_handler) === "function") {
+	if (typeof(self.flashReady_handler) === "function") {
 		this.eventQueue[this.eventQueue.length] = function() { self.flashReady_handler(); };
 		setTimeout(function () { self.executeNextEvent();}, 0);
 	} else {
-		this.debug("fileDialogStart event not defined");
+		this.debug("flashReady_handler event not defined");
 	}
 };
 

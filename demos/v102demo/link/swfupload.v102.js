@@ -297,10 +297,12 @@ if (typeof(SWFUpload) === "function") {
 	};
 	
 	SWFUpload.v102.debug = function (message) {
-		if (window.console) {
-			window.console.log(message);
-		} else {
-			alert(message);
+		if (this.getSetting("debug_enabled")) {
+			if (window.console) {
+				window.console.log(message);
+			} else {
+				alert(message);
+			}
 		}
 	};
 	

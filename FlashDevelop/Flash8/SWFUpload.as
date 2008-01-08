@@ -26,7 +26,7 @@ class SWFUpload {
 		var SWFUpload:SWFUpload = new SWFUpload();
 	}
 	
-	private var build_number:String = "SWFUPLOAD 2.0.1 FP8 2007-12-05 0001";
+	private var build_number:String = "SWFUPLOAD 2.0.2 FP8 2008-01-07 0001";
 	
 	// State tracking variables
 	private var fileBrowserMany:FileReferenceList = new FileReferenceList();
@@ -574,21 +574,18 @@ class SWFUpload {
 	}
 	
 	private function AddFileParam(file_id:String, name:String, value:String):Boolean {
-		var file_index:Number = this.FindIndexInFileQueue(file_id);
-		if (file_index >= 0) {
-			var file_item:FileItem = FileItem(this.file_queue[file_index]);
-			
-			file_item.AddParam(name, value);
+		var item:FileItem = this.FindFileInFileIndex(file_id);
+		if (item != null) {
+			item.AddParam(name, value);
 			return true;
 		} else {
 			return false;
 		}
 	}
 	private function RemoveFileParam(file_id:String, name:String):Boolean {
-		var file_index:Number = this.FindIndexInFileQueue(file_id);
-		if (file_index >= 0) {
-			var file_item:FileItem = FileItem(this.file_queue[file_index]);
-			file_item.RemoveParam(name);
+		var item:FileItem = this.FindFileInFileIndex(file_id);
+		if (item != null) {
+			item.RemoveParam(name);
 			return true;
 		} else {
 			return false;
@@ -899,6 +896,15 @@ class SWFUpload {
 		}
 
 		return -1;
+	}
+	
+	private function FindFileInFileIndex(file_id:String):FileItem {
+		for (var i:Number = 0; i < this.file_index.length; i++) {
+			var item:FileItem = this.file_index[i];
+			if (item != null && item.id == file_id) return item;
+		}
+		
+		return null;
 	}
 	
 	// Parse the file extensions in to an array so we can validate them agains

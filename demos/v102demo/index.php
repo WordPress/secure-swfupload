@@ -37,7 +37,7 @@
 				upload_file_error_callback : uploadError,
 				upload_file_cancel_callback : uploadFileCancelled,
 				auto_upload : false,
-				debug : true
+				debug : false
 			});
 			
 		}
