@@ -1,5 +1,13 @@
- * SWFUpload v2.0 by Jacob Roberts, Nov 2007, www.swfupload.org, linebyline.blogspot.com
- 
+ * SWFUpload v2.0 by Jacob Roberts, Nov 2007, www.swfupload.org, linebyline.blogspot.com, swfupload.googlecode.com
+
+ * --------- Version 2.0.2 -----------
+ * = Fixed a bug where post params could not be added to the current file (because it is removed from the queue when it becomes current)
+ * = Fixed a conversion bug when converting kilobytes to bytes in the file size check
+ * = Fixed a problem in the documentation that said the file_size_limit was bytes when it is acutally kilobytes
+ * + Added documentation formatting, table of comments, and setting details.
+ * + Added units for file_size_limit setting. The setting understands B, KB, MB, GB. Default is KB.
+ * + Added a check for the ExternalInterface functions in flashReady so SWFUpload will not fire the loaded event if those are not available.
+  
  * --------- Version 2.0.1 -----------
  * = Fixed a bug where zero-byte files would stop file the queuing process.
  * = Finished updating Features Demo
