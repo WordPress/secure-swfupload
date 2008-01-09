@@ -2,9 +2,9 @@
 
  * --------- Version 2.0.2 -----------
  * = Fixed a bug where post params could not be added to the current file (because it is removed from the queue when it becomes current)
- * = Fixed a conversion bug when converting kilobytes to bytes in the file size check
- * = Fixed a problem in the documentation that said the file_size_limit was bytes when it is acutally kilobytes
- * + Added documentation formatting, table of comments, and setting details.
+ * = Fixed a conversion error when converting kilobytes to bytes in the file size check
+ * = Fixed a problem in the documentation that said the file_size_limit was bytes when it is actually kilobytes
+ * + Added formatting to the documentation, a table of contents, and details for each setting .
  * + Added units for file_size_limit setting. The setting understands B, KB, MB, GB. Default is KB.
  * + Added a check for the ExternalInterface functions in flashReady so SWFUpload will not fire the loaded event if those are not available.
   
