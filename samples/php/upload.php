@@ -7,7 +7,7 @@ Notes:
 	
 	SWFUpload doesn't send a MIME-TYPE. In my opinion this is ok since MIME-TYPE is no better than
 	 file extension and is probably worse because it can vary from OS to OS and browser to browser (for the same file).
-	 The best thing to do is content sniff the file but this can resource intensive, is difficult, and can still be fooled or inaccurate.
+	 The best thing to do is content sniff the file but this can be resource intensive, is difficult, and can still be fooled or inaccurate.
 	 Accepting uploads can never be 100% secure.
 	 
 	You can't guarantee that SWFUpload is really the source of the upload.  A malicious user
@@ -20,7 +20,7 @@ Notes:
 	
 	The script should not allow files to be saved that could then be executed on the webserver (such as .php files).
 	 To keep things simple we will use an extension whitelist for allowed file extensions.  Which files should be allowed
-	 depends on your server configuration.
+	 depends on your server configuration. The extension white-list is _not_ tied your SWFUpload file_types setting
 	
 	For better security uploaded files should be stored outside the webserver's document root.  Downloaded files
 	 should be accessed via a download script that proxies from the file system to the webserver.  This prevents
@@ -33,7 +33,7 @@ Notes:
 	 also simplifies the upload script since we only have to handle a single file.
 	
 	The script should properly handle situations where the post was too large or the posted file is larger than
-	 our defined max.
+	 our defined max.  These values are not tied to your SWFUpload file_size_limit setting.
 	
 */
 
@@ -93,10 +93,15 @@ Notes:
 		exit(0);
 	}
 	
-// Validate the file size (Warning the largest files supported by this code is 2GB)
+// Validate the file size (Warning: the largest files supported by this code is 2GB)
 	$file_size = @filesize($_FILES[$upload_name]["tmp_name"]);
 	if (!$file_size || $file_size > $max_file_size_in_bytes) {
 		HandleError("File exceeds the maximum allowed size");
+		exit(0);
+	}
+	
+	if ($file_size <= 0) {
+		HandleError("File size outside allowed lower bound");
 		exit(0);
 	}
 
@@ -115,7 +120,7 @@ Notes:
 		exit(0);
 	}
 
-// Validate file extention
+// Validate file extension
 	$path_info = pathinfo($_FILES[$upload_name]['name']);
 	$file_extension = $path_info["extension"];
 	$is_valid_extension = false;
@@ -152,13 +157,13 @@ Notes:
 		been saved.
 	*/
 	if (!@move_uploaded_file($_FILES[$upload_name]["tmp_name"], $save_path.$file_name)) {
-		HandleError("File could not be saved: ". $save_path.$file_name);
+		HandleError("File could not be saved.");
 		exit(0);
 	}
 
 // Return output to the browser (only supported by SWFUpload for Flash Player 9)
 
-	echo "File Received ". $save_path.$file_name;
+	echo "File Received";
 	exit(0);
 
 
