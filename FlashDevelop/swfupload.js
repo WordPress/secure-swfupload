@@ -174,7 +174,7 @@ SWFUpload.prototype.getFlashHTML = function () {
 		// Build the basic embed html
 		html = '<embed type="application/x-shockwave-flash" src="' + this.getSetting("flash_url") + '" width="' + this.getSetting("flash_width") + '" height="' + this.getSetting("flash_height") + '"';
 		html += ' id="' + this.movieName + '" name="' + this.movieName + '" ';
-		html += 'bgcolor="' + this.getSetting("flash_color") + '" quality="high" menu="false" flashvars="';
+		html += 'bgcolor="' + this.getSetting("flash_color") + '" quality="high" menu="false" allowScriptAccess="always" flashvars="';
 
 		html += this.getFlashVars();
 
@@ -190,6 +190,7 @@ SWFUpload.prototype.getFlashHTML = function () {
 		html += '<param name="bgcolor" value="' + this.getSetting("flash_color") + '" />';
 		html += '<param name="quality" value="high" />';
 		html += '<param name="menu" value="false" />';
+		html += '<param name="allowScriptAccess" value="always" />';
 
 		html += '<param name="flashvars" value="' + this.getFlashVars() + '" />';
 		html += '</object>';
