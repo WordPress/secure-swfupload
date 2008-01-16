@@ -1,18 +1,11 @@
 /**
- * SWFUpload v2.0 by Jacob Roberts, Nov 2007, http://www.swfupload.org, http://linebyline.blogspot.com
+ * SWFUpload v2.0.2 by Jacob Roberts, Jan 2008, http://www.swfupload.org, http://swfupload.googlecode.com, http://linebyline.blogspot.com
  * -------- -------- -------- -------- -------- -------- -------- --------
  * SWFUpload is (c) 2006 Lars Huring and Mammon Media and is released under the MIT License:
  * http://www.opensource.org/licenses/mit-license.php
  *
  * See Changelog.txt for version history
  *
- * Development Notes:
- *  * This version of SWFUpload requires Flash Player 9.0.28 and should autodetect the correct flash version.
- *  * In Linux Flash Player 9 setting the post file variable name does not work. It is always set to "Filedata".
- *  * There is a lot of repeated code that could be refactored to single functions.  Feel free.
- *  * It's dangerous to do "circular calls" between Flash and JavaScript. I've taken steps to try to work around issues
- *     by having the event calls pipe through setTimeout.  However you should still avoid calling in to Flash from
- *     within the event handler methods.  Especially the "startUpload" event since it cannot use the setTimeout hack.
  */
 
 
@@ -59,6 +52,7 @@ SWFUpload.prototype.initSWFUpload = function (init_settings) {
 /* *************** */
 SWFUpload.instances = {};
 SWFUpload.movieCount = 0;
+SWFUpload.version = "2.0.2";
 SWFUpload.QUEUE_ERROR = {
 	QUEUE_LIMIT_EXCEEDED	  		: -100,
 	FILE_EXCEEDS_SIZE_LIMIT  		: -110,
@@ -174,7 +168,7 @@ SWFUpload.prototype.getFlashHTML = function () {
 		// Build the basic embed html
 		html = '<embed type="application/x-shockwave-flash" src="' + this.getSetting("flash_url") + '" width="' + this.getSetting("flash_width") + '" height="' + this.getSetting("flash_height") + '"';
 		html += ' id="' + this.movieName + '" name="' + this.movieName + '" ';
-		html += 'bgcolor="' + this.getSetting("flash_color") + '" quality="high" menu="false" flashvars="';
+		html += 'bgcolor="' + this.getSetting("flash_color") + '" quality="high" menu="false" allowScriptAccess="always" flashvars="';
 
 		html += this.getFlashVars();
 
@@ -190,6 +184,7 @@ SWFUpload.prototype.getFlashHTML = function () {
 		html += '<param name="bgcolor" value="' + this.getSetting("flash_color") + '" />';
 		html += '<param name="quality" value="high" />';
 		html += '<param name="menu" value="false" />';
+		html += '<param name="allowScriptAccess" value="always" />';
 
 		html += '<param name="flashvars" value="' + this.getFlashVars() + '" />';
 		html += '</object>';
@@ -291,8 +286,8 @@ SWFUpload.prototype.retrieveSetting = function (value, default_value) {
 SWFUpload.prototype.displayDebugInfo = function () {
 	var key, debug_message = "";
 
-	debug_message += "----- SWFUPLOAD SETTINGS     ----\nID: " + this.moveName + "\n";
-
+	debug_message += "SWFUpload Version: " + SWFUpload.version + "\n";
+	debug_message += "----- SWFUPLOAD SETTINGS     ----\nID: " + this.movieName + "\n";
 	debug_message += this.outputObject(this.settings);
 
 	debug_message += "----- SWFUPLOAD SETTINGS END ----\n";

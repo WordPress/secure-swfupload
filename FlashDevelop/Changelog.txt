@@ -1,5 +1,9 @@
  * SWFUpload v2.0 by Jacob Roberts, Nov 2007, www.swfupload.org, linebyline.blogspot.com, swfupload.googlecode.com
 
+ * --------- Version Next -----------
+ * + Added allowScriptAccess="always" to the embed/object elements so the SWF can be served from different domains.
+ * = Fixed a type-o in the debug output that prevented the instance id (movieName) from displaying. - Thx Joel
+
  * --------- Version 2.0.2 -----------
  * = Fixed a bug where post params could not be added to the current file (because it is removed from the queue when it becomes current)
  * = Fixed a conversion error when converting kilobytes to bytes in the file size check
