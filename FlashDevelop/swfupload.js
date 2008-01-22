@@ -240,7 +240,7 @@ SWFUpload.prototype.buildParamString = function () {
 	if (typeof(post_params) === "object") {
 		for (name in post_params) {
 			if (post_params.hasOwnProperty(name)) {
-				if (typeof(post_params[name]) === "string") {
+				if (typeof(post_params[name]) === "string" || typeof(post_params[name]) === "number") {
 					param_string_pairs.push(encodeURIComponent(name) + "=" + encodeURIComponent(post_params[name]));
 				}
 			}
