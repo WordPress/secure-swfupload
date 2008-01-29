@@ -90,8 +90,8 @@ function uploadComplete(fileObj) {
 }
 
 function uploadError(fileObj, error_code, message) {
-	var image_name =  "error.gif";
 	try {
+		var image_name;
 		switch(error_code) {
 			case SWFUpload.UPLOAD_ERROR.FILE_CANCELLED:
 				try {
@@ -115,6 +115,7 @@ function uploadError(fileObj, error_code, message) {
 			break;
 			default:
 				alert(message);
+				image_name = "error.gif";
 			break;
 		}
 
