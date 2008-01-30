@@ -45,7 +45,7 @@ SWFUpload.prototype.initSWFUpload = function (init_settings) {
 	} catch (ex2) {
 		this.debug(ex2);
 	}
-}
+};
 
 /* *************** */
 /* Static thingies */
@@ -371,8 +371,7 @@ SWFUpload.prototype.startUpload = function (file_id) {
 				catch (ex) {
 					self.debug("Could not call StartUpload: " + ex);
 				}
-			}, 0
-		);
+			}, 0);
 	} else {
 		this.debug("Could not find Flash element");
 	}
@@ -455,7 +454,7 @@ SWFUpload.prototype.setStats = function (stats_object) {
 	}
 };
 
-SWFUpload.prototype.setCredentials = function(name, password) {
+SWFUpload.prototype.setCredentials = function (name, password) {
 	var movie_element = this.getMovieElement();
 	if (movie_element !== null && typeof(movie_element.SetCredentials) === "function") {
 		try {
@@ -471,29 +470,29 @@ SWFUpload.prototype.setCredentials = function(name, password) {
 
 SWFUpload.prototype.getFile = function (file_id) {
 	var movie_element = this.getMovieElement();
-			if (typeof(file_id) === "number") {
-				if (movie_element !== null && typeof(movie_element.GetFileByIndex) === "function") {
-					try {
-						return movie_element.GetFileByIndex(file_id);
-					}
-					catch (ex) {
-						this.debug("Could not call GetFileByIndex");
-					}
-				} else {
-					this.debug("Could not find Flash element");
-				}
-			} else {
-				if (movie_element !== null && typeof(movie_element.GetFile) === "function") {
-					try {
-						return movie_element.GetFile(file_id);
-					}
-					catch (ex) {
-						this.debug("Could not call GetFile");
-					}
-				} else {
-					this.debug("Could not find Flash element");
-				}
+	if (typeof(file_id) === "number") {
+		if (movie_element !== null && typeof(movie_element.GetFileByIndex) === "function") {
+			try {
+				return movie_element.GetFileByIndex(file_id);
 			}
+			catch (ex1) {
+				this.debug("Could not call GetFileByIndex");
+			}
+		} else {
+			this.debug("Could not find Flash element");
+		}
+	} else {
+		if (movie_element !== null && typeof(movie_element.GetFile) === "function") {
+			try {
+				return movie_element.GetFile(file_id);
+			}
+			catch (ex2) {
+				this.debug("Could not call GetFile");
+			}
+		} else {
+			this.debug("Could not find Flash element");
+		}
+	}
 };
 
 SWFUpload.prototype.addFileParam = function (file_id, name, value) {
@@ -666,8 +665,12 @@ SWFUpload.prototype.flashReady = function () {
 	
 	var self = this;
 	if (typeof(self.flashReady_handler) === "function") {
-		this.eventQueue[this.eventQueue.length] = function() { self.flashReady_handler(); };
-		setTimeout(function () { self.executeNextEvent();}, 0);
+		this.eventQueue[this.eventQueue.length] = function () {
+			self.flashReady_handler();
+		};
+		setTimeout(function () {
+			self.executeNextEvent();
+		}, 0);
 	} else {
 		this.debug("flashReady_handler event not defined");
 	}
@@ -684,14 +687,18 @@ SWFUpload.prototype.executeNextEvent = function () {
 	if (typeof(f) === "function") {
 		f();
 	}
-}
+};
 
 /* This is a chance to do something before the browse window opens */
 SWFUpload.prototype.fileDialogStart = function () {
 	var self = this;
 	if (typeof(self.fileDialogStart_handler) === "function") {
-		this.eventQueue[this.eventQueue.length] = function() { self.fileDialogStart_handler(); };
-		setTimeout(function () { self.executeNextEvent();}, 0);
+		this.eventQueue[this.eventQueue.length] = function () {
+			self.fileDialogStart_handler();
+		};
+		setTimeout(function () {
+			self.executeNextEvent();
+		}, 0);
 	} else {
 		this.debug("fileDialogStart event not defined");
 	}
@@ -702,8 +709,12 @@ SWFUpload.prototype.fileDialogStart = function () {
 SWFUpload.prototype.fileQueued = function (file) {
 	var self = this;
 	if (typeof(self.fileQueued_handler) === "function") {
-		this.eventQueue[this.eventQueue.length] = function() { self.fileQueued_handler(file); };
-		setTimeout(function () { self.executeNextEvent();}, 0);
+		this.eventQueue[this.eventQueue.length] = function () {
+			self.fileQueued_handler(file);
+		};
+		setTimeout(function () {
+			self.executeNextEvent();
+		}, 0);
 	} else {
 		this.debug("fileQueued event not defined");
 	}
@@ -714,8 +725,12 @@ SWFUpload.prototype.fileQueued = function (file) {
 SWFUpload.prototype.fileQueueError = function (file, error_code, message) {
 	var self = this;
 	if (typeof(self.fileQueueError_handler) === "function") {
-		this.eventQueue[this.eventQueue.length] = function() {  self.fileQueueError_handler(file, error_code, message); };
-		setTimeout(function () { self.executeNextEvent();}, 0);
+		this.eventQueue[this.eventQueue.length] = function () {
+			self.fileQueueError_handler(file, error_code, message);
+		};
+		setTimeout(function () {
+			self.executeNextEvent();
+		}, 0);
 	} else {
 		this.debug("fileQueueError event not defined");
 	}
@@ -726,8 +741,12 @@ SWFUpload.prototype.fileQueueError = function (file, error_code, message) {
 SWFUpload.prototype.fileDialogComplete = function (num_files_selected) {
 	var self = this;
 	if (typeof(self.fileDialogComplete_handler) === "function") {
-		this.eventQueue[this.eventQueue.length] = function() { self.fileDialogComplete_handler(num_files_selected); };
-		setTimeout(function () { self.executeNextEvent();}, 0);
+		this.eventQueue[this.eventQueue.length] = function () {
+			self.fileDialogComplete_handler(num_files_selected);
+		};
+		setTimeout(function () {
+			self.executeNextEvent();
+		}, 0);
 	} else {
 		this.debug("fileDialogComplete event not defined");
 	}
@@ -741,8 +760,12 @@ SWFUpload.prototype.fileDialogComplete = function (num_files_selected) {
 SWFUpload.prototype.uploadStart = function (file) {
 	var self = this;
 	if (typeof(self.fileDialogComplete_handler) === "function") {
-		this.eventQueue[this.eventQueue.length] = function() { self.returnUploadStart(self.uploadStart_handler(file)); };
-		setTimeout(function () { self.executeNextEvent();}, 0);
+		this.eventQueue[this.eventQueue.length] = function () {
+			self.returnUploadStart(self.uploadStart_handler(file));
+		};
+		setTimeout(function () {
+			self.executeNextEvent();
+		}, 0);
 	} else {
 		this.debug("uploadStart event not defined");
 	}
@@ -773,8 +796,12 @@ SWFUpload.prototype.returnUploadStart = function (return_value) {
 SWFUpload.prototype.uploadProgress = function (file, bytes_complete, bytes_total) {
 	var self = this;
 	if (typeof(self.uploadProgress_handler) === "function") {
-		this.eventQueue[this.eventQueue.length] = function() { self.uploadProgress_handler(file, bytes_complete, bytes_total); };
-		setTimeout(function () { self.executeNextEvent();}, 0);
+		this.eventQueue[this.eventQueue.length] = function () {
+			self.uploadProgress_handler(file, bytes_complete, bytes_total);
+		};
+		setTimeout(function () {
+			self.executeNextEvent();
+		}, 0);
 	} else {
 		this.debug("uploadProgress event not defined");
 	}
@@ -786,8 +813,12 @@ SWFUpload.prototype.uploadProgress = function (file, bytes_complete, bytes_total
 SWFUpload.prototype.uploadError = function (file, error_code, message) {
 	var self = this;
 	if (typeof(this.uploadError_handler) === "function") {
-		this.eventQueue[this.eventQueue.length] = function() { self.uploadError_handler(file, error_code, message); };
-		setTimeout(function () { self.executeNextEvent();}, 0);
+		this.eventQueue[this.eventQueue.length] = function () {
+			self.uploadError_handler(file, error_code, message);
+		};
+		setTimeout(function () {
+			self.executeNextEvent();
+		}, 0);
 	} else {
 		this.debug("uploadError event not defined");
 	}
@@ -800,8 +831,12 @@ upload will become 'stuck'. */
 SWFUpload.prototype.uploadSuccess = function (file, server_data) {
 	var self = this;
 	if (typeof(self.uploadSuccess_handler) === "function") {
-		this.eventQueue[this.eventQueue.length] = function() { self.uploadSuccess_handler(file, server_data); };
-		setTimeout(function () { self.executeNextEvent();}, 0);
+		this.eventQueue[this.eventQueue.length] = function () {
+			self.uploadSuccess_handler(file, server_data);
+		};
+		setTimeout(function () {
+			self.executeNextEvent();
+		}, 0);
 	} else {
 		this.debug("uploadSuccess event not defined");
 	}
@@ -812,8 +847,12 @@ SWFUpload.prototype.uploadSuccess = function (file, server_data) {
 SWFUpload.prototype.uploadComplete = function (file) {
 	var self = this;
 	if (typeof(self.uploadComplete_handler) === "function") {
-		this.eventQueue[this.eventQueue.length] = function() { self.uploadComplete_handler(file); };
-		setTimeout(function () { self.executeNextEvent();}, 0);
+		this.eventQueue[this.eventQueue.length] = function () {
+			self.uploadComplete_handler(file);
+		};
+		setTimeout(function () {
+			self.executeNextEvent();
+		}, 0);
 	} else {
 		this.debug("uploadComplete event not defined");
 	}
@@ -824,11 +863,19 @@ SWFUpload.prototype.uploadComplete = function (file) {
 SWFUpload.prototype.debug = function (message) {
 	var self = this;
 	if (typeof(self.debug_handler) === "function") {
-		this.eventQueue[this.eventQueue.length] = function() { self.debug_handler(message); };
-		setTimeout(function () { self.executeNextEvent();}, 0);
+		this.eventQueue[this.eventQueue.length] = function () {
+			self.debug_handler(message);
+		};
+		setTimeout(function () {
+			self.executeNextEvent();
+		}, 0);
 	} else {
-		this.eventQueue[this.eventQueue.length] = function() { self.debugMessage(message); };
-		setTimeout(function () { self.executeNextEvent();}, 0);
+		this.eventQueue[this.eventQueue.length] = function () {
+			self.debugMessage(message);
+		};
+		setTimeout(function () {
+			self.executeNextEvent();
+		}, 0);
 	}
 };
 
@@ -942,39 +989,39 @@ SWFUpload.debug = function (message) {
 /* Called when an upload occurs during upload.  For HTTP errors 'message' will contain the HTTP STATUS CODE */
 SWFUpload.uploadError = function (file, error_code, message) {
 	try {
-		switch (errcode) {
+		switch (error_code) {
 		case SWFUpload.UPLOAD_ERROR.SPECIFIED_FILE_ID_NOT_FOUND:
-			this.debug("Error Code: File ID specified for upload was not found, Message: " + msg);
+			this.debug("Error Code: File ID specified for upload was not found, Message: " + message);
 			break;
 		case SWFUpload.UPLOAD_ERROR.HTTP_ERROR:
-			this.debug("Error Code: HTTP Error, File name: " + file.name + ", Message: " + msg);
+			this.debug("Error Code: HTTP Error, File name: " + file.name + ", Message: " + message);
 			break;
 		case SWFUpload.UPLOAD_ERROR.MISSING_UPLOAD_URL:
-			this.debug("Error Code: No backend file, File name: " + file.name + ", Message: " + msg);
+			this.debug("Error Code: No backend file, File name: " + file.name + ", Message: " + message);
 			break;
 		case SWFUpload.UPLOAD_ERROR.IO_ERROR:
-			this.debug("Error Code: IO Error, File name: " + file.name + ", Message: " + msg);
+			this.debug("Error Code: IO Error, File name: " + file.name + ", Message: " + message);
 			break;
 		case SWFUpload.UPLOAD_ERROR.SECURITY_ERROR:
-			this.debug("Error Code: Security Error, File name: " + file.name + ", Message: " + msg);
+			this.debug("Error Code: Security Error, File name: " + file.name + ", Message: " + message);
 			break;
 		case SWFUpload.UPLOAD_ERROR.UPLOAD_LIMIT_EXCEEDED:
-			this.debug("Error Code: Upload limit reached, File name: " + file.name + ", File size: " + file.size + ", Message: " + msg);
+			this.debug("Error Code: Upload limit reached, File name: " + file.name + ", File size: " + file.size + ", Message: " + message);
 			break;
 		case SWFUpload.UPLOAD_ERROR.UPLOAD_FAILED:
-			this.debug("Error Code: Upload Initialization exception, File name: " + file.name + ", File size: " + file.size + ", Message: " + msg);
+			this.debug("Error Code: Upload Initialization exception, File name: " + file.name + ", File size: " + file.size + ", Message: " + message);
 			break;
 		case SWFUpload.UPLOAD_ERROR.FILE_VALIDATION_FAILED:
-			this.debug("Error Code: uploadStart callback returned false, File name: " + file.name + ", File size: " + file.size + ", Message: " + msg);
+			this.debug("Error Code: uploadStart callback returned false, File name: " + file.name + ", File size: " + file.size + ", Message: " + message);
 			break;
 		case SWFUpload.UPLOAD_ERROR.FILE_CANCELLED:
-			this.debug("Error Code: The file upload was cancelled, File name: " + file.name + ", File size: " + file.size + ", Message: " + msg);
+			this.debug("Error Code: The file upload was cancelled, File name: " + file.name + ", File size: " + file.size + ", Message: " + message);
 			break;
 		case SWFUpload.UPLOAD_ERROR.UPLOAD_STOPPED:
-			this.debug("Error Code: The file upload was stopped, File name: " + file.name + ", File size: " + file.size + ", Message: " + msg);
+			this.debug("Error Code: The file upload was stopped, File name: " + file.name + ", File size: " + file.size + ", Message: " + message);
 			break;
 		default:
-			this.debug("Error Code: Unhandled error occured. Errorcode: " + errcode);
+			this.debug("Error Code: Unhandled error occured. Errorcode: " + error_code);
 		}
 	} catch (ex) {
 		this.debug(ex);
