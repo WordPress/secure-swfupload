@@ -1,10 +1,5 @@
-/* TODO:
-	*Rename MultiUpload demo to Multiple Instance Demo
-	*Create a new MultiUpload demo that is just a single instance but otherwise the same as the current MultiUpload demo
-*/
-
 /**
- * SWFUpload v2.1.0 by Jacob Roberts, Feb 2008, http://www.swfupload.org, http://swfupload.googlecode.com, http://linebyline.blogspot.com
+ * SWFUpload v2.1.0 by Jacob Roberts, Feb 2008, http://www.swfupload.org, http://swfupload.googlecode.com, http://www.swfupload.org
  * -------- -------- -------- -------- -------- -------- -------- --------
  * SWFUpload is (c) 2006 Lars Huring and Mammon Media and is released under the MIT License:
  * http://www.opensource.org/licenses/mit-license.php
@@ -36,15 +31,6 @@ SWFUpload.prototype.initSWFUpload = function (settings) {
 
 		// Load the settings.  Load the Flash movie.
 		this.initSettings();
-		
-		// Prevent the page from being unloaded while the browse window is open
-		var self = this;
-		window.onbeforeunload = function () {
-			if (self.isBrowsing) {
-				return "The browser window is open. If you leave this page the browser will crash. Click OK to crash.";
-			}
-		};
-		
 		this.loadFlash();
 		this.displayDebugInfo();
 	} catch (ex) {
@@ -134,6 +120,7 @@ SWFUpload.prototype.initSettings = function () {
 	this.ensureDefault("debug_handler", this.debugMessage);
 
 	this.ensureDefault("custom_settings", {});
+
 	// Other settings
 	this.customSettings = this.settings.custom_settings;
 	
@@ -563,7 +550,10 @@ SWFUpload.prototype.uploadStart = function (file) {
 };
 
 SWFUpload.prototype.returnUploadStart = function (file) {
-	var returnValue = this.settings.upload_start_handler(file);
+	var returnValue;
+	if (typeof(this.settings.upload_start_handler) === "function") {
+		returnValue = this.settings.upload_start_handler.call(this, file);
+	}
 
 	// Convert undefined to true so if nothing is returned from the upload_start_handler it is
 	// interpretted as 'true'.
@@ -579,7 +569,7 @@ SWFUpload.prototype.returnUploadStart = function (file) {
 
 
 SWFUpload.prototype.uploadProgress = function (file, bytesComplete, bytesTotal) {
-	this.queueEvent("upload_proress_handler", [file, bytesComplete, bytesTotal]);
+	this.queueEvent("upload_progress_handler", [file, bytesComplete, bytesTotal]);
 };
 
 SWFUpload.prototype.uploadError = function (file, errorCode, message) {
@@ -587,7 +577,7 @@ SWFUpload.prototype.uploadError = function (file, errorCode, message) {
 };
 
 SWFUpload.prototype.uploadSuccess = function (file, serverData) {
-	this.queueEvent("upload_sucess_handler", [file, serverData]);
+	this.queueEvent("upload_success_handler", [file, serverData]);
 };
 
 SWFUpload.prototype.uploadComplete = function (file) {

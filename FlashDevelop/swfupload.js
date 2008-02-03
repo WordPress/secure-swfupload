@@ -120,6 +120,7 @@ SWFUpload.prototype.initSettings = function () {
 	this.ensureDefault("debug_handler", this.debugMessage);
 
 	this.ensureDefault("custom_settings", {});
+
 	// Other settings
 	this.customSettings = this.settings.custom_settings;
 	
@@ -549,7 +550,10 @@ SWFUpload.prototype.uploadStart = function (file) {
 };
 
 SWFUpload.prototype.returnUploadStart = function (file) {
-	var returnValue = this.settings.upload_start_handler(file);
+	var returnValue;
+	if (typeof(this.settings.upload_start_handler) === "function") {
+		returnValue = this.settings.upload_start_handler.call(this, file);
+	}
 
 	// Convert undefined to true so if nothing is returned from the upload_start_handler it is
 	// interpretted as 'true'.
@@ -565,7 +569,7 @@ SWFUpload.prototype.returnUploadStart = function (file) {
 
 
 SWFUpload.prototype.uploadProgress = function (file, bytesComplete, bytesTotal) {
-	this.queueEvent("upload_proress_handler", [file, bytesComplete, bytesTotal]);
+	this.queueEvent("upload_progress_handler", [file, bytesComplete, bytesTotal]);
 };
 
 SWFUpload.prototype.uploadError = function (file, errorCode, message) {
@@ -573,7 +577,7 @@ SWFUpload.prototype.uploadError = function (file, errorCode, message) {
 };
 
 SWFUpload.prototype.uploadSuccess = function (file, serverData) {
-	this.queueEvent("upload_sucess_handler", [file, serverData]);
+	this.queueEvent("upload_success_handler", [file, serverData]);
 };
 
 SWFUpload.prototype.uploadComplete = function (file) {
