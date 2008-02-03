@@ -26,7 +26,7 @@ class SWFUpload {
 		var SWFUpload:SWFUpload = new SWFUpload();
 	}
 	
-	private var build_number:String = "SWFUPLOAD 2.0.2 FP8 2008-01-07 0001";
+	private var build_number:String = "SWFUPLOAD 2.1.0 FP8 2008-02-02 0001";
 	
 	// State tracking variables
 	private var fileBrowserMany:FileReferenceList = new FileReferenceList();
@@ -219,16 +219,16 @@ class SWFUpload {
 			ExternalInterface.addCallback("SetDebugEnabled", this, this.SetDebugEnabled);
 		} catch (ex:Error) {
 			this.Debug("Callbacks where not set.");
+			return;
 		}
 		
 		this.Debug("SWFUpload Init Complete");
 		this.PrintDebugInfo();
 
-		// Do some feature detection
+		// Do the feature detection to determine if this Flash version supports the functionality we need.
+		// If so then notify the browser that the SWFUpload flash control us ready to go.
 		if (flash.net.FileReferenceList && flash.net.FileReference && flash.external.ExternalInterface && flash.external.ExternalInterface.available) {
 			ExternalCall.Simple(this.flashReady_Callback);
-		} else {
-			this.Debug("Feature Detection Failed");
 		}
 	}
 
@@ -237,7 +237,7 @@ class SWFUpload {
 	* *************************************** */
 	private function DialogCancelled_Handler():Void {
 		this.Debug("Event: fileDialogComplete: File Dialog window cancelled.");
-		ExternalCall.FileDialogComplete(this.fileDialogComplete_Callback, 0);
+		ExternalCall.FileDialogComplete(this.fileDialogComplete_Callback, 0, 0);
 	}
 
 	private function FileProgress_Handler(file:FileReference, bytesLoaded:Number, bytesTotal:Number):Void {
@@ -303,7 +303,8 @@ class SWFUpload {
 	
 	private function Select_Handler(file_reference_list:Array):Void {
 		this.Debug("Select Handler: Files Selected from Dialog. Processing file list");
-		this.Debug("Type: " + typeof(this.fileQueueLimit) + " Value:" + this.fileQueueLimit);
+		var num_files_queued:Number = 0;
+		
 		// Determine how many queue slots are remaining (check the unlimited (0) settings, successful uploads and queued uploads)
 		var queue_slots_remaining:Number = 0;
 		if (this.fileUploadLimit == 0) {
@@ -336,6 +337,7 @@ class SWFUpload {
 					this.Debug("Event: fileQueued : File ID: " + file_item.id);
 					this.file_queue.push(file_item);
 					this.queued_uploads++;
+					num_files_queued++;
 					ExternalCall.FileQueued(this.fileQueued_Callback, file_item.ToJavaScriptObject());
 				}
 				else if (!is_valid_filetype) {
@@ -364,7 +366,7 @@ class SWFUpload {
 		}
 		
 		this.Debug("Event: fileDialogComplete : Finished adding files");
-		ExternalCall.FileDialogComplete(this.fileDialogComplete_Callback, file_reference_list.length);
+		ExternalCall.FileDialogComplete(this.fileDialogComplete_Callback, file_reference_list.length, num_files_queued);
 	}
 
 	

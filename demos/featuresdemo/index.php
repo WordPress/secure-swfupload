@@ -31,7 +31,7 @@
 				file_upload_limit : "10",
 
 				// Event Handler Settings
-				swfupload_loaded_handler : FeaturesDemoHandlers.swfUploadLoaded,	//  I've give SWFUpload my own showUI function so I can do some things as soon as SWFUpload loads
+				swfupload_loaded_handler : FeaturesDemoHandlers.swfUploadLoaded,
 				file_dialog_start_handler : FeaturesDemoHandlers.fileDialogStart,
 				file_queued_handler : FeaturesDemoHandlers.fileQueued,
 				file_queue_error_handler : FeaturesDemoHandlers.fileQueueError,

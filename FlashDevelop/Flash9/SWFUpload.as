@@ -102,6 +102,13 @@ package {
 		private var ERROR_CODE_UPLOAD_STOPPED:Number				= -290;
 
 		public function SWFUpload() {
+			// Do the feature detection.  Make sure this version of Flash supports the features we need. If not
+			// abort initialization.
+			if (!flash.net.FileReferenceList || !flash.net.FileReference || !flash.net.URLRequest || !flash.external.ExternalInterface || !flash.external.ExternalInterface.available || !DataEvent.UPLOAD_COMPLETE_DATA) {
+				return;
+			}
+
+			
 			Security.allowDomain("*");	// Allow uploading to any domain
 			
 			// Keep Flash Player busy so it doesn't show the "flash script is running slowly" error
@@ -216,17 +223,13 @@ package {
 				ExternalInterface.addCallback("SetDebugEnabled", this.SetDebugEnabled);
 			} catch (ex:Error) {
 				this.Debug("Callbacks where not set.");
+				return;
 			}
 
 			this.Debug("SWFUpload Init Complete");
 			this.PrintDebugInfo();
 
-			// Do some feature detection
-			if (flash.net.FileReferenceList && flash.net.FileReference && flash.net.URLRequest && flash.external.ExternalInterface && flash.external.ExternalInterface.available && DataEvent.UPLOAD_COMPLETE_DATA) {
-				ExternalCall.Simple(this.flashReady_Callback);
-			} else {
-				this.Debug("Feature Detection Failed");
-			}
+			ExternalCall.Simple(this.flashReady_Callback);
 		}
 
 		/* *****************************************
@@ -234,7 +237,7 @@ package {
 		* *************************************** */
 		private function DialogCancelled_Handler(event:Event):void {
 			this.Debug("Event: fileDialogComplete: File Dialog window cancelled.");
-			ExternalCall.FileDialogComplete(this.fileDialogComplete_Callback, 0);
+			ExternalCall.FileDialogComplete(this.fileDialogComplete_Callback, 0, 0);
 		}
 
 		private function FileProgress_Handler(event:ProgressEvent):void {
@@ -301,6 +304,8 @@ package {
 		private function Select_Handler(file_reference_list:Array):void {
 			this.Debug("Select Handler: Files Selected from Dialog. Processing file list");
 
+			var num_files_queued:Number = 0;
+			
 			// Determine how many queue slots are remaining (check the unlimited (0) settings, successful uploads and queued uploads)
 			var queue_slots_remaining:Number = 0;
 			if (this.fileUploadLimit == 0) {
@@ -339,6 +344,7 @@ package {
 							this.file_queue.push(file_item);
 							this.queued_uploads++;
 							ExternalCall.FileQueued(this.fileQueued_Callback, file_item.ToJavaScriptObject());
+							num_files_queued++;
 						}
 						else if (!is_valid_filetype) {
 							file_item.file_reference = null; 	// Cleanup the object
@@ -367,7 +373,7 @@ package {
 			}
 			
 			this.Debug("Event: fileDialogComplete : Finished adding files");
-			ExternalCall.FileDialogComplete(this.fileDialogComplete_Callback, file_reference_list.length);
+			ExternalCall.FileDialogComplete(this.fileDialogComplete_Callback, file_reference_list.length, num_files_queued);
 		}
 
 		

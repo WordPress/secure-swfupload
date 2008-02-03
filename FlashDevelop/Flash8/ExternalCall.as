@@ -20,9 +20,9 @@ class ExternalCall
 		ExternalInterface.call(callback, EscapeMessage(file_object), EscapeMessage(error_code), EscapeMessage(message));
 		
 	}
-	public static function FileDialogComplete(callback:String, num_files_selected:Number):Void {
+	public static function FileDialogComplete(callback:String, num_files_selected:Number, num_files_queued:Number):Void {
 		
-		ExternalInterface.call(callback, EscapeMessage(num_files_selected));
+		ExternalInterface.call(callback, EscapeMessage(num_files_selected), EscapeMessage(num_files_queued));
 		
 	}
 	
