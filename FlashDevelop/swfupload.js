@@ -24,7 +24,6 @@ SWFUpload.prototype.initSWFUpload = function (settings) {
 		this.eventQueue = [];
 		this.movieName = "SWFUpload_" + SWFUpload.movieCount++;
 		this.movieElement = null;
-		this.isBrowsing = false;
 
 		// Setup global control tracking
 		SWFUpload.instances[this.movieName] = this;
@@ -80,7 +79,7 @@ SWFUpload.FILE_STATUS = {
 // settings are set, getting a default value if one was not assigned.
 SWFUpload.prototype.initSettings = function () {
 	this.ensureDefault = function (settingName, defaultValue) {
-		this.settings[settingName] = (typeof(this.settings[settingName]) === "undefined" || this.settings[settingName] === null) ? defaultValue : this.settings[settingName];
+		this.settings[settingName] = (this.settings[settingName] == undefined) ? defaultValue : this.settings[settingName];
 	};
 	
 	// Upload backend settings
@@ -140,7 +139,7 @@ SWFUpload.prototype.loadFlash = function () {
 	// Get the body tag where we will be adding the flash movie
 	targetElement = document.getElementsByTagName("body")[0];
 
-	if (typeof(targetElement) === "undefined" || targetElement === null) {
+	if (targetElement) == undefined) {
 		throw "Could not find the 'body' element.";
 	}
 
@@ -198,7 +197,7 @@ SWFUpload.prototype.getFlashVars = function () {
 // Public: getMovieElement retrieves the DOM reference to the Flash element added by SWFUpload
 // The element is cached after the first lookup
 SWFUpload.prototype.getMovieElement = function () {
-	if (typeof(this.movieElement) === "undefined" || this.movieElement === null) {
+	if (this.movieElement == undefined) {
 		this.movieElement = document.getElementById(this.movieName);
 	}
 
@@ -270,7 +269,7 @@ SWFUpload.prototype.displayDebugInfo = function () {
 
 // Public: addSetting adds a setting value. If the value given is undefined or null then the default_value is used.
 SWFUpload.prototype.addSetting = function (name, value, default_value) {
-    if (typeof(value) === "undefined" || value === null) {
+    if (value == undefined) {
         return (this.settings[name] = default_value);
     } else {
         return (this.settings[name] = value);
@@ -279,7 +278,7 @@ SWFUpload.prototype.addSetting = function (name, value, default_value) {
 
 // Public: getSetting gets a setting. Returns an empty string if the setting was not found.
 SWFUpload.prototype.getSetting = function (name) {
-    if (typeof(this.settings[name]) !== "undefined") {
+    if (this.settings[name] != undefined) {
         return this.settings[name];
 	}
 
@@ -291,6 +290,9 @@ SWFUpload.prototype.getSetting = function (name) {
 // Private: callFlash handles function calls made to the Flash element.
 // Calls are made with a setTimeout for some functions to work around
 // bugs in the ExternalInterface library.
+
+// NOTE: if we don't need to call StartUpload with a timeout anymore then we can simplify this
+// function and remove all the withTimeout stuff
 SWFUpload.prototype.callFlash = function (functionName, withTimeout, argumentArray) {
 	withTimeout = !!withTimeout || false;
 	argumentArray = argumentArray || [];
@@ -333,9 +335,7 @@ SWFUpload.prototype.callFlash = function (functionName, withTimeout, argumentArr
 // Public: selectFile causes a File Selection Dialog window to appear.  This
 // dialog only allows 1 file to be selected.
 SWFUpload.prototype.selectFile = function () {
-	this.isBrowsing = true;
 	this.callFlash("SelectFile");
-	this.isBrowsing = false;
 };
 
 // Public: selectFiles causes a File Selection Dialog window to appear/ This
@@ -344,16 +344,16 @@ SWFUpload.prototype.selectFile = function () {
 // If the selection name length is too long the dialog will fail in an unpredictable manner.  There is no work-around
 // for this bug.
 SWFUpload.prototype.selectFiles = function () {
-	this.isBrowsing = true;
 	this.callFlash("SelectFiles");
-	this.isBrowsing = false;
 };
 
 
 // Public: startUpload starts uploading the first file in the queue unless
 // the optional parameter 'fileID' specifies the ID 
 SWFUpload.prototype.startUpload = function (fileID) {
-	this.callFlash("StartUpload", true, [fileID]);
+	// NOTE: Testing this without using a setTimeout. Since StartUpload was reworked to use ReturnUploadStart
+	// it might not be necessary anymore
+	this.callFlash("StartUpload", false, [fileID]);
 };
 
 /* Cancels a the file upload.  You must specify a file_id */
@@ -484,10 +484,10 @@ SWFUpload.prototype.setDebugEnabled = function (debugEnabled) {
 ******************************* */
 
 SWFUpload.prototype.queueEvent = function (handlerName, argumentArray) {
-	if (typeof(argumentArray) !== "undefined" && !(argumentArray instanceof Array)) {
-		argumentArray = [argumentArray];
-	} else if (typeof(argumentArray) === "undefined") {
+	if (argumentArray == undefined) {
 		argumentArray = [];
+	} else if (!(argumentArray instanceof Array)) {
+		argumentArray = [argumentArray];
 	}
 	
 	var self = this;
@@ -501,14 +501,14 @@ SWFUpload.prototype.queueEvent = function (handlerName, argumentArray) {
 		setTimeout(function () {
 			self.executeNextEvent();
 		}, 0);
+	} else if (this.settings[handlerName] !== null) {
+		throw "Event handler is unknown or is not a function";
 	}
 };
 
 SWFUpload.prototype.executeNextEvent = function () {
 	var  f = this.eventQueue.shift();
-	if (typeof(f) === "function") {
-		f.apply(this);
-	}
+	f.apply(this);
 };
 
 SWFUpload.prototype.flashReady = function () {
@@ -553,17 +553,19 @@ SWFUpload.prototype.returnUploadStart = function (file) {
 	var returnValue;
 	if (typeof(this.settings.upload_start_handler) === "function") {
 		returnValue = this.settings.upload_start_handler.call(this, file);
+	} else if (typeof(this.settings.upload_start_handler) !== null) {
+		throw "upload_start_handler must be a function";
 	}
 
 	// Convert undefined to true so if nothing is returned from the upload_start_handler it is
 	// interpretted as 'true'.
-	if (typeof(returnValue) === "undefined") {
+	if (returnValue === undefined) {
 		returnValue = true;
 	}
 	
 	returnValue = !!returnValue;
 	
-	this.callFlash("ReturnUploadStart", true, [returnValue]);
+	this.callFlash("ReturnUploadStart", false, [returnValue]);
 };
 
 
