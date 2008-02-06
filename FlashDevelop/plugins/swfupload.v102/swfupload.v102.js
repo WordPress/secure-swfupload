@@ -8,48 +8,46 @@ var SWFUpload;
 if (typeof(SWFUpload) === "function") {
 	SWFUpload.v102 = {};
 	
-	SWFUpload.prototype.initSWFUpload = function (init_settings) {
-		try {
-			this.customSettings = {};	// A container where developers can place their own settings associated with this instance.
-			this.settings = {};
-			this.eventQueue = [];
-			this.movieName = "SWFUpload_" + SWFUpload.movieCount++;
-			this.movieElement = null;
+	SWFUpload.prototype.initSWFUpload = function (settings) {
+		this.customSettings = {};	// A container where developers can place their own settings associated with this instance.
+		this.settings = settings;
+		this.eventQueue = [];
+		this.movieName = "SWFUpload_" + SWFUpload.movieCount++;
+		this.movieElement = null;
 
-			// Setup global control tracking
-			SWFUpload.instances[this.movieName] = this;
+		// Setup global control tracking
+		SWFUpload.instances[this.movieName] = this;
 
-			// Load the settings.  Load the Flash movie.
-			this.initSettings(init_settings);
-			this.loadFlash();
-
-			this.displayDebugInfo();
-
-		} catch (ex2) {
-			this.debug(ex2);
-		}	
+		// Load the settings.  Load the Flash movie.
+		this.initSettings();
+		this.loadFlash();
+		this.displayDebugInfo();
 	};
 	
 	SWFUpload.prototype.initSettings = function (init_settings) {
+		this.ensureDefault = function (settingName, defaultValue) {
+			this.settings[settingName] = (this.settings[settingName] == undefined) ? defaultValue : this.settings[settingName];
+		};
+		
 		// Store v1.0.2 settings
-		this.customSettings["target"] 					= this.retrieveSetting(init_settings["target"], "");
-		this.customSettings["create_ui"] 				= this.retrieveSetting(init_settings["create_ui"], false);
-		this.customSettings["browse_link_class"] 		= this.retrieveSetting(init_settings["browse_link_class"], "SWFBrowseLink");
-		this.customSettings["upload_link_class"] 		= this.retrieveSetting(init_settings["upload_link_class"], "SWFUploadLink");
-		this.customSettings["browse_link_innerhtml"] 	= this.retrieveSetting(init_settings["browse_link_innerhtml"], "<span>Browse...</span>");
-		this.customSettings["upload_link_innerhtml"] 	= this.retrieveSetting(init_settings["upload_link_innerhtml"], "<span>Upload</span>");
-		this.customSettings["auto_upload"] 				= this.retrieveSetting(init_settings["auto_upload"], false);
+		this.customSettings["target"] 					= this.ensureDefault(this.settings.target, "");
+		this.customSettings["create_ui"] 				= this.ensureDefault(this.settings.["create_ui"], false);
+		this.customSettings["browse_link_class"] 		= this.ensureDefault(this.settings.["browse_link_class"], "SWFBrowseLink");
+		this.customSettings["upload_link_class"] 		= this.ensureDefault(this.settings.["upload_link_class"], "SWFUploadLink");
+		this.customSettings["browse_link_innerhtml"] 	= this.ensureDefault(this.settings.["browse_link_innerhtml"], "<span>Browse...</span>");
+		this.customSettings["upload_link_innerhtml"] 	= this.ensureDefault(this.settings.["upload_link_innerhtml"], "<span>Upload</span>");
+		this.customSettings["auto_upload"] 				= this.ensureDefault(this.settings.["auto_upload"], false);
 		
 		// Store v1.0.2 events
-		this.customSettings["upload_file_queued_callback"] 		= this.retrieveSetting(init_settings["upload_file_queued_callback"], null);
-		this.customSettings["upload_file_start_callback"] 		= this.retrieveSetting(init_settings["upload_file_start_callback"], null);
-		this.customSettings["upload_file_complete_callback"] 	= this.retrieveSetting(init_settings["upload_file_complete_callback"], null);
-		this.customSettings["upload_queue_complete_callback"] 	= this.retrieveSetting(init_settings["upload_queue_complete_callback"], null);
-		this.customSettings["upload_progress_callback"] 		= this.retrieveSetting(init_settings["upload_progress_callback"], null);
-		this.customSettings["upload_dialog_cancel_callback"] 	= this.retrieveSetting(init_settings["upload_dialog_cancel_callback"], null);
-		this.customSettings["upload_file_error_callback"] 		= this.retrieveSetting(init_settings["upload_file_error_callback"], null);
-		this.customSettings["upload_file_cancel_callback"] 		= this.retrieveSetting(init_settings["upload_file_cancel_callback"], null);
-		this.customSettings["upload_queue_cancel_callback"] 	= this.retrieveSetting(init_settings["upload_queue_cancel_callback"], null);
+		this.customSettings["upload_file_queued_callback"] 		= this.ensureDefault(init_settings["upload_file_queued_callback"], null);
+		this.customSettings["upload_file_start_callback"] 		= this.ensureDefault(init_settings["upload_file_start_callback"], null);
+		this.customSettings["upload_file_complete_callback"] 	= this.ensureDefault(init_settings["upload_file_complete_callback"], null);
+		this.customSettings["upload_queue_complete_callback"] 	= this.ensureDefault(init_settings["upload_queue_complete_callback"], null);
+		this.customSettings["upload_progress_callback"] 		= this.ensureDefault(init_settings["upload_progress_callback"], null);
+		this.customSettings["upload_dialog_cancel_callback"] 	= this.ensureDefault(init_settings["upload_dialog_cancel_callback"], null);
+		this.customSettings["upload_file_error_callback"] 		= this.ensureDefault(init_settings["upload_file_error_callback"], null);
+		this.customSettings["upload_file_cancel_callback"] 		= this.ensureDefault(init_settings["upload_file_cancel_callback"], null);
+		this.customSettings["upload_queue_cancel_callback"] 	= this.ensureDefault(init_settings["upload_queue_cancel_callback"], null);
 		this.customSettings["queue_cancelled_flag"]				= false;
 
 		// Upload backend settings

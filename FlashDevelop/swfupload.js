@@ -139,7 +139,7 @@ SWFUpload.prototype.loadFlash = function () {
 	// Get the body tag where we will be adding the flash movie
 	targetElement = document.getElementsByTagName("body")[0];
 
-	if (targetElement) == undefined) {
+	if (targetElement == undefined) {
 		throw "Could not find the 'body' element.";
 	}
 

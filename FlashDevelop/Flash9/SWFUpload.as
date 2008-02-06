@@ -540,6 +540,7 @@ package {
 			};
 		}
 		private function SetStats(stats:Object):void {
+			this.Debug(typeof(stats["successful_uploads"]));
 			this.successful_uploads = typeof(stats["successful_uploads"]) === "number" ? stats["successful_uploads"] : this.successful_uploads;
 			this.upload_errors = typeof(stats["upload_errors"]) === "number" ? stats["upload_errors"] : this.upload_errors;
 			this.upload_cancelled = typeof(stats["upload_cancelled"]) === "number" ? stats["upload_cancelled"] : this.upload_cancelled;
