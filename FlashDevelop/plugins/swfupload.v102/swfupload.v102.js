@@ -29,7 +29,7 @@ if (typeof(SWFUpload) === "function") {
 			return (value == undefined) ? defaultValue : value;
 		};
 		
-		this.settings.custom_settings = provideDefault(v102Settings.custom_settings, {})
+		this.settings.custom_settings = provideDefault(v102Settings.custom_settings, {});
 		this.customSettings = this.settings.custom_settings;
 
 		// Store v1.0.2 settings

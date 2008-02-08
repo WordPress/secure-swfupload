@@ -25,7 +25,7 @@ if (typeof(SWFUpload) === "function") {
 					old_initSWFUpload.call(self, init_settings);
 				});
 			}
-		}
+		};
 		
 	}(SWFUpload.prototype.initSWFUpload);
 
@@ -67,10 +67,10 @@ if (typeof(SWFUpload) === "function") {
 		// for Internet Explorer (using conditional comments)
 		/*@cc_on @*/
 		/*@if (@_win32)
-		document.write("<script id=__ie_onload defer src=javascript:void(0)><\/script>");
+		document.write('<script id="__ie_onload" defer src="javascript:void(0)"><\/script>');
 		var script = document.getElementById("__ie_onload");
 		script.onreadystatechange = function() {
-			if (this.readyState == "complete") {
+			if (this.readyState === "complete") {
 				SWFUpload.DocumentReady.Onload(); // call the onload handler
 			}
 		};
@@ -79,9 +79,9 @@ if (typeof(SWFUpload) === "function") {
 	}
 
 	if (!SWFUpload.DocumentReady.SetupComplete && /WebKit/i.test(navigator.userAgent)) { // sniff
-		var _timer = setInterval(function() {
+		var timer = setInterval(function () {
 			if (/loaded|complete/.test(document.readyState)) {
-				clearInterval(_timer);
+				clearInterval(timer);
 				SWFUpload.DocumentReady.Onload(); // call the onload handler
 			}
 		}, 10);

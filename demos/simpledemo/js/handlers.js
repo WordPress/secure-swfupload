@@ -3,23 +3,6 @@ The FileProgress class is not part of SWFUpload.
 */
 
 
-/* This is an example of how to cancel all the files queued up.  It's made somewhat generic.  Just pass your SWFUpload
-object in to this method and it loops through cancelling the uploads. */
-function cancelQueue(swfu_instance) {
-	// Stop the current upload. If we just cancel the first one without stopping first
-	// then uploadComplete will just start the uploading the next file.
-	document.getElementById(swfu_instance.customSettings.cancelButtonId).disabled = true;
-	swfu_instance.stopUpload();
-	
-	// Cancel the first file in the queue until there aren't anymore
-	var stats;
-	do {
-		stats = swfu_instance.getStats();
-		swfu_instance.cancelUpload();
-	} while (stats.files_queued !== 0);
-	
-}
-
 /* **********************
    Event Handlers
    These are my custom event handlers to make my
@@ -155,6 +138,7 @@ function uploadError(fileObj, error_code, message) {
 				this.debug("Error Code: File Validation Failed, File name: " + fileObj.name + ", File size: " + fileObj.size + ", Message: " + message);
 				break;
 			case SWFUpload.UPLOAD_ERROR.FILE_CANCELLED:
+				// If there aren't any files left (they were all cancelled) disable the cancel button
 				if (this.getStats().files_queued === 0) {
 					document.getElementById(this.customSettings.cancelButtonId).disabled = true;
 				}

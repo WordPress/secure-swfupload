@@ -40,7 +40,7 @@
 				debug : false
 			});
 			
-		}
+		};
 		
 	</script>
 

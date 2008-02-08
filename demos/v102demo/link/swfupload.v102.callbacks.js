@@ -2,14 +2,14 @@
 function fileQueued(file, queuelength) {
 	var listingfiles = document.getElementById("SWFUploadFileListingFiles");
 
-	if(!listingfiles.getElementsByTagName("ul")[0]) {
+	if (!listingfiles.getElementsByTagName("ul")[0]) {
 		
 		var info = document.createElement("h4");
 		info.appendChild(document.createTextNode("File queue"));
 		
 		listingfiles.appendChild(info);
 		
-		var ul = document.createElement("ul")
+		var ul = document.createElement("ul");
 		listingfiles.appendChild(ul);
 	}
 	
@@ -47,7 +47,7 @@ function uploadFileStart(file, position, queuelength) {
 function uploadProgress(file, bytesLoaded) {
 
 	var progress = document.getElementById(file.id + "progress");
-	var percent = Math.ceil((bytesLoaded / file.size) * 200)
+	var percent = Math.ceil((bytesLoaded / file.size) * 200);
 	progress.style.background = "#f0f0f0 url(swfupload.v102.progressbar.png) no-repeat -" + (200 - percent) + "px 0";
 }
 

@@ -1,10 +1,10 @@
+var SWFUpload = {};
 function fileQueueError(fileObj, error_code, message) {
 	try {
+		var image_name = "error.gif";
 		var error_name = "";
-		switch(error_code) {
-			case SWFUpload.ERROR_CODE_QUEUE_LIMIT_EXCEEDED:
-				error_name = "You have attempted to queue too many files.";
-			break;
+		if (error_code === SWFUpload.ERROR_CODE_QUEUE_LIMIT_EXCEEDED) {
+			error_name = "You have attempted to queue too many files.";
 		}
 
 		if (error_name !== "") {
@@ -12,24 +12,25 @@ function fileQueueError(fileObj, error_code, message) {
 			return;
 		}
 
-		switch(error_code) {
-			case SWFUpload.QUEUE_ERROR.ZERO_BYTE_FILE:
-				image_name = "zerobyte.gif";
+		switch (error_code) {
+		case SWFUpload.QUEUE_ERROR.ZERO_BYTE_FILE:
+			image_name = "zerobyte.gif";
 			break;
-			case SWFUpload.QUEUE_ERROR.FILE_EXCEEDS_SIZE_LIMIT:
-				image_name = "toobig.gif";
+		case SWFUpload.QUEUE_ERROR.FILE_EXCEEDS_SIZE_LIMIT:
+			image_name = "toobig.gif";
 			break;
-			case SWFUpload.QUEUE_ERROR.ZERO_BYTE_FILE:
-			case SWFUpload.QUEUE_ERROR.INVALID_FILETYPE:
-			default:
-				alert(message);
-				image_name = "error.gif";
+		case SWFUpload.QUEUE_ERROR.ZERO_BYTE_FILE:
+		case SWFUpload.QUEUE_ERROR.INVALID_FILETYPE:
+		default:
+			alert(message);
 			break;
 		}
 
-		AddImage("images/" + image_name);
+		addImage("images/" + image_name);
 
-	} catch (ex) { this.debug(ex); }
+	} catch (ex) {
+		this.debug(ex);
+	}
 
 }
 
@@ -46,7 +47,7 @@ function fileDialogComplete(num_files_queued) {
 function uploadProgress(fileObj, bytesLoaded) {
 
 	try {
-		var percent = Math.ceil((bytesLoaded / fileObj.size) * 100)
+		var percent = Math.ceil((bytesLoaded / fileObj.size) * 100);
 
 		var progress = new FileProgress(fileObj,  this.customSettings.upload_target);
 		progress.SetProgress(percent);
@@ -57,14 +58,16 @@ function uploadProgress(fileObj, bytesLoaded) {
 			progress.SetStatus("Uploading...");
 			progress.ToggleCancel(true, this);
 		}
-	} catch (ex) { this.debug(ex); }
+	} catch (ex) {
+		this.debug(ex);
+	}
 }
 
 function uploadSuccess(fileObj, server_data) {
 	try {
-		// upload.php returns the thumbnail id in the server_data, use that to retrieve the thumbnail for display
+		// upload.aspx returns the thumbnail id in the server_data, use that to retrieve the thumbnail for display
 		
-		AddImage("thumbnail.php?id=" + server_data);
+		addImage("thumbnail.aspx?id=" + server_data);
 
 		var progress = new FileProgress(fileObj,  this.customSettings.upload_target);
 
@@ -72,7 +75,9 @@ function uploadSuccess(fileObj, server_data) {
 		progress.ToggleCancel(false);
 
 
-	} catch (ex) { this.debug(ex); }
+	} catch (ex) {
+		this.debug(ex);
+	}
 }
 
 function uploadComplete(fileObj) {
@@ -86,42 +91,50 @@ function uploadComplete(fileObj) {
 			progress.SetStatus("All images received.");
 			progress.ToggleCancel(false);
 		}
-	} catch (ex) { this.debug(ex); }
+	} catch (ex) {
+		this.debug(ex);
+	}
 }
 
 function uploadError(fileObj, error_code, message) {
+	var image_name =  "error.gif";
+	var progress;
 	try {
-		var image_name;
-		switch(error_code) {
-			case SWFUpload.UPLOAD_ERROR.FILE_CANCELLED:
-				try {
-					var progress = new FileProgress(fileObj,  this.customSettings.upload_target);
-					progress.SetCancelled();
-					progress.SetStatus("Cancelled");
-					progress.ToggleCancel(false);
-				}
-				catch (ex) { this.debug(ex); }
+		switch (error_code) {
+		case SWFUpload.UPLOAD_ERROR.FILE_CANCELLED:
+			try {
+				progress = new FileProgress(fileObj,  this.customSettings.upload_target);
+				progress.SetCancelled();
+				progress.SetStatus("Cancelled");
+				progress.ToggleCancel(false);
+			}
+			catch (ex1) {
+				this.debug(ex1);
+			}
 			break;
-			case SWFUpload.UPLOAD_ERROR.UPLOAD_STOPPED:
-				try {
-					var progress = new FileProgress(fileObj,  this.customSettings.upload_target);
-					progress.SetCancelled();
-					progress.SetStatus("Stopped");
-					progress.ToggleCancel(true);
-				}
-				catch (ex) { this.debug(ex); }
-			case SWFUpload.UPLOAD_ERROR.UPLOAD_LIMIT_EXCEEDED:
-				image_name = "uploadlimit.gif";
+		case SWFUpload.UPLOAD_ERROR.UPLOAD_STOPPED:
+			try {
+				progress = new FileProgress(fileObj,  this.customSettings.upload_target);
+				progress.SetCancelled();
+				progress.SetStatus("Stopped");
+				progress.ToggleCancel(true);
+			}
+			catch (ex2) {
+				this.debug(ex2);
+			}
+		case SWFUpload.UPLOAD_ERROR.UPLOAD_LIMIT_EXCEEDED:
+			image_name = "uploadlimit.gif";
 			break;
-			default:
-				alert(message);
-				image_name = "error.gif";
+		default:
+			alert(message);
 			break;
 		}
 
-		AddImage("images/" + image_name);
+		addImage("images/" + image_name);
 
-	} catch (ex) { this.debug(ex); }
+	} catch (ex3) {
+		this.debug(ex3);
+	}
 
 }
 
@@ -168,7 +181,7 @@ function FileProgress(fileObj, target_id) {
 		this.fileProgressWrapper.appendChild(this.fileProgressElement);
 
 		document.getElementById(target_id).appendChild(this.fileProgressWrapper);
-		FadeIn(this.fileProgressWrapper, 0);
+		fadeIn(this.fileProgressWrapper, 0);
 
 	} else {
 		this.fileProgressElement = this.fileProgressWrapper.firstChild;
@@ -178,42 +191,45 @@ function FileProgress(fileObj, target_id) {
 	this.height = this.fileProgressWrapper.offsetHeight;
 
 }
-FileProgress.prototype.SetProgress = function(percentage) {
+FileProgress.prototype.SetProgress = function (percentage) {
 	this.fileProgressElement.className = "progressContainer green";
 	this.fileProgressElement.childNodes[3].className = "progressBarInProgress";
 	this.fileProgressElement.childNodes[3].style.width = percentage + "%";
-}
-FileProgress.prototype.SetComplete = function() {
+};
+FileProgress.prototype.SetComplete = function () {
 	this.fileProgressElement.className = "progressContainer blue";
 	this.fileProgressElement.childNodes[3].className = "progressBarComplete";
 	this.fileProgressElement.childNodes[3].style.width = "";
 
-}
-FileProgress.prototype.SetError = function() {
+};
+FileProgress.prototype.SetError = function () {
 	this.fileProgressElement.className = "progressContainer red";
 	this.fileProgressElement.childNodes[3].className = "progressBarError";
 	this.fileProgressElement.childNodes[3].style.width = "";
 
-}
-FileProgress.prototype.SetCancelled = function() {
+};
+FileProgress.prototype.SetCancelled = function () {
 	this.fileProgressElement.className = "progressContainer";
 	this.fileProgressElement.childNodes[3].className = "progressBarError";
 	this.fileProgressElement.childNodes[3].style.width = "";
 
-}
-FileProgress.prototype.SetStatus = function(status) {
+};
+FileProgress.prototype.SetStatus = function (status) {
 	this.fileProgressElement.childNodes[2].innerHTML = status;
-}
+};
 
-FileProgress.prototype.ToggleCancel = function(show, upload_obj) {
+FileProgress.prototype.ToggleCancel = function (show, upload_obj) {
 	this.fileProgressElement.childNodes[0].style.visibility = show ? "visible" : "hidden";
 	if (upload_obj) {
 		var file_id = this.file_progress_id;
-		this.fileProgressElement.childNodes[0].onclick = function() { upload_obj.cancelUpload(file_id); return false; };
+		this.fileProgressElement.childNodes[0].onclick = function () {
+			upload_obj.cancelUpload(file_id);
+			return false;
+		};
 	}
-}
+};
 
-function AddImage(src) {
+function addImage(src) {
 	var new_img = document.createElement("img");
 	new_img.style.margin = "5px";
 
@@ -229,18 +245,22 @@ function AddImage(src) {
 		new_img.style.opacity = 0;
 	}
 
-	new_img.onload = function () { FadeIn(new_img, 0); };
+	new_img.onload = function () {
+		fadeIn(new_img, 0);
+	};
 	new_img.src = src;
 }
 
-function FadeIn(element, opacity) {
+function fadeIn(element, opacity) {
 	var reduce_opacity_by = 15;
 	var rate = 30;	// 15 fps
 
 
 	if (opacity < 100) {
 		opacity += reduce_opacity_by;
-		if (opacity > 100) opacity = 100;
+		if (opacity > 100) {
+			opacity = 100;
+		}
 
 		if (element.filters) {
 			try {
@@ -255,6 +275,8 @@ function FadeIn(element, opacity) {
 	}
 
 	if (opacity < 100) {
-		setTimeout(function() { FadeIn(element, opacity); }, rate);
+		setTimeout(function () {
+			fadeIn(element, opacity);
+		}, rate);
 	}
 }

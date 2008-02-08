@@ -51,7 +51,7 @@
 				debug: true		// For the purposes of this demo I wan't debug info shown
 			});
 
-	     }
+	     };
 	</script>
 
 </head>
