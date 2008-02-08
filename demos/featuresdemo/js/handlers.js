@@ -10,17 +10,17 @@ var FeaturesDemoHandlers = {
 		}
 	},
 
-	fileQueued : function (fileObj) {
+	fileQueued : function (file) {
 		try {
-			var queue_string = fileObj.id + ":  0%:" + fileObj.name;
-			FeaturesDemo.selQueue.options[FeaturesDemo.selQueue.options.length] = new Option(queue_string, fileObj.id);
-			FeaturesDemo.selEventsQueue.options[FeaturesDemo.selEventsQueue.options.length] = new Option("File Queued: " + fileObj.id, "");
+			var queue_string = file.id + ":  0%:" + file.name;
+			FeaturesDemo.selQueue.options[FeaturesDemo.selQueue.options.length] = new Option(queue_string, file.id);
+			FeaturesDemo.selEventsQueue.options[FeaturesDemo.selEventsQueue.options.length] = new Option("File Queued: " + file.id, "");
 		} catch (ex) {
 			this.debug(ex);
 		}
 	},
 
-	fileQueueError : function (fileObj, error_code, message) {
+	fileQueueError : function (file, error_code, message) {
 		try {
 			var error_name = "";
 			switch (error_code) {
@@ -41,7 +41,7 @@ var FeaturesDemoHandlers = {
 				break;
 			}
 
-			var error_string = error_name + ":File ID: " + (typeof(fileObj) === "object" && fileObj !== null ? fileObj.id : "na") + ":" + message;
+			var error_string = error_name + ":File ID: " + (typeof(file) === "object" && file !== null ? file.id : "na") + ":" + message;
 			FeaturesDemo.selEventsQueue.options[FeaturesDemo.selEventsQueue.options.length] = new Option("File Queue Error: " + error_string, "");
 
 		} catch (ex) {
@@ -57,9 +57,9 @@ var FeaturesDemoHandlers = {
 		}
 	},
 	
-	uploadStart : function (fileObj) {
+	uploadStart : function (file) {
 		try {
-			FeaturesDemo.selEventsFile.options[FeaturesDemo.selEventsFile.options.length] = new Option("File Start: " + fileObj.id, "");
+			FeaturesDemo.selEventsFile.options[FeaturesDemo.selEventsFile.options.length] = new Option("File Start: " + file.id, "");
 		} catch (ex) {
 			this.debug(ex);
 		}
@@ -67,18 +67,18 @@ var FeaturesDemoHandlers = {
 		return true;
 	},
 
-	uploadProgress : function (fileObj, bytesLoaded) {
+	uploadProgress : function (file, bytesLoaded, totalBytes) {
 
 		try {
-			var percent = Math.ceil((bytesLoaded / fileObj.size) * 100);
+			var percent = Math.ceil((bytesLoaded / file.size) * 100);
 			if (percent < 10) {
 				percent = "  " + percent;
 			} else if (percent < 100) {
 				percent = " " + percent;
 			}
 
-			FeaturesDemo.selQueue.value = fileObj.id;
-			var queue_string = fileObj.id + ":" + percent + "%:" + fileObj.name;
+			FeaturesDemo.selQueue.value = file.id;
+			var queue_string = file.id + ":" + percent + "%:" + file.name;
 			FeaturesDemo.selQueue.options[FeaturesDemo.selQueue.selectedIndex].text = queue_string;
 
 
@@ -88,13 +88,13 @@ var FeaturesDemoHandlers = {
 		}
 	},
 
-	uploadSuccess : function (fileObj, server_data) {
+	uploadSuccess : function (file, server_data) {
 		try {
-			var queue_string = fileObj.id + ":Done:" + fileObj.name;
-			FeaturesDemo.selQueue.value = fileObj.id;
+			var queue_string = file.id + ":Done:" + file.name;
+			FeaturesDemo.selQueue.value = file.id;
 			FeaturesDemo.selQueue.options[FeaturesDemo.selQueue.selectedIndex].text = queue_string;
 
-			FeaturesDemo.selEventsFile.options[FeaturesDemo.selEventsFile.options.length] = new Option("Upload Success: " + fileObj.id, "");
+			FeaturesDemo.selEventsFile.options[FeaturesDemo.selEventsFile.options.length] = new Option("Upload Success: " + file.id, "");
 
 			FeaturesDemo.divServerData.innerHTML = typeof(server_data) === "undefined" ? "" : server_data;
 		} catch (ex) {
@@ -102,7 +102,7 @@ var FeaturesDemoHandlers = {
 		}
 	},
 
-	uploadError : function (fileObj, error_code, message) {
+	uploadError : function (file, error_code, message) {
 		try {
 			var error_name = "";
 			switch (error_code) {
@@ -133,25 +133,25 @@ var FeaturesDemoHandlers = {
 			case SWFUpload.UPLOAD_ERROR.FILE_CANCELLED:
 				error_name = "FILE CANCELLED";
 				
-				FeaturesDemo.selQueue.value = fileObj.id;
-				FeaturesDemo.selQueue.options[FeaturesDemo.selQueue.selectedIndex].text = fileObj.id + ":----:" + fileObj.name;
+				FeaturesDemo.selQueue.value = file.id;
+				FeaturesDemo.selQueue.options[FeaturesDemo.selQueue.selectedIndex].text = file.id + ":----:" + file.name;
 
-				FeaturesDemo.selEventsFile.options[FeaturesDemo.selEventsFile.options.length] = new Option("File Cancelled " + fileObj.id, "");
+				FeaturesDemo.selEventsFile.options[FeaturesDemo.selEventsFile.options.length] = new Option("File Cancelled " + file.id, "");
 				break;
 			case SWFUpload.UPLOAD_ERROR.UPLOAD_STOPPED:
 				error_name = "FILE STOPPED";
 				
-				FeaturesDemo.selQueue.value = fileObj.id;
-				FeaturesDemo.selQueue.options[FeaturesDemo.selQueue.selectedIndex].text = fileObj.id + ":  0%:" + fileObj.name;
+				FeaturesDemo.selQueue.value = file.id;
+				FeaturesDemo.selQueue.options[FeaturesDemo.selQueue.selectedIndex].text = file.id + ":  0%:" + file.name;
 
-				FeaturesDemo.selEventsFile.options[FeaturesDemo.selEventsFile.options.length] = new Option("File Stopped " + fileObj.id, "");
+				FeaturesDemo.selEventsFile.options[FeaturesDemo.selEventsFile.options.length] = new Option("File Stopped " + file.id, "");
 				break;
 			default:
 				error_name = "UNKNOWN";
 				break;
 			}
 
-			var error_string = error_name + ":File ID: " + (typeof(fileObj) === "object" && fileObj !== null ? fileObj.id : "na") + ":" + message;
+			var error_string = error_name + ":File ID: " + (typeof(file) === "object" && file !== null ? file.id : "na") + ":" + message;
 			FeaturesDemo.selEventsFile.options[FeaturesDemo.selEventsFile.options.length] = new Option(error_string, "");
 
 		} catch (ex) {
@@ -159,16 +159,9 @@ var FeaturesDemoHandlers = {
 		}
 	},
 	
-	uploadComplete : function (fileObj) {
+	uploadComplete : function (file) {
 		try {
-			FeaturesDemo.selEventsFile.options[FeaturesDemo.selEventsFile.options.length] = new Option("Upload Complete: " + fileObj.id, "");
-
-			// See if the setting for uploading the entire queue is enabled and do it.
-			if (FeaturesDemo.upload_all && this.getStats().files_queued > 0) {
-				FeaturesDemo.SU.startUpload();
-			} else {
-				FeaturesDemo.upload_all = false;
-			}
+			FeaturesDemo.selEventsFile.options[FeaturesDemo.selEventsFile.options.length] = new Option("Upload Complete: " + file.id, "");
 		} catch (ex) {
 			this.debug(ex);
 		}

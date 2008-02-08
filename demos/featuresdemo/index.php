@@ -21,11 +21,12 @@
 			suo = new SWFUpload({
 				// Backend Settings
 				upload_url: "../featuresdemo/upload.php?get_name=get_value",	// I can pass query strings here if I want
+				use_query_string : false,
 				post_params: { "post_name1": "post_value1", "post_name2": "post_value2" }, 	// Here are some POST values to send. These can be changed dynamically
 				file_post_name: "Filedata",	// This is the "name" of the file item that the server-side script will receive. Setting this doesn't work in the Linux Flash Player
 
 				// File Upload Settings
-				file_size_limit : "102400",	// 100MB
+				file_size_limit : "100 MB",
 				file_types : "*.*",
 				file_types_description : "All Files",
 				file_upload_limit : "10",
@@ -63,11 +64,9 @@
 			<br />
 			You can change all the settings except &apos;upload_url&apos;.<br />
 			<br />
-			You can change between the SWFUpload v2.0 for Flash Player 8 and SWFUpload v2.0 for Flash Player 9 by changing the flash_url setting (replace the 9 with an 8).<br />
-			<br />
 			<strong>Your PHP Session ID is <?php echo session_id(); ?>.</strong>  This is provided so you can see the Flash Player Cookie
 			bug in action.  Compare this Session ID to the Session ID and Cookies displayed in the Server Data section
-			after an upload is complete.<br />
+			after an upload is complete (SWFUpload FP9 only).<br />
 			<br />
 			SWFUpload has <span id="spanLoadStatus" style="font-weight: bold;">not loaded</span><br />
 			<table class="layout">
@@ -90,11 +89,6 @@
 							</div>
 							<div>
 								<table class="btn"><tr><td class="btn-left"></td><td class="btn-center">
-									<button id="btnStartQueueUpload" type="button" class="action">Start Queue</button>
-								</td><td class="btn-right"></td></tr></table>
-							</div>
-							<div>
-								<table class="btn"><tr><td class="btn-left"></td><td class="btn-center">
 									<button id="btnStartSelectedFile" type="button" class="action">Start Selected File</button>
 								</td><td class="btn-right"></td></tr></table>
 							</div>
@@ -106,11 +100,6 @@
 							<div>
 								<table class="btn"><tr><td class="btn-left"></td><td class="btn-center">
 									<button id="btnCancelSelectedFile" type="button" class="action">Cancel Selected File</button>
-								</td><td class="btn-right"></td></tr></table>
-							</div>
-							<div>
-								<table class="btn"><tr><td class="btn-left"></td><td class="btn-center">
-									<button id="btnCancelQueue" type="button" class="action">Cancel Queue</button>
 								</td><td class="btn-right"></td></tr></table>
 							</div>
 						</fieldset>
@@ -221,6 +210,10 @@
 									<input id="txtFileQueueLimit" type="text" class="textbox" />
 								</div>
 								<div class="checkbox">
+									<input id="cbUseQueryString" type="checkbox" />
+									<label for="cbUseQueryString">use_query_string</label>
+								</div>
+								<div class="checkbox">
 									<input id="cbDebug" type="checkbox" />
 									<label for="cbDebug">debug</label>
 								</div>
@@ -233,16 +226,12 @@
 						</fieldset>						<fieldset id="fsStaticSettings">
 							<legend>Static Settings</legend>
 							<div>
-								<label for="txtFlashURL">flash_url</label>
-								<input id="txtFlashURL" type="text" class="textbox" />
+								<label>flash_url</label>
+								<input type="radio" name="flash_url" id="rbFlash8" style="width: auto; vertical-align: middle;" /> <label style="float: none; width: auto; display: inline;" for="rbFlash8">SWFUpload FP8</label><br />
 							</div>
 							<div>
-								<label for="txtFlashWidth">flash_width</label>
-								<input id="txtFlashWidth" type="text" class="textbox" />
-							</div>
-							<div>
-								<label for="txtFlashHeight">flash_height</label>
-								<input id="txtFlashHeight" type="text" class="textbox" />
+								<label for="txtFlashURL"></label>
+								<input type="radio" name="flash_url" id="rbFlash9" style="width: auto; vertical-align: middle;" /> <label style="float: none; width: auto; display: inline;" for="rbFlash9">SWFUpload FP9</label><br />
 							</div>
 							<div>
 								<label for="txtFlashColor">flash_color</label>
@@ -268,7 +257,7 @@
 											<select id="selEventsQueue" size="10" style="width: 100%;"></select>
 										</div>
 									</td>
-									<td style="width: 50%">
+									<td style="width: 50%; overflow: hidden;">
 										<div>
 											<label for="selEventsFile">File</label>
 											<select id="selEventsFile" size="10" style="width: 100%;"></select>

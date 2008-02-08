@@ -86,7 +86,8 @@ SWFUpload.prototype.initSettings = function () {
 	this.ensureDefault("upload_url", "");
 	this.ensureDefault("file_post_name", "Filedata");
 	this.ensureDefault("post_params", {});
-
+	this.ensureDefault("use_query_string", false);
+	
 	// File Settings
 	this.ensureDefault("file_types", "*.*");
 	this.ensureDefault("file_types_description", "All Files");
@@ -154,6 +155,17 @@ SWFUpload.prototype.loadFlash = function () {
 
 // Private: getFlashHTML generates the object tag needed to embed the flash in to the document
 SWFUpload.prototype.getFlashHTML = function () {
+	// Flash Satay object syntax: http://www.alistapart.com/articles/flashsatay
+	return ['<object id="', this.movieName, '" type="application/x-shockwave-flash" data="', this.settings.flash_url, '" width="1" height="1" style="-moz-user-focus: ignore;">',
+				'<param name="movie" value="', this.settings.flash_url, '" />',
+				'<param name="bgcolor" value="', this.settings.flash_color, '" />',
+				'<param name="quality" value="high" />',
+				'<param name="menu" value="false" />',
+				'<param name="allowScriptAccess" value="always" />',
+				'<param name="flashvars" value="' + this.getFlashVars() + '" />',
+				'</object>'].join("");
+
+				/*
 	// Create Mozilla Embed HTML
 	if (navigator.plugins && navigator.mimeTypes && navigator.mimeTypes.length) {
 		// Build the basic embed html
@@ -173,6 +185,7 @@ SWFUpload.prototype.getFlashHTML = function () {
 				'<param name="flashvars" value="' + this.getFlashVars() + '" />',
 				'</object>'].join("");
 	}
+	*/
 };
 
 // Private: getFlashVars builds the parameter string that will be passed
@@ -184,6 +197,7 @@ SWFUpload.prototype.getFlashVars = function () {
 	// Build the parameter string
 	return ["movieName=", encodeURIComponent(this.movieName),
 			"&amp;uploadURL=", encodeURIComponent(this.settings.upload_url),
+			"&amp;useQueryString=", encodeURIComponent(this.settings.use_query_string),
 			"&amp;params=", encodeURIComponent(paramString),
 			"&amp;filePostName=", encodeURIComponent(this.settings.file_post_name),
 			"&amp;fileTypes=", encodeURIComponent(this.settings.file_types),
@@ -237,6 +251,7 @@ SWFUpload.prototype.displayDebugInfo = function () {
 			"Movie Name: ", this.movieName, "\n",
 			"Settings:\n",
 			"\t", "upload_url:             ", this.settings.upload_url, "\n",
+			"\t", "use_query_string:       ", this.settings.use_query_string.toString(), "\n",
 			"\t", "file_post_name:         ", this.settings.file_post_name, "\n",
 			"\t", "post_params:            ", this.settings.post_params.toString(), "\n",
 			"\t", "file_types:             ", this.settings.file_types, "\n",
@@ -461,6 +476,12 @@ SWFUpload.prototype.setFileQueueLimit = function (fileQueueLimit) {
 SWFUpload.prototype.setFilePostName = function (filePostName) {
 	this.settings.file_post_name = filePostName;
 	this.callFlash("SetFilePostName", false, [filePostName]);
+};
+
+// Public: setUseQueryString changes the use_query_string setting
+SWFUpload.prototype.setUseQueryString = function (useQueryString) {
+	this.settings.use_query_string = useQueryString;
+	this.callFlash("SetUseQueryString", false, [useQueryString]);
 };
 
 // Public: setDebugEnabled changes the debug_enabled setting

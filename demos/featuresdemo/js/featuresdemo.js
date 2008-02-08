@@ -21,13 +21,6 @@ var FeaturesDemo = {
 			}
 			return false;
 		};
-		FeaturesDemo.btnStartQueueUpload.onclick = function () {
-			try {
-				FeaturesDemo.startQueueUpload();
-			} catch (ex) {
-			}
-			return false;
-		};
 		FeaturesDemo.btnStartSelectedFile.onclick = function () {
 			try {
 				FeaturesDemo.startSelectedFile();
@@ -45,13 +38,6 @@ var FeaturesDemo = {
 		FeaturesDemo.btnCancelSelectedFile.onclick = function () {
 			try {
 				FeaturesDemo.cancelSelectedFile();
-			} catch (ex) {
-			}
-			return false;
-		};
-		FeaturesDemo.btnCancelQueue.onclick = function () {
-			try {
-				FeaturesDemo.cancelQueue();
 			} catch (ex) {
 			}
 			return false;
@@ -109,11 +95,9 @@ var FeaturesDemo = {
 		FeaturesDemo.btnBrowse = document.getElementById("btnBrowse");
 		FeaturesDemo.btnBrowseSingle = document.getElementById("btnBrowseSingle");
 		FeaturesDemo.selQueue = document.getElementById("selQueue");
-		FeaturesDemo.btnStartQueueUpload = document.getElementById("btnStartQueueUpload");
 		FeaturesDemo.btnStartSelectedFile = document.getElementById("btnStartSelectedFile");
 		FeaturesDemo.btnStopUpload = document.getElementById("btnStopUpload");
 		FeaturesDemo.btnCancelSelectedFile = document.getElementById("btnCancelSelectedFile");
-		FeaturesDemo.btnCancelQueue = document.getElementById("btnCancelQueue");
 		FeaturesDemo.txtAddFileParamName = document.getElementById("txtAddFileParamName");
 		FeaturesDemo.txtAddFileParamValue = document.getElementById("txtAddFileParamValue");
 		FeaturesDemo.btnAddFileParam = document.getElementById("btnAddFileParam");
@@ -134,10 +118,10 @@ var FeaturesDemo = {
 		FeaturesDemo.txtFileSizeLimit = document.getElementById("txtFileSizeLimit");
 		FeaturesDemo.txtFileUploadLimit = document.getElementById("txtFileUploadLimit");
 		FeaturesDemo.txtFileQueueLimit = document.getElementById("txtFileQueueLimit");
-		FeaturesDemo.txtFlashURL = document.getElementById("txtFlashURL");
-		FeaturesDemo.txtFlashWidth = document.getElementById("txtFlashWidth");
-		FeaturesDemo.txtFlashHeight = document.getElementById("txtFlashHeight");
+		FeaturesDemo.rbFlash8 = document.getElementById("rbFlash8");
+		FeaturesDemo.rbFlash9 = document.getElementById("rbFlash9");
 		FeaturesDemo.txtFlashColor = document.getElementById("txtFlashColor");
+		FeaturesDemo.cbUseQueryString = document.getElementById("cbUseQueryString");
 		FeaturesDemo.cbDebug = document.getElementById("cbDebug");
 		FeaturesDemo.btnReloadSWFUpload = document.getElementById("btnReloadSWFUpload");
 		FeaturesDemo.selEventsQueue = document.getElementById("selEventsQueue");
@@ -164,10 +148,10 @@ var FeaturesDemo = {
 		FeaturesDemo.txtFileSizeLimit.value = "";
 		FeaturesDemo.txtFileUploadLimit.value = "";
 		FeaturesDemo.txtFileQueueLimit.value = "";
-		FeaturesDemo.txtFlashURL.value = "";
-		FeaturesDemo.txtFlashWidth.value = "";
-		FeaturesDemo.txtFlashHeight.value = "";
+		FeaturesDemo.rbFlash8.checked = false;
+		FeaturesDemo.rbFlash9.checked = false;
 		FeaturesDemo.txtFlashColor.value = "";
+		FeaturesDemo.cbUseQueryString.checked = false;
 		FeaturesDemo.cbDebug.checked = false;
 		FeaturesDemo.selEventsQueue.options.length = 0;
 		FeaturesDemo.selEventsFile.options.length = 0;
@@ -175,7 +159,7 @@ var FeaturesDemo = {
 		FeaturesDemo.divServerData.innerHTML = "";
 	},
 	loadAll: function () {
-		var param_obj = FeaturesDemo.SU.getSetting("post_params");
+		var param_obj = FeaturesDemo.SU.settings.post_params;
 		var counter = 0;
 		for (var key in param_obj) {
 			if (param_obj.hasOwnProperty(key)) {
@@ -183,28 +167,27 @@ var FeaturesDemo = {
 			}
 		}
 
-		param_obj = FeaturesDemo.SU.getSetting("query_params");
-		counter = 0;
-		for (key in param_obj) {
-			if (param_obj.hasOwnProperty(key)) {
-				FeaturesDemo.selQueryParams.options[counter++] = new Option(key, param_obj[key]);
-			}
+		var flash8;
+		if (FeaturesDemo.SU.settings.flash_url.indexOf('swfupload_f8.swf') > -1) {
+			flash8 = true;
+		} else {
+			flash8 = false;
 		}
-
-		FeaturesDemo.txtUploadTarget.value = FeaturesDemo.SU.getSetting("upload_url");
+		
+		FeaturesDemo.txtUploadTarget.value = FeaturesDemo.SU.settings.upload_url;
 		FeaturesDemo.txtFlashHTML.value = FeaturesDemo.SU.getFlashHTML();
 		FeaturesDemo.txtMovieName.value = FeaturesDemo.SU.movieName;
-		FeaturesDemo.txtFilePostName.value = FeaturesDemo.SU.getSetting("file_post_name");
-		FeaturesDemo.txtFileTypes.value = FeaturesDemo.SU.getSetting("file_types");
-		FeaturesDemo.txtFileTypesDescription.value = FeaturesDemo.SU.getSetting("file_types_description");
-		FeaturesDemo.txtFileSizeLimit.value = FeaturesDemo.SU.getSetting("file_size_limit");
-		FeaturesDemo.txtFileUploadLimit.value = FeaturesDemo.SU.getSetting("file_upload_limit");
-		FeaturesDemo.txtFileQueueLimit.value = FeaturesDemo.SU.getSetting("file_queue_limit");
-		FeaturesDemo.txtFlashURL.value = FeaturesDemo.SU.getSetting("flash_url");
-		FeaturesDemo.txtFlashWidth.value = FeaturesDemo.SU.getSetting("flash_width");
-		FeaturesDemo.txtFlashHeight.value = FeaturesDemo.SU.getSetting("flash_height");
-		FeaturesDemo.txtFlashColor.value = FeaturesDemo.SU.getSetting("flash_color");
-		FeaturesDemo.cbDebug.checked = FeaturesDemo.SU.getSetting("debug_enabled");
+		FeaturesDemo.txtFilePostName.value = FeaturesDemo.SU.settings.file_post_name;
+		FeaturesDemo.txtFileTypes.value = FeaturesDemo.SU.settings.file_types;
+		FeaturesDemo.txtFileTypesDescription.value = FeaturesDemo.SU.settings.file_types_description;
+		FeaturesDemo.txtFileSizeLimit.value = FeaturesDemo.SU.settings.file_size_limit;
+		FeaturesDemo.txtFileUploadLimit.value = FeaturesDemo.SU.settings.file_upload_limit;
+		FeaturesDemo.txtFileQueueLimit.value = FeaturesDemo.SU.settings.file_queue_limit;
+		FeaturesDemo.rbFlash8.checked = flash8;
+		FeaturesDemo.rbFlash9.checked = !flash8;
+		FeaturesDemo.txtFlashColor.value = FeaturesDemo.SU.settings.flash_color;
+		FeaturesDemo.cbUseQueryString.checked = FeaturesDemo.SU.settings.use_query_string;
+		FeaturesDemo.cbDebug.checked = FeaturesDemo.SU.settings.debug;
 	},
 
 	selectFiles: function () {
@@ -212,10 +195,6 @@ var FeaturesDemo = {
 	},
 	selectFile: function () {
 		FeaturesDemo.SU.selectFile();
-	},
-	startQueueUpload: function () {
-		FeaturesDemo.upload_all = true;
-		FeaturesDemo.SU.startUpload();
 	},
 	startSelectedFile: function () {
 		if (FeaturesDemo.selQueue.options.length === 0) {
@@ -231,7 +210,6 @@ var FeaturesDemo = {
 		FeaturesDemo.SU.startUpload(file_id);
 	},
 	stopUpload: function () {
-		FeaturesDemo.upload_all = false;
 		FeaturesDemo.SU.stopUpload();
 	},
 	cancelSelectedFile: function () {
@@ -246,14 +224,6 @@ var FeaturesDemo = {
 
 		var file_id = FeaturesDemo.selQueue.value;
 		FeaturesDemo.SU.cancelUpload(file_id);
-	},
-	cancelQueue: function () {
-		var files_left = FeaturesDemo.SU.getStats().files_queued;
-
-		while (files_left > 0) {
-			FeaturesDemo.SU.cancelUpload();
-			files_left = FeaturesDemo.SU.getStats().files_queued;
-		}
 	},
 	addFileParam: function () {
 		if (FeaturesDemo.selQueue.selectedIndex === -1) {
@@ -328,9 +298,10 @@ var FeaturesDemo = {
 		FeaturesDemo.SU.setFileQueueLimit(FeaturesDemo.txtFileQueueLimit.value);
 		FeaturesDemo.SU.setFilePostName(FeaturesDemo.txtFilePostName.value);
 		FeaturesDemo.SU.setDebugEnabled(FeaturesDemo.cbDebug.checked);
+		FeaturesDemo.SU.setUseQueryString(FeaturesDemo.cbUseQueryString.checked);
 
 		// We ignore any changes to the upload_url
-		FeaturesDemo.txtUploadTarget.value = FeaturesDemo.SU.getSetting("upload_url");
+		FeaturesDemo.txtUploadTarget.value = FeaturesDemo.SU.settings.upload_url;
 
 		alert("Dynamic Settings updated.");
 	},
@@ -349,9 +320,12 @@ var FeaturesDemo = {
 			FeaturesDemo.SU.movieElement.parentNode.removeChild(FeaturesDemo.SU.movieElement);
 			FeaturesDemo.SU.movieElement = null;
 
+			var flash_url = FeaturesDemo.rbFlash8.checked ? "../swfupload/swfupload_f8.swf" : "../swfupload/swfupload_f9.swf";
+			
 			var settings = {
-				upload_url: FeaturesDemo.SU.getSetting("upload_url"),
-				post_params: FeaturesDemo.getParamsObject(),
+				upload_url : FeaturesDemo.SU.settings.upload_url,
+				use_query_string : FeaturesDemo.cbUseQueryString.checked,
+				post_params : FeaturesDemo.getParamsObject(),
 				file_size_limit : FeaturesDemo.txtFileSizeLimit.value,
 				file_post_name : FeaturesDemo.txtFilePostName.value,
 				file_types : FeaturesDemo.txtFileTypes.value,
@@ -366,11 +340,9 @@ var FeaturesDemo = {
 				upload_success_handler : FeaturesDemoHandlers.uploadSuccess,
 				upload_complete_handler : FeaturesDemoHandlers.uploadComplete,
 				debug_handler : FeaturesDemoHandlers.debug,
-				flash_url : FeaturesDemo.txtFlashURL.value,
-				flash_width : FeaturesDemo.txtFlashWidth.value,
-				flash_height : FeaturesDemo.txtFlashHeight.value,
+				flash_url : flash_url,
 				flash_color : FeaturesDemo.txtFlashColor.value,
-				debug: FeaturesDemo.cbDebug.checked
+				debug : FeaturesDemo.cbDebug.checked
 			};
 
 			FeaturesDemo.clearAll();

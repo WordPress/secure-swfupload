@@ -38,9 +38,9 @@ package {
 			try {
 				this.js_object.name = this.file_reference.name;
 				this.js_object.size = this.file_reference.size;
-				this.js_object.type = this.file_reference.type;
-				this.js_object.creationdate = this.file_reference.creationDate;
-				this.js_object.modificationdate = this.file_reference.modificationDate;
+				this.js_object.type = this.file_reference.type || "";
+				this.js_object.creationdate = this.file_reference.creationDate || new Date(0);
+				this.js_object.modificationdate = this.file_reference.modificationDate || new Date(0);
 			} catch (ex:Error) {
 				this.file_status = FileItem.FILE_STATUS_ERROR;
 			}

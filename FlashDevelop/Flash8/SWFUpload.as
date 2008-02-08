@@ -26,8 +26,8 @@ class SWFUpload {
 		var SWFUpload:SWFUpload = new SWFUpload();
 	}
 	
-	private var build_number:String = "SWFUPLOAD 2.1.0 FP8 2008-02-02 0001";
-	
+	private var build_number:String = "SWFUPLOAD 2.1.0 FP8 2008-02-08";
+
 	// State tracking variables
 	private var fileBrowserMany:FileReferenceList = new FileReferenceList();
 	private var fileBrowserOne:FileReference = null;	// This isn't set because it can't be reused like the FileReferenceList. It gets setup in the SelectFile method
@@ -100,6 +100,11 @@ class SWFUpload {
 	private var ERROR_CODE_UPLOAD_STOPPED:Number				= -290;
 
 	public function SWFUpload() {
+		// Do the feature detection to determine if this Flash version supports the functionality we need.
+		if (!flash.net.FileReferenceList || !flash.net.FileReference || !flash.external.ExternalInterface || !flash.external.ExternalInterface.available) {
+			return;
+		}
+		
 		System.security.allowDomain("*");	// Allow uploading to any domain
 
 		// Setup file FileReferenceList events
@@ -111,6 +116,7 @@ class SWFUpload {
 
 		// Setup the events listner
 		this.file_reference_listener = {
+			onOpen : Delegate.create(this, this.Open_Handler),
 			onProgress : Delegate.create(this, this.FileProgress_Handler),
 			onIOError  : Delegate.create(this, this.IOError_Handler),
 			onSecurityError : Delegate.create(this, this.SecurityError_Handler),
@@ -216,6 +222,7 @@ class SWFUpload {
 			ExternalInterface.addCallback("SetFileUploadLimit", this, this.SetFileUploadLimit);
 			ExternalInterface.addCallback("SetFileQueueLimit", this, this.SetFileQueueLimit);
 			ExternalInterface.addCallback("SetFilePostName", this, this.SetFilePostName);
+			ExternalInterface.addCallback("SetUseQueryString", this, this.SetUseQueryString);
 			ExternalInterface.addCallback("SetDebugEnabled", this, this.SetDebugEnabled);
 		} catch (ex:Error) {
 			this.Debug("Callbacks where not set.");
@@ -225,11 +232,7 @@ class SWFUpload {
 		this.Debug("SWFUpload Init Complete");
 		this.PrintDebugInfo();
 
-		// Do the feature detection to determine if this Flash version supports the functionality we need.
-		// If so then notify the browser that the SWFUpload flash control us ready to go.
-		if (flash.net.FileReferenceList && flash.net.FileReference && flash.external.ExternalInterface && flash.external.ExternalInterface.available) {
-			ExternalCall.Simple(this.flashReady_Callback);
-		}
+		ExternalCall.Simple(this.flashReady_Callback);
 	}
 
 	/* *****************************************
@@ -238,6 +241,11 @@ class SWFUpload {
 	private function DialogCancelled_Handler():Void {
 		this.Debug("Event: fileDialogComplete: File Dialog window cancelled.");
 		ExternalCall.FileDialogComplete(this.fileDialogComplete_Callback, 0, 0);
+	}
+
+	private function Open_Handler(file:FileReference):Void {
+		this.Debug("Event: uploadProgress(OPEN): File ID: " + this.current_file_item.id);
+		ExternalCall.UploadProgress(this.uploadProgress_Callback, this.current_file_item.ToJavaScriptObject(), 0, this.current_file_item.file_reference.size);
 	}
 
 	private function FileProgress_Handler(file:FileReference, bytesLoaded:Number, bytesTotal:Number):Void {
@@ -249,7 +257,7 @@ class SWFUpload {
 		this.successful_uploads++;
 		this.current_file_item.file_status = FileItem.FILE_STATUS_SUCCESS;
 
-		this.Debug("Event: uploadSuccess: File ID: " + this.current_file_item.id + " Data: n/a");
+		this.Debug("Event: uploadSuccess: File ID: " + this.current_file_item.id + " Data: n/a in Flash 8");
 		ExternalCall.UploadSuccess(this.uploadSuccess_Callback, this.current_file_item.ToJavaScriptObject());
 
 		this.UploadComplete();
@@ -271,7 +279,7 @@ class SWFUpload {
 		this.upload_errors++;
 		this.current_file_item.file_status = FileItem.FILE_STATUS_ERROR;
 
-		if(!this.uploadURL.length) {
+		if(this.uploadURL.length == 0) {
 			this.Debug("Event: uploadError : IO Error : File ID: " + this.current_file_item.id + ". Upload URL string is empty.");
 			ExternalCall.UploadError(this.uploadError_Callback, this.ERROR_CODE_MISSING_UPLOAD_URL, this.current_file_item.ToJavaScriptObject(), "IO Error");
 		} else {
@@ -302,7 +310,8 @@ class SWFUpload {
 	}
 	
 	private function Select_Handler(file_reference_list:Array):Void {
-		this.Debug("Select Handler: Files Selected from Dialog. Processing file list");
+		this.Debug("Select Handler: Received the files selected from the dialog. Processing the file list...");
+
 		var num_files_queued:Number = 0;
 		
 		// Determine how many queue slots are remaining (check the unlimited (0) settings, successful uploads and queued uploads)
@@ -342,20 +351,20 @@ class SWFUpload {
 				}
 				else if (!is_valid_filetype) {
 					file_item.file_reference = null; 	// Cleanup the object
-					this.Debug("Event: fileQueueError : File not of a valid type.");
 					this.queue_errors++;
+					this.Debug("Event: fileQueueError : File not of a valid type.");
 					ExternalCall.FileQueueError(this.fileQueueError_Callback, this.ERROR_CODE_INVALID_FILETYPE, file_item.ToJavaScriptObject(), "File is not an allowed file type.");
 				}
 				else if (size_result == this.SIZE_TOO_BIG) {
 					file_item.file_reference = null; 	// Cleanup the object
-					this.Debug("Event: fileQueueError : File exceeds size limit.");
 					this.queue_errors++;
+					this.Debug("Event: fileQueueError : File exceeds size limit.");
 					ExternalCall.FileQueueError(this.fileQueueError_Callback, this.ERROR_CODE_FILE_EXCEEDS_SIZE_LIMIT, file_item.ToJavaScriptObject(), "File size exceeds allowed limit.");
 				}
 				else if (size_result == this.SIZE_ZERO_BYTE) {
 					file_item.file_reference = null; 	// Cleanup the object
-					this.Debug("Event: fileQueueError : File is zero bytes.");
 					this.queue_errors++;
+					this.Debug("Event: fileQueueError : File is zero bytes.");
 					ExternalCall.FileQueueError(this.fileQueueError_Callback, this.ERROR_CODE_ZERO_BYTE_FILE, file_item.ToJavaScriptObject(), "File is zero bytes and cannot be uploaded.");
 				}
 				else {
@@ -409,18 +418,6 @@ class SWFUpload {
 		this.fileBrowserMany.browse([{ description : allowed_file_types_description, extension : allowed_file_types }]);
 	}
 
-
-	// Starts uploading.  Checks to see if a file is currently uploading and, if not, starts the upload.
-	private function StartUpload(file_id:String):Void {
-		if (file_id == undefined) file_id = "";
-		
-		if (this.current_file_item == null) {
-			this.Debug("StartUpload(): Starting Upload: " + (file_id ?  "File ID:" + file_id : "First file in queue"));
-			this.StartFile(file_id);
-		} else {
-			this.Debug("StartUpload(): Upload run already in progress");
-		}
-	}
 
 	// Cancel the current upload and stops.  Doesn't advance the upload pointer. The current file is requeued at the beginning.
 	private function StopUpload():Void {
@@ -537,7 +534,6 @@ class SWFUpload {
 		};
 	}
 	private function SetStats(stats:Object):Void {
-		this.Debug(typeof(stats["successful_uploads"]));
 		this.successful_uploads = (typeof(stats["successful_uploads"]) === "number") ? stats["successful_uploads"] : this.successful_uploads;
 		this.upload_errors = (typeof(stats["upload_errors"]) === "number") ? stats["upload_errors"] : this.upload_errors;
 		this.upload_cancelled = (typeof(stats["upload_cancelled"]) === "number") ? stats["upload_cancelled"] : this.upload_cancelled;
@@ -665,6 +661,10 @@ class SWFUpload {
 			this.filePostName = file_post_name;
 		}
 	}
+
+	private function SetUseQueryString(use_query_string:Boolean):Void {
+		// Nothing to do. Here only for API compatibility
+	}
 	
 	private function SetDebugEnabled(debug_enabled:Boolean):Void {
 		this.debugEnabled = debug_enabled;
@@ -673,17 +673,16 @@ class SWFUpload {
 	/* *************************************************************
 		File processing and handling functions
 	*************************************************************** */
-	//
-	private function StartFile(file_id:String):Void {
+	private function StartUpload(file_id:String):Void {
 		if (file_id == undefined) file_id = "";
 		
 		// Only upload a file uploads are being processed.
 		//   startFile could be called by a file cancellation even when we aren't currently uploading
 		if (this.current_file_item != null) {
-			this.Debug("StartFile(): Upload already in progress. Not starting another upload.");
+			this.Debug("StartUpload(): Upload already in progress. Not starting another upload.");
 		}
 
-		this.Debug("StartFile: " + (file_id ? "File ID: " + file_id : "First file in queue"));
+		this.Debug("StartUpload: " + (file_id ? "File ID: " + file_id : "First file in queue"));
 
 		// Check the upload limit
 		if (this.successful_uploads >= this.fileUploadLimit && this.fileUploadLimit != 0) {
@@ -696,11 +695,9 @@ class SWFUpload {
 		// Get the next file to upload
 		if (!file_id) {
 			while (this.file_queue.length > 0 && this.current_file_item == null) {
-				// Check that File Reference is valid (if not make sure it's deleted and get the next one on the next loop)
-				this.current_file_item = FileItem(this.file_queue.shift());	// Cast back to a FileItem
+				this.current_file_item = FileItem(this.file_queue.shift());
 				if (typeof(this.current_file_item) == "undefined") {
 					this.current_file_item = null;
-					continue;
 				}
 			}
 		} else {
@@ -711,21 +708,21 @@ class SWFUpload {
 				this.file_queue[file_index] = null;
 			} else {
 				this.Debug("Event: uploadError : File ID not found in queue: " + file_id);
-				ExternalCall.UploadError(this.uploadError_Callback, this.ERROR_CODE_SPECIFIED_FILE_ID_NOT_FOUND, null, "File ID not queued.");
+				ExternalCall.UploadError(this.uploadError_Callback, this.ERROR_CODE_SPECIFIED_FILE_ID_NOT_FOUND, null, "File ID not found in the queue.");
 			}
 		}
 
 
 		// Start the upload if we found an item to upload
 		if (this.current_file_item != null) {
-			// Begin the upload
+				// Trigger the uploadStart event which will call ReturnUploadStart to begin the actual upload
 			this.Debug("Event: uploadStart : File ID: " + this.current_file_item.id);
 			ExternalCall.UploadStart(this.uploadStart_Callback, this.current_file_item.ToJavaScriptObject());
 		
 		}
 		// Otherwise we've would have looped through all the FileItems. This means the queue is empty)
 		else {
-			this.Debug("startFile(): No File Reference found.  There are no files left to upload.\nstartFile(): Ending upload run.");
+			this.Debug("StartUpload(): No files found in the queue.");
 		}
 	}
 
@@ -733,7 +730,7 @@ class SWFUpload {
 	// the function we do a return function call so we can use the setTimeout work-around for Flash/JS circular calls.
 	private function ReturnUploadStart(start_upload:Boolean):Void {
 		if (this.current_file_item == null) {
-			this.Debug("ReturnUploadStart called but file was no longer queued. This is okay if the file was stopped or cancelled.");
+			this.Debug("ReturnUploadStart called but no file was prepped for uploading. The file may have been cancelled or stopped.");
 			return;
 		}
 		
@@ -742,15 +739,18 @@ class SWFUpload {
 				// Set the event handlers
 				this.current_file_item.file_reference.addListener(this.file_reference_listener);
 				
-				// Upload the file
+				// Build the request (post params, etc)
 				var url:String = this.BuildRequest();
 				
-				this.Debug("startFile(): File Reference found. File accepted by startUpload event.  Starting upload to " + this.uploadURL + " for File ID: " + this.current_file_item.id);
+				this.Debug("ReturnUploadStart(): File accepted by startUpload event and readied for upload.  Starting upload to " + url + " for File ID: " + this.current_file_item.id);
 				this.current_file_item.file_reference.upload(url, this.filePostName, false);
 			} catch (ex:Error) {
+				this.Debug("ReturnUploadStart: Exception occurred: " + ex);
+
 				this.upload_errors++;
 				this.current_file_item.file_status = FileItem.FILE_STATUS_ERROR;
 				var message:String = ex.name + "\n" + ex.message;
+
 				this.Debug("Event: uploadError(): Unhandled exception: " + message);
 				ExternalCall.UploadError(this.uploadError_Callback, this.ERROR_CODE_UPLOAD_FAILED, this.current_file_item.ToJavaScriptObject(), message);
 				
@@ -759,7 +759,6 @@ class SWFUpload {
 			this.current_file_item.file_status = FileItem.FILE_STATUS_IN_PROGRESS;
 
 		} else {
-			this.Debug("Event: uploadError : Call to uploadStart returned false. Not uploading file.");
 			
 			// Remove the event handlers
 			this.current_file_item.file_reference.removeListener(this.file_reference_listener);
@@ -770,9 +769,10 @@ class SWFUpload {
 			this.file_queue.unshift(this.current_file_item);
 			this.current_file_item = null;
 			
-			ExternalCall.UploadError(this.uploadError_Callback, this.ERROR_CODE_FILE_VALIDATION_FAILED, js_object, "Call to uploadStart return false. Not uploading file.");
+			this.Debug("Event: uploadError : Call to uploadStart returned false. Not uploading the file.");
+			ExternalCall.UploadError(this.uploadError_Callback, this.ERROR_CODE_FILE_VALIDATION_FAILED, js_object, "Call to uploadStart return false. Not uploading the file.");
+			this.Debug("Event: uploadComplete : Call to uploadStart returned false. Not uploading the file.");
 			ExternalCall.UploadComplete(this.uploadComplete_Callback, js_object);
-			this.Debug("startFile(): upload rejected by startUpload event. File re-queued.");
 		}
 	}
 

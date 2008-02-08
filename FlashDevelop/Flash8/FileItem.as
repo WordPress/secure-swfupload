@@ -31,9 +31,9 @@ class FileItem
 			index: this.index,
 			name: this.file_reference.name,
 			size: this.file_reference.size,
-			type: this.file_reference.type,
-			creationdate: this.file_reference.creationDate,
-			modificationdate: this.file_reference.modificationDate,
+			type: this.file_reference.type || "",
+			creationdate: this.file_reference.creationDate || new Date(0),
+			modificationdate: this.file_reference.modificationDate || new Date(0),
 			filestatus: this.file_status,
 			post: this.GetPostObject()
 		};

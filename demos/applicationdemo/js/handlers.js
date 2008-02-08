@@ -1,5 +1,5 @@
 var SWFUpload = {};
-function fileQueueError(fileObj, error_code, message) {
+function fileQueueError(file, error_code, message) {
 	try {
 		var image_name = "error.gif";
 		var error_name = "";
@@ -44,12 +44,12 @@ function fileDialogComplete(num_files_queued) {
 	}
 }
 
-function uploadProgress(fileObj, bytesLoaded) {
+function uploadProgress(file, bytesLoaded) {
 
 	try {
-		var percent = Math.ceil((bytesLoaded / fileObj.size) * 100);
+		var percent = Math.ceil((bytesLoaded / file.size) * 100);
 
-		var progress = new FileProgress(fileObj,  this.customSettings.upload_target);
+		var progress = new FileProgress(file,  this.customSettings.upload_target);
 		progress.SetProgress(percent);
 		if (percent === 100) {
 			progress.SetStatus("Creating thumbnail...");
@@ -63,13 +63,13 @@ function uploadProgress(fileObj, bytesLoaded) {
 	}
 }
 
-function uploadSuccess(fileObj, server_data) {
+function uploadSuccess(file, server_data) {
 	try {
 		// upload.aspx returns the thumbnail id in the server_data, use that to retrieve the thumbnail for display
 		
 		addImage("thumbnail.aspx?id=" + server_data);
 
-		var progress = new FileProgress(fileObj,  this.customSettings.upload_target);
+		var progress = new FileProgress(file,  this.customSettings.upload_target);
 
 		progress.SetStatus("Thumbnail Created.");
 		progress.ToggleCancel(false);
@@ -80,13 +80,13 @@ function uploadSuccess(fileObj, server_data) {
 	}
 }
 
-function uploadComplete(fileObj) {
+function uploadComplete(file) {
 	try {
 		/*  I want the next upload to continue automatically so I'll call startUpload here */
 		if (this.getStats().files_queued > 0) {
 			this.startUpload();
 		} else {
-			var progress = new FileProgress(fileObj,  this.customSettings.upload_target);
+			var progress = new FileProgress(file,  this.customSettings.upload_target);
 			progress.SetComplete();
 			progress.SetStatus("All images received.");
 			progress.ToggleCancel(false);
@@ -96,14 +96,14 @@ function uploadComplete(fileObj) {
 	}
 }
 
-function uploadError(fileObj, error_code, message) {
+function uploadError(file, error_code, message) {
 	var image_name =  "error.gif";
 	var progress;
 	try {
 		switch (error_code) {
 		case SWFUpload.UPLOAD_ERROR.FILE_CANCELLED:
 			try {
-				progress = new FileProgress(fileObj,  this.customSettings.upload_target);
+				progress = new FileProgress(file,  this.customSettings.upload_target);
 				progress.SetCancelled();
 				progress.SetStatus("Cancelled");
 				progress.ToggleCancel(false);
@@ -114,7 +114,7 @@ function uploadError(fileObj, error_code, message) {
 			break;
 		case SWFUpload.UPLOAD_ERROR.UPLOAD_STOPPED:
 			try {
-				progress = new FileProgress(fileObj,  this.customSettings.upload_target);
+				progress = new FileProgress(file,  this.customSettings.upload_target);
 				progress.SetCancelled();
 				progress.SetStatus("Stopped");
 				progress.ToggleCancel(true);
@@ -144,7 +144,7 @@ function uploadError(fileObj, error_code, message) {
  *	Control object for displaying file info
  * ****************************************** */
 
-function FileProgress(fileObj, target_id) {
+function FileProgress(file, target_id) {
 	this.file_progress_id = "divFileProgress";
 
 	this.fileProgressWrapper = document.getElementById(this.file_progress_id);
@@ -164,7 +164,7 @@ function FileProgress(fileObj, target_id) {
 
 		var progressText = document.createElement("div");
 		progressText.className = "progressName";
-		progressText.appendChild(document.createTextNode(fileObj.name));
+		progressText.appendChild(document.createTextNode(file.name));
 
 		var progressBar = document.createElement("div");
 		progressBar.className = "progressBarInProgress";
@@ -185,7 +185,7 @@ function FileProgress(fileObj, target_id) {
 
 	} else {
 		this.fileProgressElement = this.fileProgressWrapper.firstChild;
-		this.fileProgressElement.childNodes[1].firstChild.nodeValue = fileObj.name;
+		this.fileProgressElement.childNodes[1].firstChild.nodeValue = file.name;
 	}
 
 	this.height = this.fileProgressWrapper.offsetHeight;
