@@ -4,7 +4,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" >
 <head>
-    <title>SWFUpload v2.0 Demo</title>
+    <title>SWFUpload v2.1.0 Demo</title>
 
 	<link href="../css/default.css" rel="stylesheet" type="text/css" />
 	<link href="css/featuresdemo.css" rel="stylesheet" type="text/css" />
@@ -56,7 +56,7 @@
 
 </head>
 <body>
-	<div class="title"><a class="likeParent" href="../index.php">SWFUpload v2.0 Features Demo</a></div>
+	<div class="title"><a class="likeParent" href="../index.php">SWFUpload v2.1.0 Features Demo</a></div>
 	<form>
 		<div class="content">
 			The Features Demo allows you to experiment with all the features and settings that SWFUpload v2.0 offers.<br />

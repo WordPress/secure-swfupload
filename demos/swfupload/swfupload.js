@@ -484,6 +484,8 @@ SWFUpload.prototype.setDebugEnabled = function (debugEnabled) {
 ******************************* */
 
 SWFUpload.prototype.queueEvent = function (handlerName, argumentArray) {
+	// Warning: Don't call this.debug inside here or you'll create an infinite loop
+	
 	if (argumentArray == undefined) {
 		argumentArray = [];
 	} else if (!(argumentArray instanceof Array)) {
@@ -493,22 +495,26 @@ SWFUpload.prototype.queueEvent = function (handlerName, argumentArray) {
 	var self = this;
 	if (typeof(this.settings[handlerName]) === "function") {
 		// Queue the event
-		this.eventQueue[this.eventQueue.length] = function () {
+		this.eventQueue.push(function () {
 			this.settings[handlerName].apply(this, argumentArray);
-		};
+		});
 		
 		// Execute the next queued event
 		setTimeout(function () {
 			self.executeNextEvent();
 		}, 0);
+		
 	} else if (this.settings[handlerName] !== null) {
-		throw "Event handler is unknown or is not a function";
+		throw "Event handler " + handlerName + " is unknown or is not a function";
 	}
 };
 
 SWFUpload.prototype.executeNextEvent = function () {
+	// Warning: Don't call this.debug inside here or you'll create an infinite loop
+
 	var  f = this.eventQueue.shift();
 	f.apply(this);
+	
 };
 
 SWFUpload.prototype.flashReady = function () {
@@ -530,7 +536,7 @@ SWFUpload.prototype.fileDialogStart = function () {
 
 /* Called when a file is successfully added to the queue. */
 SWFUpload.prototype.fileQueued = function (file) {
-	this.queueEvent("file_dialog_start_handler", file);
+	this.queueEvent("file_queued_handler", file);
 };
 
 

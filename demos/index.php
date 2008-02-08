@@ -12,7 +12,7 @@
 		<b>SWFUpload v2.0 Demos</b>
 		<ul>
 			<li><a href="simpledemo/index.php">Simple Upload Demo</a></li>
-			<li><a href="multiuploaddemo/index.php">Multi-Instance Demo</a></li>
+			<li><a href="multiinstancedemo/index.php">Multi-Instance Demo</a></li>
 			<li><a href="formsdemo/index.php">Classic Form Demo</a></li>
 			<li><a href="featuresdemo/index.php">Features Demo</a></li>
 			<li><a href="applicationdemo/index.php">Application Demo</a></li>

@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" >
 <head>
-    <title>SWFUpload v2.0 Demo</title>
+    <title>SWFUpload v2.1.0 Demo</title>
 
 	<link href="../css/default.css" rel="stylesheet" type="text/css" />
 	<link type="text/css" rel="stylesheet" href="link/swfupload.v102.theme.css" />
@@ -47,7 +47,7 @@
 	
 </head>
 	<body>
-		<div class="title"><a class="likeParent" href="../index.php">SWFUpload v2.0 - v1.0.2 Plugin Demo</a></div>
+		<div class="title"><a class="likeParent" href="../index.php">SWFUpload v2.1.0 - v1.0.2 Plugin Demo</a></div>
 		<div class="content">
 			<div>This demo shows how to use the SWFUpload v1.0.2 Plugin.  This demo is a recreation of the swfupload.mammon.se demo (now defunct) with only small modifications to the CSS file.</div>
 			

@@ -24,7 +24,7 @@
 					progressTarget : "fsUploadProgress",
 					cancelButtonId : "btnCancel"
 				},
-				debug: true,
+				debug: false,
 
 				// The event handler functions are defined in handlers.js
 				file_queued_handler : fileQueued,
@@ -44,7 +44,7 @@
 <body>
 	<div class="title"><a class="likeParent" href="../index.php">SWFUpload v2.1.0 Simple Demo</a></div>
 	<form id="form1" action="index.php" method="post" enctype="multipart/form-data">
-		<div>This page demonstrates a simple usage of SWFUpload.  It also uses the Queue Plugin</div>
+		<div>This page demonstrates a simple usage of SWFUpload.  It uses the Queue Plugin to simplify uploading all queued files.</div>
 		<div class="content">
 			<fieldset class="flash" id="fsUploadProgress">
 				<legend>Upload Queue</legend>

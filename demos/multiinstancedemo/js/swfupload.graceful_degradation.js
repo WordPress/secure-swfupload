@@ -39,7 +39,7 @@ if (typeof(SWFUpload) === "function") {
 		};
 	})(SWFUpload.prototype.initSettings);
 
-	SWFUpload.gracefulDegradation.swfUploadLoaded = function () {
+	SWFUpload.gracefulDegradation.swfUploadLoadedHandler = function () {
 		var swfuploadContainerID, swfuploadContainer, degradedContainerID, degradedContainer;
 
 		swfuploadContainerID = this.settings.swfupload_element_id;

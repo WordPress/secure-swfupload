@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" >
 <head>
-    <title>SWFUpload v2.0 Classic Form Demo</title>
+    <title>SWFUpload v2.1.0 Classic Form Demo</title>
 
 	<link href="../css/default.css" rel="stylesheet" type="text/css" />
 	<script type="text/javascript" src="../swfupload/swfupload.js"></script>
@@ -128,7 +128,7 @@
 
 </head>
 <body>
-	<div class="title"><a class="likeParent" href="../index.php">SWFUpload v2.0 Classic Form Demo</a></div>
+	<div class="title"><a class="likeParent" href="../index.php">SWFUpload v2.1.0 Classic Form Demo</a></div>
 
 	<form id="form1" action="thanks.php" enctype="multipart/form-data" method="post">
 		<div class="content">
