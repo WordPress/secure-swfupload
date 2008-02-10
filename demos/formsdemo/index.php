@@ -6,6 +6,7 @@
 	<link href="../css/default.css" rel="stylesheet" type="text/css" />
 	<script type="text/javascript" src="../swfupload/swfupload.js"></script>
 	<script type="text/javascript" src="js/swfupload.graceful_degradation.js"></script>
+	<script type="text/javascript" src="js/fileprogress.js"></script>
 	<script type="text/javascript" src="js/handlers.js"></script>
 	<script type="text/javascript">
 		var swf_upload_control;
