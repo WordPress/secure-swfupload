@@ -1,4 +1,4 @@
- * SWFUpload v2.0 by Jacob Roberts, Nov 2007, www.swfupload.org, linebyline.blogspot.com, swfupload.googlecode.com
+ * SWFUpload by Jacob Roberts, Nov 2007, www.swfupload.org, swfupload.googlecode.com
 
  * --------- Version 2.1.0 -----------
  * + Added allowScriptAccess="always" to the embed/object elements so the SWF can be served from different domains.
