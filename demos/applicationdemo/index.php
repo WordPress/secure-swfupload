@@ -44,7 +44,7 @@
 				// Debug Settings
 				debug: false
 			});
-		}
+		};
 	</script>
 
 </head>

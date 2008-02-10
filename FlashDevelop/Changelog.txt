@@ -1,8 +1,19 @@
  * SWFUpload v2.0 by Jacob Roberts, Nov 2007, www.swfupload.org, linebyline.blogspot.com, swfupload.googlecode.com
 
- * --------- Version Next -----------
+ * --------- Version 2.1.0 -----------
  * + Added allowScriptAccess="always" to the embed/object elements so the SWF can be served from different domains.
  * = Fixed a type-o in the debug output that prevented the instance id (movieName) from displaying. - Thx Joel
+ * + Rewrote SWFUpload.js for better code reuse based on sample code from batiste.bieler (thanks!!!)
+ * + Added queueComplete event to the Queue Plugin
+ * + Added Simple Upload demo
+ * = JSLinted all the JavaScript code
+ * + Added use_query_string setting (and setUseQueryString function) that forces post_param and file_param values to be sent on the query_string instead of the post (for Flash 9 version)
+ * = Fixed file.type and date properties so a default value is provided (rather than null) when no value is provided by flash.
+ * = Fixed misc bugs in the demos
+ * = Fixed ExternalInterface calls being made available for Flash 9 versions <9.0.28 which aren't supported
+ * + Fixed use of & producing invalid XHTML in the <object> and <embed> tags.
+ * - Removed the use of the embed tag (using the <object> sample from the Flash Satay method)
+ * = Updated plugins to work with code rewrite changes.
 
  * --------- Version 2.0.2 -----------
  * = Fixed a bug where post params could not be added to the current file (because it is removed from the queue when it becomes current)

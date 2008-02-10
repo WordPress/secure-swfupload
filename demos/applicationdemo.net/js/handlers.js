@@ -139,6 +139,60 @@ function uploadError(file, error_code, message) {
 }
 
 
+function addImage(src) {
+	var new_img = document.createElement("img");
+	new_img.style.margin = "5px";
+
+	document.getElementById("thumbnails").appendChild(new_img);
+	if (new_img.filters) {
+		try {
+			new_img.filters.item("DXImageTransform.Microsoft.Alpha").opacity = 0;
+		} catch (e) {
+			// If it is not set initially, the browser will throw an error.  This will set it if it is not set yet.
+			new_img.style.filter = 'progid:DXImageTransform.Microsoft.Alpha(opacity=' + 0 + ')';
+		}
+	} else {
+		new_img.style.opacity = 0;
+	}
+
+	new_img.onload = function () {
+		fadeIn(new_img, 0);
+	};
+	new_img.src = src;
+}
+
+function fadeIn(element, opacity) {
+	var reduce_opacity_by = 15;
+	var rate = 30;	// 15 fps
+
+
+	if (opacity < 100) {
+		opacity += reduce_opacity_by;
+		if (opacity > 100) {
+			opacity = 100;
+		}
+
+		if (element.filters) {
+			try {
+				element.filters.item("DXImageTransform.Microsoft.Alpha").opacity = opacity;
+			} catch (e) {
+				// If it is not set initially, the browser will throw an error.  This will set it if it is not set yet.
+				element.style.filter = 'progid:DXImageTransform.Microsoft.Alpha(opacity=' + opacity + ')';
+			}
+		} else {
+			element.style.opacity = opacity / 100;
+		}
+	}
+
+	if (opacity < 100) {
+		setTimeout(function () {
+			fadeIn(element, opacity);
+		}, rate);
+	}
+}
+
+
+
 /* ******************************************
  *	FileProgress Object
  *	Control object for displaying file info
@@ -228,55 +282,3 @@ FileProgress.prototype.ToggleCancel = function (show, upload_obj) {
 		};
 	}
 };
-
-function addImage(src) {
-	var new_img = document.createElement("img");
-	new_img.style.margin = "5px";
-
-	document.getElementById("thumbnails").appendChild(new_img);
-	if (new_img.filters) {
-		try {
-			new_img.filters.item("DXImageTransform.Microsoft.Alpha").opacity = 0;
-		} catch (e) {
-			// If it is not set initially, the browser will throw an error.  This will set it if it is not set yet.
-			new_img.style.filter = 'progid:DXImageTransform.Microsoft.Alpha(opacity=' + 0 + ')';
-		}
-	} else {
-		new_img.style.opacity = 0;
-	}
-
-	new_img.onload = function () {
-		fadeIn(new_img, 0);
-	};
-	new_img.src = src;
-}
-
-function fadeIn(element, opacity) {
-	var reduce_opacity_by = 15;
-	var rate = 30;	// 15 fps
-
-
-	if (opacity < 100) {
-		opacity += reduce_opacity_by;
-		if (opacity > 100) {
-			opacity = 100;
-		}
-
-		if (element.filters) {
-			try {
-				element.filters.item("DXImageTransform.Microsoft.Alpha").opacity = opacity;
-			} catch (e) {
-				// If it is not set initially, the browser will throw an error.  This will set it if it is not set yet.
-				element.style.filter = 'progid:DXImageTransform.Microsoft.Alpha(opacity=' + opacity + ')';
-			}
-		} else {
-			element.style.opacity = opacity / 100;
-		}
-	}
-
-	if (opacity < 100) {
-		setTimeout(function () {
-			fadeIn(element, opacity);
-		}, rate);
-	}
-}

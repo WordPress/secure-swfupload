@@ -105,9 +105,9 @@
 				</li>
 				<li><a href="#methods">Methods</a>
 					<ol>
-						<li><a href="#addSetting">addSetting</a></li>
-						<li><a href="#getSetting">getSetting</a></li>
-						<li><a href="#retrieveSetting">retrieveSetting</a></li>
+						<li><a href="#addSetting">addSetting</a> (deprecated)</li>
+						<li><a href="#getSetting">getSetting</a> (deprecated)</li>
+						<li><a href="#retrieveSetting">retrieveSetting</a> (removed in v2.1.0)</li>
 						<li><a href="#displayDebugInfo">displayDebugInfo</a></li>
 						<li><a href="#selectFile">selectFile</a></li>
 						<li><a href="#selectFiles">selectFiles</a></li>
@@ -126,6 +126,7 @@
 						<li><a href="#setFileUploadLimit">setFileUploadLimit</a></li>
 						<li><a href="#setFileQueueLimit">setFileQueueLimit</a></li>
 						<li><a href="#setFilePostName">setFilePostName</a></li>
+						<li><a href="#setUseQueryString">setUseQueryString</a></li>
 						<li><a href="#setDebugEnabled">setDebugEnabled</a></li>
 					</ol>
 				</li>
@@ -431,15 +432,15 @@ swfu.customSettings = {
 	SWFUpload event handlers.</p>
 	
 	<h4><a name="addSetting"></a>object addSetting(<span class="parameter">setting_name</span>, <span class="parameter">value</span>, <span class="parameter">default_value</span>)</h4>
-	<p>The addSetting function sets a setting value.  If the value is undefined then the default_value is used.  The function is used by SWFUpload
+	<p><strong>Deprecated</strong> The addSetting function sets a setting value.  If the value is undefined then the default_value is used.  The function is used by SWFUpload
 	during initialization.  Using addSetting to update a setting will not change the setting in the Flash Control.</p>
 	<p>addSetting returns the value that was stored in the setting.</p>
 	
 	<h4><a name="getSetting"></a>object getSetting(<span class="parameter">setting_name</span>)</h4>
-	<p>The getSetting function retieves the value of a setting.  If the setting is not found an empty string is returned.</p>
+	<p><strong>Deprecated</strong> The getSetting function retieves the value of a setting.  If the setting is not found an empty string is returned.</p>
 	
 	<h4><a name="retrieveSetting"></a>object retrieveSetting(<span class="parameter">setting_value</span>, <span class="parameter">default_value</span>)</h4>
-	<p>The retrieveSetting function is similar to the addSetting function except it does not modify the internal settings object.  retrieveSetting
+	<p><strong>Removed in v2.1.0</strong> The retrieveSetting function is similar to the addSetting function except it does not modify the internal settings object.  retrieveSetting
 	returns the setting_value unless it is undefined in which case it returns the default_value</p>
 	<p>This is a utility function.</p>
 	
@@ -513,6 +514,9 @@ swfu.customSettings = {
 	<h4><a name="setFilePostName"></a>void setFilePostName(<span class="parameter">file_post_name</span>)</h4>
 	<p>Dynamically modifies the file_post_name setting. The Linux Flash Player ignores this setting.</p>
 	
+	<h4><a name="setUseQueryString"></a>void setUseQueryString(<span class="parameter">use_query_string</span>)</h4>
+	<p>Dynamically modifies the use_query_string setting.  When true this forces SWFUpload to send post parameters on the query string rather than in the post.  The use_query_string parameter should be a boolean true or false.</p>
+
 	<h4><a name="setDebugEnabled"></a>void setDebugEnabled(<span class="parameter">debug_enabled</span>)</h4>
 	<p>Dynamically enables or disables debug output.  The debug_enabled parameter should be a boolean true or false.</p>
 
@@ -540,8 +544,8 @@ swfu.customSettings = {
 	for several reasons such as, the file exceeds the file size, the file is empty or a file or queue limit has been exceeded.</p>
 	<p>The reason for the queue error is specified by the error code parameter.  The error code corresponds to SWFUpload.QUEUE_ERROR contant.</p>
 	
-	<h4><a name="fileDialogComplete"></a><span class="function">fileDialogComplete(<span class="parameter">number of files selected</span>)</span></h4>
-	<p>The fileDialogComplete event fires after the File Selection Dialog window has been closed and all the selected files have been processed.</p>
+	<h4><a name="fileDialogComplete"></a><span class="function">fileDialogComplete(<span class="parameter">number of files selected</span>, <span class="parameter">number of files queued</span>)</span></h4>
+	<p>The fileDialogComplete event fires after the File Selection Dialog window has been closed and all the selected files have been processed.  The 'number of files queued' argument indicates the number of files that were queued from the dialog selection (as opposed to the number of files in the queue).</p>
 	<p>If you want file uploading to begin automatically this is a good place to call 'this.startUpload()'</p>
 	
 	<h4><a name="uploadStart"></a><span class="function">uploadStart(<span class="parameter">file object</span>)</span></h4>
@@ -590,6 +594,7 @@ swfu.customSettings = {
 		"post_param_name_2" : "post_param_value_2",
 		"post_param_name_n" : "post_param_value_n"
 	},
+	use_query_string : false,
 	file_types : "*.jpg;*.gif",
 	file_types_description: "Web Image Files",
 	file_size_limit : "1024",
@@ -636,6 +641,11 @@ swfu.customSettings = {
 	</p>
 	<p>Note: Flash Player 8 does not support sending additional post parameters.  SWFUpload will automatically send the post_params as part of the query string.</p>
 	
+	<h5>use_query_string</h5>
+	<p>
+		<strong>(Flash 9 only)</strong> The use_query_string setting may be true or false.  This value indicates whether SWFUpload should send the post_params and file params on the query string or the post. This setting was introduced in SWFUpload v2.1.0.
+	</p>
+
 	<h5>file_types</h5>
 	<p>
 		The file_types setting accepts a semi-colon separated list of file extensions that are allowed to be selected by the user. Use '*.*' to allow all file types.
@@ -679,13 +689,13 @@ swfu.customSettings = {
 	
 	<h5>flash_width</h5>
 	<p>
-		Defines the width of the HTML element that contains the flash.  Some browsers do not function correctly if this setting is less than 1 px.
+		<strong>(Removed in v2.1.0)</strong> Defines the width of the HTML element that contains the flash.  Some browsers do not function correctly if this setting is less than 1 px.
 		This setting is optional and has a default value of 1px.
 	</p>
 	
 	<h5>flash_height</h5>
 	<p>
-		Defines the height of the HTML element that contains the flash.  Some browsers do not function correctly if this setting is less than 1 px.
+		<strong>(Removed in v2.1.0)</strong> Defines the height of the HTML element that contains the flash.  Some browsers do not function correctly if this setting is less than 1 px.
 		This setting is optional and has a default value of 1px.
 	</p>
 	
@@ -757,6 +767,7 @@ swfu.customSetting["a_dom_setting"].style.visibility = "hidden";</code>
 	upload_cancelled : number	// The number of files that have been cancelled
 	queue_errors : number		// The number of files that caused fileQueueError to be fired
 }</code>
+	<p>All these values can be updated using setStats() except the <em>in_progress</em> and <em>files_queued</em> values.</p>
 
 	<h2><a name="plugins"></a>SWFUpload Plug-ins</h2>
 	
@@ -774,7 +785,8 @@ swfu.customSetting["a_dom_setting"].style.visibility = "hidden";</code>
 	with other Document Ready libraries</p>
 	
 	<h3>SWFUpload v1.0.2 Compatibility</h3>
-	<p>Creates compatibility with v1.0.2.  Using this plugin you should be able to drop SWFUpload v2.0 in to a v1.0.2 page</p>
+	<p>Creates compatibility with v1.0.2.  Using this plugin you should be able to drop SWFUpload v2.0 in to a v1.0.2 page.
+	This plugin is not supported and is only intended for users of SWFUpload v1.0.2 who wish to upgrade to v2 without recoding their pages.</p>
 	
 	<h3>Cookies</h3>
 	<p>In response to the Flash Cookie Bug the Cookies Plugin automatically retrieves your browser's cookies and sends them
@@ -790,42 +802,59 @@ swfu.customSetting["a_dom_setting"].style.visibility = "hidden";</code>
 	<h2><a name="knownissues"></a>Known Issues</h2>
 	<p>The Flash Player and many Browsers have bugs that have a direct impact on the performance of SWFUpload.  While we have worked
 	hard to get around many issues there are some things we cannot fix.</p>
+	
 	<h3>Cancelling in Linux</h3>
 	<p>Flash 8 and older Flash 9 Players for Linux cause the browser to crash if an upload is cancelled.  Newer Flash 9 Players behave better.</p>
+	
 	<h3>Progress in Linux</h3>
 	<p>The Flash Player in Linux sends a single uploadProgress event after the file has finished uploading.</p>
+	
 	<h3>Proxies</h3>
 	<p>The Flash Player may not properly use proxies.  It does not handle authenticating proxies well (if at all) and will some-times crash.</p>
 	<p>Some anti-virus software uses a proxy to scan uploads and cause SWFUpload to believe the entire file has been uploaded.  SWFUpload will fire uploadProgress events very quickly
 	and will then wait until the proxy completes its upload.</p>
+	
 	<h3>Apache mod_security</h3>
 	<p>Apache's mod_security validates POST to the server.  Flash Player has implemented an invalid POST for file uploads and so servers implementing
 	mod_security will reject the upload.  mod_security can be disabled using your .htaccess file</p>
+	
 	<h3>SSL</h3>
 	<p>There have been some reports that the Flash Player cannot upload through SSL.  The issue has not been pinned down but uploading over SSL may be unreliable.</p>
+	
 	<h3>Authentication</h3>
 	<p>HTTP Authentication is not well supported by Flash Player.  Later versions of Flash Player behave better.  Old version of Flash Player would crash the browser.</p>
+	
 	<h3>Prematurely terminated connections</h3>
 	<p>Prematurely ending the response (such as a Response.end() in ASP.Net) can sometimes cause successful uploads to be reported as failed.</p>
+	
 	<h3>Filedata in Linux</h3>
 	<p>The Filedata value (file_post_name setting) is ignored in Linux Flash Player</p>
+	
 	<h3>uploadSuccess &amp; Server Data</h3>
 	<p>The uploadSuccess will not fire if no data is returned from the server.  This is especially problematic on the Mac Flash Player.</p>
+	
 	<h3>Cookie issue</h3>
 	<p>On Windows the Non-IE Flash Player plugin (FireFox, Opera, Safari, etc) sends the IE cookes regardless of the browser used.  This breaks authentication and sessions for many server-side scripting technologies.</p>
 	<p>Developers should manually pass Session ID information and manually restore Sessions on the Server Side if they wish to use Sessions</p>
+	
 	<h3>ExternalInterface bugs</h3>
 	<p>Flash Player does not properly escape data when communication with the browser/JavaScript.  SWFUpload goes to great lengths to work-around this issue.  If this
 	bug is fixed in future Flash Players/Browsers then SWFUpload will send extra escaped data.</p>
+	
 	<h3>Server Data length bugs</h3>
 	<p>Very long server data is corrupted on Mac and Linux Flash Players.  Server data will be truncated, garbled, and/or repeated.  We recommend
 	keeping data returned from the server short and concise.</p>
+	
 	<h3>Avant Browser</h3>
 	<p>For some users the Avant Browser does not work with SWFUpload after the Flash Control has been cached.  This has been reproduced by the
 	SWFUpload developers but the Avant Browser developers did not experience any problems.</p>
 	<p>When the page is reloaded SWFUpload loads and fires the swfupload_loaded event.  However, none of the ExternalInterface callback functions are defined
 	on the movie element.  SWFUpload v2.0.2 has added checks which prevent swfupload_loaded from firing if the callback functions are not detected.</p>
 
+	<h3>File Dialog &amp; Page Changing</h3>
+	<p>Leaving or reloading the current page while the File Browser Dialog window is open will cause the browser to crash (all browsers, all OSs).  Most commonly this is caused by not
+	cancelling a click on an &lt;a&gt; tag where the onclick event calls the selectFile or selectFiles function.</p>
+	
 <div id="incompleteDocs" style="display: none;">
 	<h2>Interacting with the SWFUpload instance</h2>
 

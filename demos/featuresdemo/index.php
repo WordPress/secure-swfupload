@@ -15,7 +15,9 @@
 		var suo;
 		window.onload = function() {
 			// Check to see if SWFUpload is available
-			if (typeof(SWFUpload) === "undefined") return;
+			if (typeof(SWFUpload) === "undefined") {
+				return;
+			}
 
 			// Instantiate a SWFUpload Instance
 			suo = new SWFUpload({
@@ -223,7 +225,8 @@
 									<button id="btnUpdateDynamicSettings" type="button">Update Dynamic Settings</button>
 								</td><td class="btn-right"></td></tr></table>
 							</div>
-						</fieldset>						<fieldset id="fsStaticSettings">
+						</fieldset>
+						<fieldset id="fsStaticSettings">
 							<legend>Static Settings</legend>
 							<div>
 								<label>flash_url</label>

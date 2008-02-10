@@ -10,8 +10,8 @@
 	<script type="text/javascript">
 		var swf_upload_control;
 
-        window.onload = function () {
-            swf_upload_control = new SWFUpload({
+		window.onload = function () {
+			swf_upload_control = new SWFUpload({
 				// Backend settings
 				upload_url: "../formsdemo/upload.php",	// Relative to the SWF file, you can use an absolute URL as well.
 				file_post_name: "resume_file",
@@ -53,10 +53,10 @@
 				debug: false
 			});
 
-        }
+		};
 
-        function myShowUI() {
-            var btnSubmit = document.getElementById("btnSubmit");
+		function myShowUI() {
+			var btnSubmit = document.getElementById("btnSubmit");
 			var txtLastName = document.getElementById("lastname");
 			var txtFirstName = document.getElementById("firstname");
 			var txtEducation = document.getElementById("education");
@@ -71,10 +71,10 @@
 			txtReferences.onchange = validateForm;
 			
 			
-            SWFUpload.swfUploadLoaded.apply(this);  // Let SWFUpload finish loading the UI.
+			SWFUpload.swfUploadLoaded.apply(this);  // Let SWFUpload finish loading the UI.
 			validateForm();
-        }
-		
+		}
+
 		function validateForm() {
 			var txtLastName = document.getElementById("lastname");
 			var txtFirstName = document.getElementById("firstname");
@@ -83,16 +83,26 @@
 			var txtReferences = document.getElementById("references");
 			
 			var is_valid = true;
-			if (txtLastName.value === "") is_valid = false;
-			if (txtFirstName.value === "") is_valid = false;
-			if (txtEducation.value === "") is_valid = false;
-			if (txtFileName.value === "") is_valid = false;
-			if (txtReferences.value === "") is_valid = false;
+			if (txtLastName.value === "") {
+				is_valid = false;
+			}
+			if (txtFirstName.value === "") {
+				is_valid = false;
+			}
+			if (txtEducation.value === "") {
+				is_valid = false;
+			}
+			if (txtFileName.value === "") {
+				is_valid = false;
+			}
+			if (txtReferences.value === "") {
+				is_valid = false;
+			}
 			
 			document.getElementById("btnSubmit").disabled = !is_valid;
-		
+
 		}
-		
+
 		function fileBrowse() {
 			var txtFileName = document.getElementById("txtFileName");
 			txtFileName.value = "";
@@ -100,30 +110,32 @@
 			this.cancelUpload();
 			this.selectFile();
 		}
-		
-		
-        // Called by the submit button to start the upload
+
+
+		// Called by the submit button to start the upload
 		function doSubmit(e) {
 			e = e || window.event;
-			if (e.stopPropagation) e.stopPropagation();
+			if (e.stopPropagation) {
+				e.stopPropagation();
+			}
 			e.cancelBubble = true;
 			
 			try {
 				swf_upload_control.startUpload();
 			} catch (ex) {
 
-            }
-            return false;
-	    }
+			}
+			return false;
+		}
 
 		 // Called by the queue complete handler to submit the form
-	    function uploadDone() {
+		function uploadDone() {
 			try {
 				document.forms[0].submit();
 			} catch (ex) {
 				alert("Error submitting form");
 			}
-	    }
+		}
 	</script>
 
 </head>

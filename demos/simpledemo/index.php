@@ -6,20 +6,21 @@
 	<link href="../css/default.css" rel="stylesheet" type="text/css" />
 	<script type="text/javascript" src="../swfupload/swfupload.js"></script>
 	<script type="text/javascript" src="js/swfupload.queue.js"></script>
+	<script type="text/javascript" src="js/fileprogress.js"></script>
 	<script type="text/javascript" src="js/handlers.js"></script>
 	<script type="text/javascript">
 		var swfu;
 
 		window.onload = function() {
 			var settings = {
+				flash_url : "../swfupload/swfupload_f9.swf",
 				upload_url: "../simpledemo/upload.php",	// Relative to the SWF file
 				post_params: {"PHPSESSID" : "<?php echo session_id(); ?>"},
 				file_size_limit : "100 MB",
 				file_types : "*.*",
 				file_types_description : "All Files",
-				file_upload_limit : "10",
-				file_queue_limit : "0",
-				flash_url : "../swfupload/swfupload_f9.swf",
+				file_upload_limit : 100,
+				file_queue_limit : 0,
 				custom_settings : {
 					progressTarget : "fsUploadProgress",
 					cancelButtonId : "btnCancel"
@@ -33,7 +34,9 @@
 				upload_start_handler : uploadStart,
 				upload_progress_handler : uploadProgress,
 				upload_error_handler : uploadError,
-				upload_success_handler : uploadSuccess
+				upload_success_handler : uploadSuccess,
+				upload_complete_handler : uploadComplete,
+				queue_complete_handler : queueComplete	// Queue plugin event
 			};
 
 			swfu = new SWFUpload(settings);
@@ -44,14 +47,15 @@
 <body>
 	<div class="title"><a class="likeParent" href="../index.php">SWFUpload v2.1.0 Simple Demo</a></div>
 	<form id="form1" action="index.php" method="post" enctype="multipart/form-data">
-		<div>This page demonstrates a simple usage of SWFUpload.  It uses the Queue Plugin to simplify uploading all queued files.</div>
+		<div>This page demonstrates a simple usage of SWFUpload.  It uses the Queue Plugin to simplify uploading or cancelling all queued files.</div>
 		<div class="content">
 			<fieldset class="flash" id="fsUploadProgress">
 				<legend>Upload Queue</legend>
 			</fieldset>
+			<div id="divStatus">0 Files Uploaded</div>
 			<div>
 				<input type="button" value="Upload file (Max 100 MB)" onclick="swfu.selectFiles()" style="font-size: 8pt;" />
-				<input id="btnCancel" type="button" value="Cancel All Uploads" onclick="cancelQueue(swfu);" disabled="disabled" style="font-size: 8pt;" /><br />
+				<input id="btnCancel" type="button" value="Cancel All Uploads" onclick="swfu.cancelQueue();" disabled="disabled" style="font-size: 8pt;" /><br />
 			</div>
 		</div>
 	</form>
