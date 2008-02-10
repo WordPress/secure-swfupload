@@ -32,19 +32,15 @@ if (typeof(SWFUpload) === "function") {
 	})(SWFUpload.prototype.initSettings);
 
 	SWFUpload.prototype.startUpload = function (fileID) {
-		this.customSettings.queue_upload_count = 0;
+		this.customSettings.queue_cancelled_flag = false;
 		this.callFlash("StartUpload", false, [fileID]);
 	};
 
 	SWFUpload.prototype.cancelQueue = function () {
-		var stats = this.getStats();
-
-		if (stats.in_progress > 0) {
-			this.customSettings.queue_cancelled_flag = true;
-		} else {
-			this.customSettings.queue_cancelled_flag = false;
-		}
+		this.customSettings.queue_cancelled_flag = true;
+		this.stopUpload();
 		
+		var stats = this.getStats();
 		while (stats.files_queued > 0) {
 			this.cancelUpload();
 			stats = this.getStats();
@@ -69,10 +65,12 @@ if (typeof(SWFUpload) === "function") {
 			var stats = this.getStats();
 			if (stats.files_queued > 0 && this.customSettings.queue_cancelled_flag === false) {
 				this.startUpload();
-			} else if (this.customSettings.queue_cancelled_flag === false)
+			} else if (this.customSettings.queue_cancelled_flag === false) {
 				this.queueEvent("queue_complete_handler", [this.customSettings.queue_upload_count]);
+				this.customSettings.queue_upload_count = 0;
 			} else {
 				this.customSettings.queue_cancelled_flag = false;
+				this.customSettings.queue_upload_count = 0;
 			}
 		}
 	};

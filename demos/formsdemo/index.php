@@ -9,10 +9,10 @@
 	<script type="text/javascript" src="js/fileprogress.js"></script>
 	<script type="text/javascript" src="js/handlers.js"></script>
 	<script type="text/javascript">
-		var swf_upload_control;
+		var swfu;
 
 		window.onload = function () {
-			swf_upload_control = new SWFUpload({
+			swfu = new SWFUpload({
 				// Backend settings
 				upload_url: "../formsdemo/upload.php",	// Relative to the SWF file, you can use an absolute URL as well.
 				file_post_name: "resume_file",
@@ -25,7 +25,7 @@
 				file_queue_limit : "1", // this isn't needed because the upload_limit will automatically place a queue limit
 
 				// Event handler settings
-				swfupload_loaded_handler : myShowUI,
+				swfupload_loaded_handler : swfUploadLoaded,
 				
 				//file_dialog_start_handler : fileDialogStart,		// I don't need to override this handler
 				file_queued_handler : fileQueued,
@@ -55,88 +55,6 @@
 			});
 
 		};
-
-		function myShowUI() {
-			var btnSubmit = document.getElementById("btnSubmit");
-			var txtLastName = document.getElementById("lastname");
-			var txtFirstName = document.getElementById("firstname");
-			var txtEducation = document.getElementById("education");
-			var txtReferences = document.getElementById("references");
-			
-			btnSubmit.onclick = doSubmit;
-			btnSubmit.disabled = true;
-			
-			txtLastName.onchange = validateForm;
-			txtFirstName.onchange = validateForm;
-			txtEducation.onchange = validateForm;
-			txtReferences.onchange = validateForm;
-			
-			
-			SWFUpload.swfUploadLoaded.apply(this);  // Let SWFUpload finish loading the UI.
-			validateForm();
-		}
-
-		function validateForm() {
-			var txtLastName = document.getElementById("lastname");
-			var txtFirstName = document.getElementById("firstname");
-			var txtEducation = document.getElementById("education");
-			var txtFileName = document.getElementById("txtFileName");
-			var txtReferences = document.getElementById("references");
-			
-			var is_valid = true;
-			if (txtLastName.value === "") {
-				is_valid = false;
-			}
-			if (txtFirstName.value === "") {
-				is_valid = false;
-			}
-			if (txtEducation.value === "") {
-				is_valid = false;
-			}
-			if (txtFileName.value === "") {
-				is_valid = false;
-			}
-			if (txtReferences.value === "") {
-				is_valid = false;
-			}
-			
-			document.getElementById("btnSubmit").disabled = !is_valid;
-
-		}
-
-		function fileBrowse() {
-			var txtFileName = document.getElementById("txtFileName");
-			txtFileName.value = "";
-
-			this.cancelUpload();
-			this.selectFile();
-		}
-
-
-		// Called by the submit button to start the upload
-		function doSubmit(e) {
-			e = e || window.event;
-			if (e.stopPropagation) {
-				e.stopPropagation();
-			}
-			e.cancelBubble = true;
-			
-			try {
-				swf_upload_control.startUpload();
-			} catch (ex) {
-
-			}
-			return false;
-		}
-
-		 // Called by the queue complete handler to submit the form
-		function uploadDone() {
-			try {
-				document.forms[0].submit();
-			} catch (ex) {
-				alert("Error submitting form");
-			}
-		}
 	</script>
 
 </head>
@@ -183,7 +101,7 @@
 							<div id="flashUI" style="display: none;">
 								<!-- The UI only gets displayed if SWFUpload loads properly -->
 								<div>
-									<input type="text" id="txtFileName" disabled="true" style="border: solid 1px; background-color: #FFFFFF;" /><input id="btnBrowse" type="button" value="Browse..." onclick="fileBrowse.apply(swf_upload_control)" /> (10 MB max)
+									<input type="text" id="txtFileName" disabled="true" style="border: solid 1px; background-color: #FFFFFF;" /><input id="btnBrowse" type="button" value="Browse..." onclick="fileBrowse.apply(swfu)" /> (10 MB max)
 								</div>
 								<div class="flash" id="fsUploadProgress">
 									<!-- This is where the file progress gets shown.  SWFUpload doesn't update the UI directly.

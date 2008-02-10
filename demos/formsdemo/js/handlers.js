@@ -1,3 +1,83 @@
+function swfUploadLoaded() {
+	var btnSubmit = document.getElementById("btnSubmit");
+	var txtLastName = document.getElementById("lastname");
+	var txtFirstName = document.getElementById("firstname");
+	var txtEducation = document.getElementById("education");
+	var txtReferences = document.getElementById("references");
+	
+	btnSubmit.onclick = doSubmit;
+	btnSubmit.disabled = true;
+	
+	txtLastName.onchange = validateForm;
+	txtFirstName.onchange = validateForm;
+	txtEducation.onchange = validateForm;
+	txtReferences.onchange = validateForm;
+	
+	validateForm();
+}
+
+function validateForm() {
+	var txtLastName = document.getElementById("lastname");
+	var txtFirstName = document.getElementById("firstname");
+	var txtEducation = document.getElementById("education");
+	var txtFileName = document.getElementById("txtFileName");
+	var txtReferences = document.getElementById("references");
+	
+	var is_valid = true;
+	if (txtLastName.value === "") {
+		is_valid = false;
+	}
+	if (txtFirstName.value === "") {
+		is_valid = false;
+	}
+	if (txtEducation.value === "") {
+		is_valid = false;
+	}
+	if (txtFileName.value === "") {
+		is_valid = false;
+	}
+	if (txtReferences.value === "") {
+		is_valid = false;
+	}
+	
+	document.getElementById("btnSubmit").disabled = !is_valid;
+
+}
+
+function fileBrowse() {
+	var txtFileName = document.getElementById("txtFileName");
+	txtFileName.value = "";
+
+	this.cancelUpload();
+	this.selectFile();
+}
+
+
+// Called by the submit button to start the upload
+function doSubmit(e) {
+	e = e || window.event;
+	if (e.stopPropagation) {
+		e.stopPropagation();
+	}
+	e.cancelBubble = true;
+	
+	try {
+		swfu.startUpload();
+	} catch (ex) {
+
+	}
+	return false;
+}
+
+ // Called by the queue complete handler to submit the form
+function uploadDone() {
+	try {
+		document.forms[0].submit();
+	} catch (ex) {
+		alert("Error submitting form");
+	}
+}
+
 
 function fileQueueError(file, errorCode, message)  {
 	try {

@@ -24,7 +24,7 @@
 		window.onload = function() {
 			upload1 = new SWFUpload({
 				// Backend Settings
-				upload_url: "../multiuploaddemo/upload.php",	// Relative to the SWF file (or you can use absolute paths)
+				upload_url: "../multiinstancedemo/upload.php",	// Relative to the SWF file (or you can use absolute paths)
 				post_params: {"PHPSESSID" : "<?php echo session_id(); ?>"},
 
 				// File Upload Settings
@@ -62,7 +62,7 @@
 
 			upload2 = new SWFUpload({
 				// Backend Settings
-				upload_url: "../multiuploaddemo/upload.php",	// Relative to the SWF file (or you can use absolute paths)
+				upload_url: "../multiinstancedemo/upload.php",	// Relative to the SWF file (or you can use absolute paths)
 				post_params: {"PHPSESSID" : "<?php echo session_id(); ?>"},
 
 				// File Upload Settings

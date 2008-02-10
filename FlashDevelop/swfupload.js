@@ -580,7 +580,7 @@ SWFUpload.prototype.returnUploadStart = function (file) {
 	var returnValue;
 	if (typeof(this.settings.upload_start_handler) === "function") {
 		returnValue = this.settings.upload_start_handler.call(this, file);
-	} else if (typeof(this.settings.upload_start_handler) !== null) {
+	} else if (this.settings.upload_start_handler != undefined) {
 		throw "upload_start_handler must be a function";
 	}
 
