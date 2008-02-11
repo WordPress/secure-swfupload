@@ -1,23 +1,23 @@
 var SWFUpload = {};
-function fileQueueError(file, error_code, message) {
+function fileQueueError(file, errorCode, message) {
 	try {
-		var image_name = "error.gif";
-		var error_name = "";
-		if (error_code === SWFUpload.ERROR_CODE_QUEUE_LIMIT_EXCEEDED) {
-			error_name = "You have attempted to queue too many files.";
+		var imageName = "error.gif";
+		var errorName = "";
+		if (errorCode === SWFUpload.errorCode_QUEUE_LIMIT_EXCEEDED) {
+			errorName = "You have attempted to queue too many files.";
 		}
 
-		if (error_name !== "") {
-			alert(error_name);
+		if (errorName !== "") {
+			alert(errorName);
 			return;
 		}
 
-		switch (error_code) {
+		switch (errorCode) {
 		case SWFUpload.QUEUE_ERROR.ZERO_BYTE_FILE:
-			image_name = "zerobyte.gif";
+			imageName = "zerobyte.gif";
 			break;
 		case SWFUpload.QUEUE_ERROR.FILE_EXCEEDS_SIZE_LIMIT:
-			image_name = "toobig.gif";
+			imageName = "toobig.gif";
 			break;
 		case SWFUpload.QUEUE_ERROR.ZERO_BYTE_FILE:
 		case SWFUpload.QUEUE_ERROR.INVALID_FILETYPE:
@@ -26,7 +26,7 @@ function fileQueueError(file, error_code, message) {
 			break;
 		}
 
-		addImage("images/" + image_name);
+		addImage("images/" + imageName);
 
 	} catch (ex) {
 		this.debug(ex);
@@ -34,9 +34,9 @@ function fileQueueError(file, error_code, message) {
 
 }
 
-function fileDialogComplete(num_files_queued) {
+function fileDialogComplete(numFilesSelected, numFilesQueued) {
 	try {
-		if (num_files_queued > 0) {
+		if (numFilesQueued > 0) {
 			this.startUpload();
 		}
 	} catch (ex) {
@@ -50,29 +50,29 @@ function uploadProgress(file, bytesLoaded) {
 		var percent = Math.ceil((bytesLoaded / file.size) * 100);
 
 		var progress = new FileProgress(file,  this.customSettings.upload_target);
-		progress.SetProgress(percent);
+		progress.setProgress(percent);
 		if (percent === 100) {
-			progress.SetStatus("Creating thumbnail...");
-			progress.ToggleCancel(false, this);
+			progress.setStatus("Creating thumbnail...");
+			progress.soggleCancel(false, this);
 		} else {
-			progress.SetStatus("Uploading...");
-			progress.ToggleCancel(true, this);
+			progress.setStatus("Uploading...");
+			progress.soggleCancel(true, this);
 		}
 	} catch (ex) {
 		this.debug(ex);
 	}
 }
 
-function uploadSuccess(file, server_data) {
+function uploadSuccess(file, serverData) {
 	try {
-		// upload.aspx returns the thumbnail id in the server_data, use that to retrieve the thumbnail for display
+		// upload.aspx returns the thumbnail id in the serverData, use that to retrieve the thumbnail for display
 		
-		addImage("thumbnail.aspx?id=" + server_data);
+		addImage("thumbnail.aspx?id=" + serverData);
 
 		var progress = new FileProgress(file,  this.customSettings.upload_target);
 
-		progress.SetStatus("Thumbnail Created.");
-		progress.ToggleCancel(false);
+		progress.setStatus("Thumbnail Created.");
+		progress.toggleCancel(false);
 
 
 	} catch (ex) {
@@ -87,26 +87,26 @@ function uploadComplete(file) {
 			this.startUpload();
 		} else {
 			var progress = new FileProgress(file,  this.customSettings.upload_target);
-			progress.SetComplete();
-			progress.SetStatus("All images received.");
-			progress.ToggleCancel(false);
+			progress.setComplete();
+			progress.setStatus("All images received.");
+			progress.toggleCancel(false);
 		}
 	} catch (ex) {
 		this.debug(ex);
 	}
 }
 
-function uploadError(file, error_code, message) {
-	var image_name =  "error.gif";
+function uploadError(file, errorCode, message) {
+	var imageName =  "error.gif";
 	var progress;
 	try {
-		switch (error_code) {
+		switch (errorCode) {
 		case SWFUpload.UPLOAD_ERROR.FILE_CANCELLED:
 			try {
 				progress = new FileProgress(file,  this.customSettings.upload_target);
-				progress.SetCancelled();
-				progress.SetStatus("Cancelled");
-				progress.ToggleCancel(false);
+				progress.setCancelled();
+				progress.setStatus("Cancelled");
+				progress.toggleCancel(false);
 			}
 			catch (ex1) {
 				this.debug(ex1);
@@ -115,22 +115,22 @@ function uploadError(file, error_code, message) {
 		case SWFUpload.UPLOAD_ERROR.UPLOAD_STOPPED:
 			try {
 				progress = new FileProgress(file,  this.customSettings.upload_target);
-				progress.SetCancelled();
-				progress.SetStatus("Stopped");
-				progress.ToggleCancel(true);
+				progress.setCancelled();
+				progress.setStatus("Stopped");
+				progress.toggleCancel(true);
 			}
 			catch (ex2) {
 				this.debug(ex2);
 			}
 		case SWFUpload.UPLOAD_ERROR.UPLOAD_LIMIT_EXCEEDED:
-			image_name = "uploadlimit.gif";
+			imageName = "uploadlimit.gif";
 			break;
 		default:
 			alert(message);
 			break;
 		}
 
-		addImage("images/" + image_name);
+		addImage("images/" + imageName);
 
 	} catch (ex3) {
 		this.debug(ex3);
@@ -139,19 +139,73 @@ function uploadError(file, error_code, message) {
 }
 
 
+function addImage(src) {
+	var newImg = document.createElement("img");
+	newImg.style.margin = "5px";
+
+	document.getElementById("thumbnails").appendChild(newImg);
+	if (newImg.filters) {
+		try {
+			newImg.filters.item("DXImageTransform.Microsoft.Alpha").opacity = 0;
+		} catch (e) {
+			// If it is not set initially, the browser will throw an error.  This will set it if it is not set yet.
+			newImg.style.filter = 'progid:DXImageTransform.Microsoft.Alpha(opacity=' + 0 + ')';
+		}
+	} else {
+		newImg.style.opacity = 0;
+	}
+
+	newImg.onload = function () {
+		fadeIn(newImg, 0);
+	};
+	newImg.src = src;
+}
+
+function fadeIn(element, opacity) {
+	var reduceOpacityBy = 15;
+	var rate = 30;	// 15 fps
+
+
+	if (opacity < 100) {
+		opacity += reduceOpacityBy;
+		if (opacity > 100) {
+			opacity = 100;
+		}
+
+		if (element.filters) {
+			try {
+				element.filters.item("DXImageTransform.Microsoft.Alpha").opacity = opacity;
+			} catch (e) {
+				// If it is not set initially, the browser will throw an error.  This will set it if it is not set yet.
+				element.style.filter = 'progid:DXImageTransform.Microsoft.Alpha(opacity=' + opacity + ')';
+			}
+		} else {
+			element.style.opacity = opacity / 100;
+		}
+	}
+
+	if (opacity < 100) {
+		setTimeout(function () {
+			fadeIn(element, opacity);
+		}, rate);
+	}
+}
+
+
+
 /* ******************************************
  *	FileProgress Object
  *	Control object for displaying file info
  * ****************************************** */
 
-function FileProgress(file, target_id) {
-	this.file_progress_id = "divFileProgress";
+function FileProgress(file, targetID) {
+	this.fileProgressID = "divFileProgress";
 
-	this.fileProgressWrapper = document.getElementById(this.file_progress_id);
+	this.fileProgressWrapper = document.getElementById(this.fileProgressID);
 	if (!this.fileProgressWrapper) {
 		this.fileProgressWrapper = document.createElement("div");
 		this.fileProgressWrapper.className = "progressWrapper";
-		this.fileProgressWrapper.id = this.file_progress_id;
+		this.fileProgressWrapper.id = this.fileProgressID;
 
 		this.fileProgressElement = document.createElement("div");
 		this.fileProgressElement.className = "progressContainer";
@@ -180,7 +234,7 @@ function FileProgress(file, target_id) {
 
 		this.fileProgressWrapper.appendChild(this.fileProgressElement);
 
-		document.getElementById(target_id).appendChild(this.fileProgressWrapper);
+		document.getElementById(targetID).appendChild(this.fileProgressWrapper);
 		fadeIn(this.fileProgressWrapper, 0);
 
 	} else {
@@ -191,92 +245,40 @@ function FileProgress(file, target_id) {
 	this.height = this.fileProgressWrapper.offsetHeight;
 
 }
-FileProgress.prototype.SetProgress = function (percentage) {
+FileProgress.prototype.setProgress = function (percentage) {
 	this.fileProgressElement.className = "progressContainer green";
 	this.fileProgressElement.childNodes[3].className = "progressBarInProgress";
 	this.fileProgressElement.childNodes[3].style.width = percentage + "%";
 };
-FileProgress.prototype.SetComplete = function () {
+FileProgress.prototype.setComplete = function () {
 	this.fileProgressElement.className = "progressContainer blue";
 	this.fileProgressElement.childNodes[3].className = "progressBarComplete";
 	this.fileProgressElement.childNodes[3].style.width = "";
 
 };
-FileProgress.prototype.SetError = function () {
+FileProgress.prototype.setError = function () {
 	this.fileProgressElement.className = "progressContainer red";
 	this.fileProgressElement.childNodes[3].className = "progressBarError";
 	this.fileProgressElement.childNodes[3].style.width = "";
 
 };
-FileProgress.prototype.SetCancelled = function () {
+FileProgress.prototype.setCancelled = function () {
 	this.fileProgressElement.className = "progressContainer";
 	this.fileProgressElement.childNodes[3].className = "progressBarError";
 	this.fileProgressElement.childNodes[3].style.width = "";
 
 };
-FileProgress.prototype.SetStatus = function (status) {
+FileProgress.prototype.setStatus = function (status) {
 	this.fileProgressElement.childNodes[2].innerHTML = status;
 };
 
-FileProgress.prototype.ToggleCancel = function (show, upload_obj) {
+FileProgress.prototype.toggleCancel = function (show, swfuploadInstance) {
 	this.fileProgressElement.childNodes[0].style.visibility = show ? "visible" : "hidden";
-	if (upload_obj) {
-		var file_id = this.file_progress_id;
+	if (swfuploadInstance) {
+		var fileID = this.fileProgressID;
 		this.fileProgressElement.childNodes[0].onclick = function () {
-			upload_obj.cancelUpload(file_id);
+			swfuploadInstance.cancelUpload(fileID);
 			return false;
 		};
 	}
 };
-
-function addImage(src) {
-	var new_img = document.createElement("img");
-	new_img.style.margin = "5px";
-
-	document.getElementById("thumbnails").appendChild(new_img);
-	if (new_img.filters) {
-		try {
-			new_img.filters.item("DXImageTransform.Microsoft.Alpha").opacity = 0;
-		} catch (e) {
-			// If it is not set initially, the browser will throw an error.  This will set it if it is not set yet.
-			new_img.style.filter = 'progid:DXImageTransform.Microsoft.Alpha(opacity=' + 0 + ')';
-		}
-	} else {
-		new_img.style.opacity = 0;
-	}
-
-	new_img.onload = function () {
-		fadeIn(new_img, 0);
-	};
-	new_img.src = src;
-}
-
-function fadeIn(element, opacity) {
-	var reduce_opacity_by = 15;
-	var rate = 30;	// 15 fps
-
-
-	if (opacity < 100) {
-		opacity += reduce_opacity_by;
-		if (opacity > 100) {
-			opacity = 100;
-		}
-
-		if (element.filters) {
-			try {
-				element.filters.item("DXImageTransform.Microsoft.Alpha").opacity = opacity;
-			} catch (e) {
-				// If it is not set initially, the browser will throw an error.  This will set it if it is not set yet.
-				element.style.filter = 'progid:DXImageTransform.Microsoft.Alpha(opacity=' + opacity + ')';
-			}
-		} else {
-			element.style.opacity = opacity / 100;
-		}
-	}
-
-	if (opacity < 100) {
-		setTimeout(function () {
-			fadeIn(element, opacity);
-		}, rate);
-	}
-}

@@ -55,12 +55,12 @@ function FileProgress(file, targetID) {
 	this.height = this.fileProgressWrapper.offsetHeight;
 
 }
-FileProgress.prototype.SetProgress = function (percentage) {
+FileProgress.prototype.setProgress = function (percentage) {
 	this.fileProgressElement.className = "progressContainer green";
 	this.fileProgressElement.childNodes[3].className = "progressBarInProgress";
 	this.fileProgressElement.childNodes[3].style.width = percentage + "%";
 };
-FileProgress.prototype.SetComplete = function () {
+FileProgress.prototype.setComplete = function () {
 	this.fileProgressElement.className = "progressContainer blue";
 	this.fileProgressElement.childNodes[3].className = "progressBarComplete";
 	this.fileProgressElement.childNodes[3].style.width = "";
@@ -70,7 +70,7 @@ FileProgress.prototype.SetComplete = function () {
 		oSelf.Disappear();
 	}, 10000);
 };
-FileProgress.prototype.SetError = function () {
+FileProgress.prototype.setError = function () {
 	this.fileProgressElement.className = "progressContainer red";
 	this.fileProgressElement.childNodes[3].className = "progressBarError";
 	this.fileProgressElement.childNodes[3].style.width = "";
@@ -80,22 +80,22 @@ FileProgress.prototype.SetError = function () {
 		oSelf.Disappear();
 	}, 5000);
 };
-FileProgress.prototype.SetCancelled = function () {
+FileProgress.prototype.setCancelled = function () {
 	this.fileProgressElement.className = "progressContainer";
 	this.fileProgressElement.childNodes[3].className = "progressBarError";
 	this.fileProgressElement.childNodes[3].style.width = "";
 
 	var oSelf = this;
 	setTimeout(function () {
-		oSelf.Disappear();
+		oSelf.disappear();
 	}, 2000);
 };
-FileProgress.prototype.SetStatus = function (status) {
+FileProgress.prototype.setStatus = function (status) {
 	this.fileProgressElement.childNodes[2].innerHTML = status;
 };
 
 // Show/Hide the cancel button
-FileProgress.prototype.ToggleCancel = function (show, swfUploadInstance) {
+FileProgress.prototype.toggleCancel = function (show, swfUploadInstance) {
 	this.fileProgressElement.childNodes[0].style.visibility = show ? "visible" : "hidden";
 	if (swfUploadInstance) {
 		var fileID = this.fileProgressID;
@@ -107,7 +107,7 @@ FileProgress.prototype.ToggleCancel = function (show, swfUploadInstance) {
 };
 
 // Fades out and clips away the FileProgress box.
-FileProgress.prototype.Disappear = function () {
+FileProgress.prototype.disappear = function () {
 
 	var reduceOpacityBy = 15;
 	var reduceHeightBy = 4;
@@ -143,7 +143,7 @@ FileProgress.prototype.Disappear = function () {
 	if (this.height > 0 || this.opacity > 0) {
 		var oSelf = this;
 		setTimeout(function () {
-			oSelf.Disappear();
+			oSelf.disappear();
 		}, rate);
 	} else {
 		this.fileProgressWrapper.style.display = "none";

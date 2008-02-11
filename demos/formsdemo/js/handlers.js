@@ -23,24 +23,24 @@ function validateForm() {
 	var txtFileName = document.getElementById("txtFileName");
 	var txtReferences = document.getElementById("references");
 	
-	var is_valid = true;
+	var isValid = true;
 	if (txtLastName.value === "") {
-		is_valid = false;
+		isValid = false;
 	}
 	if (txtFirstName.value === "") {
-		is_valid = false;
+		isValid = false;
 	}
 	if (txtEducation.value === "") {
-		is_valid = false;
+		isValid = false;
 	}
 	if (txtFileName.value === "") {
-		is_valid = false;
+		isValid = false;
 	}
 	if (txtReferences.value === "") {
-		is_valid = false;
+		isValid = false;
 	}
 	
-	document.getElementById("btnSubmit").disabled = !is_valid;
+	document.getElementById("btnSubmit").disabled = !isValid;
 
 }
 
@@ -126,8 +126,8 @@ function uploadProgress(file, bytesLoaded, bytesTotal) {
 
 		file.id = "singlefile";	// This makes it so FileProgress only makes a single UI element, instead of one for each file
 		var progress = new FileProgress(file, this.customSettings.progress_target);
-		progress.SetProgress(percent);
-		progress.SetStatus("Uploading...");
+		progress.setProgress(percent);
+		progress.setStatus("Uploading...");
 	} catch (e) {
 	}
 }
@@ -136,9 +136,9 @@ function uploadSuccess(file, serverData) {
 	try {
 		file.id = "singlefile";	// This makes it so FileProgress only makes a single UI element, instead of one for each file
 		var progress = new FileProgress(file, this.customSettings.progress_target);
-		progress.SetComplete();
-		progress.SetStatus("Complete.");
-		progress.ToggleCancel(false);
+		progress.setComplete();
+		progress.setStatus("Complete.");
+		progress.toggleCancel(false);
 		
 		if (serverData === " ") {
 			this.customSettings.upload_successful = false;
@@ -159,9 +159,9 @@ function uploadComplete(file) {
 		} else {
 			file.id = "singlefile";	// This makes it so FileProgress only makes a single UI element, instead of one for each file
 			var progress = new FileProgress(file, this.customSettings.progress_target);
-			progress.SetError();
-			progress.SetStatus("File rejected");
-			progress.ToggleCancel(false);
+			progress.setError();
+			progress.setStatus("File rejected");
+			progress.toggleCancel(false);
 			
 			var txtFileName = document.getElementById("txtFileName");
 			txtFileName.value = "";
@@ -200,32 +200,32 @@ function uploadError(file, errorCode, message) {
 
 		file.id = "singlefile";	// This makes it so FileProgress only makes a single UI element, instead of one for each file
 		var progress = new FileProgress(file, this.customSettings.progress_target);
-		progress.SetError();
-		progress.ToggleCancel(false);
+		progress.setError();
+		progress.toggleCancel(false);
 
 		switch (errorCode) {
 		case SWFUpload.UPLOAD_ERROR.HTTP_ERROR:
-			progress.SetStatus("Upload Error");
+			progress.setStatus("Upload Error");
 			this.debug("Error Code: HTTP Error, File name: " + file.name + ", Message: " + message);
 			break;
 		case SWFUpload.UPLOAD_ERROR.UPLOAD_FAILED:
-			progress.SetStatus("Upload Failed.");
+			progress.setStatus("Upload Failed.");
 			this.debug("Error Code: Upload Failed, File name: " + file.name + ", File size: " + file.size + ", Message: " + message);
 			break;
 		case SWFUpload.UPLOAD_ERROR.IO_ERROR:
-			progress.SetStatus("Server (IO) Error");
+			progress.setStatus("Server (IO) Error");
 			this.debug("Error Code: IO Error, File name: " + file.name + ", Message: " + message);
 			break;
 		case SWFUpload.UPLOAD_ERROR.SECURITY_ERROR:
-			progress.SetStatus("Security Error");
+			progress.setStatus("Security Error");
 			this.debug("Error Code: Security Error, File name: " + file.name + ", Message: " + message);
 			break;
 		case SWFUpload.UPLOAD_ERROR.FILE_CANCELLED:
-			progress.SetStatus("Upload Cancelled");
+			progress.setStatus("Upload Cancelled");
 			this.debug("Error Code: Upload Cancelled, File name: " + file.name + ", Message: " + message);
 			break;
 		case SWFUpload.UPLOAD_ERROR.UPLOAD_STOPPED:
-			progress.SetStatus("Upload Stopped");
+			progress.setStatus("Upload Stopped");
 			this.debug("Error Code: Upload Stopped, File name: " + file.name + ", Message: " + message);
 			break;
 		}
