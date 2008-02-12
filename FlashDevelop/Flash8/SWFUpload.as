@@ -939,7 +939,7 @@ class SWFUpload {
 		var post_object:Object = {};
 
 		if (param_string != null) {
-			var name_value_pairs:Array = param_string.split("&");
+			var name_value_pairs:Array = param_string.split("&amp;");
 			
 			for (var i:Number = 0; i < name_value_pairs.length; i++) {
 				var name_value:String = String(name_value_pairs[i]);
