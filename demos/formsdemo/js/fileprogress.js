@@ -67,7 +67,7 @@ FileProgress.prototype.setComplete = function () {
 
 	var oSelf = this;
 	setTimeout(function () {
-		oSelf.Disappear();
+		oSelf.disappear();
 	}, 10000);
 };
 FileProgress.prototype.setError = function () {
@@ -77,7 +77,7 @@ FileProgress.prototype.setError = function () {
 
 	var oSelf = this;
 	setTimeout(function () {
-		oSelf.Disappear();
+		oSelf.disappear();
 	}, 5000);
 };
 FileProgress.prototype.setCancelled = function () {
