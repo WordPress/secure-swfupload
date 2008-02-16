@@ -1,4 +1,4 @@
- * SWFUpload by Jacob Roberts, Nov 2007, www.swfupload.org, swfupload.googlecode.com
+ * SWFUpload by Jacob Roberts, Feb 2008, www.swfupload.org, swfupload.googlecode.com
 
  * --------- Version 2.1.0 -----------
  * + Added allowScriptAccess="always" to the embed/object elements so the SWF can be served from different domains.
@@ -14,6 +14,7 @@
  * + Fixed use of & producing invalid XHTML in the <object> and <embed> tags.
  * - Removed the use of the embed tag (using the <object> sample from the Flash Satay method)
  * = Updated plugins to work with code rewrite changes.
+ * = Extracted FileProgress object in to its own file.
 
  * --------- Version 2.0.2 -----------
  * = Fixed a bug where post params could not be added to the current file (because it is removed from the queue when it becomes current)
@@ -189,7 +190,7 @@
 
  * -------- -------- -------- -------- -------- -------- -------- --------
  * SWFUpload 0.7: Flash upload dialog - http://profandesign.se/swfupload/
- * SWFUpload is (c) 2006 Lars Huring and Mammon Media and is released under the MIT License:
+ * SWFUpload is (c) 2006 Lars Huring, Olov Nilzén and Mammon Media and is released under the MIT License:
  * http://www.opensource.org/licenses/mit-license.php
  * -------- -------- -------- -------- -------- -------- -------- --------
 

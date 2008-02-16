@@ -1,7 +1,7 @@
 /**
  * SWFUpload v2.1.0 by Jacob Roberts, Feb 2008, http://www.swfupload.org, http://swfupload.googlecode.com, http://www.swfupload.org
  * -------- -------- -------- -------- -------- -------- -------- --------
- * SWFUpload is (c) 2006 Lars Huring and Mammon Media and is released under the MIT License:
+ * SWFUpload is (c) 2006 Lars Huring, Olov Nilzén and Mammon Media and is released under the MIT License:
  * http://www.opensource.org/licenses/mit-license.php
  *
  * See Changelog.txt for version history
