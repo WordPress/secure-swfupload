@@ -1,4 +1,3 @@
-var SWFUpload = {};
 function fileQueueError(file, errorCode, message) {
 	try {
 		var imageName = "error.gif";
@@ -53,10 +52,10 @@ function uploadProgress(file, bytesLoaded) {
 		progress.setProgress(percent);
 		if (percent === 100) {
 			progress.setStatus("Creating thumbnail...");
-			progress.soggleCancel(false, this);
+			progress.toggleCancel(false, this);
 		} else {
 			progress.setStatus("Uploading...");
-			progress.soggleCancel(true, this);
+			progress.toggleCancel(true, this);
 		}
 	} catch (ex) {
 		this.debug(ex);
@@ -65,9 +64,7 @@ function uploadProgress(file, bytesLoaded) {
 
 function uploadSuccess(file, serverData) {
 	try {
-		// upload.aspx returns the thumbnail id in the serverData, use that to retrieve the thumbnail for display
-		
-		addImage("thumbnail.aspx?id=" + serverData);
+		addImage("thumbnail.php?id=" + serverData);
 
 		var progress = new FileProgress(file,  this.customSettings.upload_target);
 
@@ -162,7 +159,7 @@ function addImage(src) {
 }
 
 function fadeIn(element, opacity) {
-	var reduceOpacityBy = 15;
+	var reduceOpacityBy = 5;
 	var rate = 30;	// 15 fps
 
 
