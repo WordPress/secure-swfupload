@@ -62,7 +62,7 @@ package {
 		
 		// Create the simply file object that is passed to the browser
 		public function ToJavaScriptObject():Object {
-			this.js_object.file_status = this.file_status;
+			this.js_object.filestatus = this.file_status;
 			this.js_object.post = this.GetPostObject();
 		
 			return this.js_object;
