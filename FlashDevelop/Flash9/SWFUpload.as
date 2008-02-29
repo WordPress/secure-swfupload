@@ -27,7 +27,7 @@ package {
 			var SWFUpload:SWFUpload = new SWFUpload();
 		}
 		
-		private const build_number:String = "SWFUPLOAD 2.1.0 FP9 2008-02-29";
+		private const build_number:String = "SWFUPLOAD 2.1.0 FP9 2008-02-29 4";
 		
 		// State tracking variables
 		private var fileBrowserMany:FileReferenceList = new FileReferenceList();
@@ -198,7 +198,7 @@ package {
 			if (this.fileQueueLimit == 0 && this.fileUploadLimit != 0) this.fileQueueLimit = this.fileUploadLimit;
 
 			try {
-				this.useQueryString = root.loaderInfo.parameters.userQueryString == "true" ? true : false;
+				this.useQueryString = root.loaderInfo.parameters.useQueryString == "true" ? true : false;
 			} catch (ex:Object) {
 				this.useQueryString = false;
 			}
@@ -855,6 +855,8 @@ package {
 				request.setLoginCredentials("", "");
 			}*/
 		
+			var file_post:Object = this.current_file_item.GetPostObject();
+			
 			if (this.useQueryString) {
 				var pairs:Array = new Array();
 				for (key in this.uploadPostObject) {
@@ -865,7 +867,7 @@ package {
 				}
 
 				for (key in file_post) {
-					this.Debug("File Post Item: " + key + "=" + this.uploadPostObject[key]);
+					this.Debug("File Post Item: " + key + "=" + file_post[key]);
 					if (file_post.hasOwnProperty(key)) {
 						pairs.push(escape(key) + "=" + escape(file_post[key]));
 					}
@@ -876,7 +878,6 @@ package {
 			} else {
 				request.url = this.uploadURL;
 
-				var file_post:Object = this.current_file_item.GetPostObject();
 				var key:String;
 				var post:URLVariables = new URLVariables();
 				for (key in this.uploadPostObject) {
@@ -887,7 +888,7 @@ package {
 				}
 
 				for (key in file_post) {
-					this.Debug("File Post Item: " + key + "=" + this.uploadPostObject[key]);
+					this.Debug("File Post Item: " + key + "=" + file_post[key]);
 					if (file_post.hasOwnProperty(key)) {
 						post[key] = file_post[key];
 					}
