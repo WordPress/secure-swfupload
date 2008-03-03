@@ -49,14 +49,28 @@
 </head>
 <body>
     <form id="form1" runat="server">
-	    <div id="title" class="title">SWFUpload v2.1.0 Application Demo (ASP.Net 2.0)</div>
-	    <asp:Button ID="btnLogout" Text="Logout" runat="server" />
-	    <div id="swfu_container" style="margin: 0px 10px;">
+	    <div id="title" class="title">SWFUpload v2.1.0 Application Demo (ASP.Net VB.Net 2.0)</div>
+			<div id="swfu_container" style="margin: 0px 10px;">
 		    <div>
-				<button id="btnBrowse" type="button" style="padding: 5px;" onclick="swfu.selectFiles(); this.blur();"><img src="images/page_white_add.png" style="padding-right: 3px; vertical-align: bottom;" alt="Add Icon" />Select Images <span style="font-size: 7pt;">(2 MB Max)</span></button>
+				<button id="btnBrowse" type="button" style="padding: 5px;" onclick="swfu.selectFiles(); this.blur();"><img src="images/page_white_add.png" style="padding-right: 3px; vertical-align: bottom;" alt="Add Icon" />Select Images <span style="font-size: 7pt;"></span></button>
 		    </div>
 		    <div id="divFileProgressContainer" style="height: 75px;"></div>
 		    <div id="thumbnails"></div>
+				<br />
+			<div>
+				<asp:Button ID="btnLogout" Text="Logout" runat="server" /><br />
+				<br />
+				This page demonstrations the following:
+				<ul>
+					<li>Using the ServerData</li>
+					<li>Integrating with complex JavaScript applications</li>
+					<li>Manually handling/uploading the file queue (without the queue plugin)</li>
+					<li>Working around the Flash Cookie bug for ASP.Net Forms Authentication and Sessions.</li>
+				</ul>
+				<br />
+				This does not demonstrate a real-world application.  The images are not saved and thumbnails are stored
+				in the user's session which does not scale.  User credentials are stored in plain text in the web.config.
+			</div>
 	    </div>
     </form>
 </body>
