@@ -64,7 +64,7 @@ function uploadProgress(file, bytesLoaded) {
 
 function uploadSuccess(file, serverData) {
 	try {
-		addImage("thumbnail.aspx?id=" + serverData);
+		addImage("ShowThumbnail.aspx?id=" + serverData);
 
 		var progress = new FileProgress(file,  this.customSettings.upload_target);
 
@@ -94,6 +94,7 @@ function uploadComplete(file) {
 }
 
 function uploadError(file, errorCode, message) {
+	alert("error");
 	var imageName =  "error.gif";
 	var progress;
 	try {
