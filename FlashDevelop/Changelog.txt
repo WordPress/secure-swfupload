@@ -15,6 +15,7 @@
  * - Removed the use of the embed tag (using the <object> sample from the Flash Satay method)
  * = Updated plugins to work with code rewrite changes.
  * = Extracted FileProgress object in to its own file.
+ * + Added addPostParam and removePostParam functions
 
  * --------- Version 2.0.2 -----------
  * = Fixed a bug where post params could not be added to the current file (because it is removed from the queue when it becomes current)

@@ -447,6 +447,18 @@ SWFUpload.prototype.setPostParams = function (paramsObject) {
 	this.callFlash("SetPostParams", false, [paramsObject]);
 };
 
+// Public: addPostParam adds post name/value pair.  Each name can have only one value.
+SWFUpload.prototype.addPostParam = function (name, value) {
+	this.settings.post_params[name] = value;
+	this.callFlash("SetPostParams", false, [this.settings.post_params]);
+};
+
+// Public: removePostParam deletes post name/value pair.
+SWFUpload.prototype.removePostParam = function (name) {
+	delete this.settings.post_params[name];
+	this.callFlash("SetPostParams", false, [this.settings.post_params]);
+};
+
 // Public: setFileTypes changes the file_types setting and the file_types_description setting
 SWFUpload.prototype.setFileTypes = function (types, description) {
 	this.settings.file_types = types;
