@@ -26,19 +26,21 @@
 			
 			if (isIE) {
 				window.setInterval(getCookie, 100);
+			} else {
+				document.getElementById("divSWFUpload").style.display = "block";
 			}
 	     };
 	     
 		var last_cookie_value = "";
 		function getCookie() {
 			var cookie_value = readCookie("FlashCookie");
-			if (cookie_value && cookie_value !== last_cookie_value) {
-				last_cookie_value = cookie_value;
-				
+			if (cookie_value && last_cookie_value && cookie_value !== last_cookie_value) {
 				var p = document.createElement("p");
 				p.innerHTML = "FlashCookie cookie changed to " + unescape(cookie_value.replace(/[+]/g, " "));
 				document.getElementById("divCookieValues").appendChild(p);
 			}
+
+			last_cookie_value = cookie_value;
 		}
 	    
 	    // http://www.quirksmode.org/js/cookies.html
@@ -59,23 +61,34 @@
 <body>
 	<div class="title"><a class="likeParent" href="../index.php">SWFUpload v2.1.0 Cookie Bug Demo</a></div>
 	<form id="form1" action="index.php" method="post" enctype="multipart/form-data">
-		<div>
+		<div class="content">
 			This page demonstrates the Flash Cookie Bug.  Open this demo similtaneously in IE and in
 			another non-IE based browser (i.e., FireFox, Opera, Safari, etc).  Upload several small files
 			in the non-IE browser.  Watch as the cookie values magically appear in IE.
 		</div>
-		<div class="content">
+		<div class="content" id="divSWFUpload" style="display: none;">
+			<div>
+				Upload several files in this browser.  The upload script will set a cookie when each file is
+				uploaded.  The cookies values will appear below and, due to the Flash Cookie Bug, will also appear
+				in IE.
+			</div>
 			<div>
 				<input type="button" value="Upload file (Max 1 MB)" onclick="swfu.selectFiles()" style="font-size: 8pt;" />
 			</div>
 			<div id="divStatus">0 Files Uploaded</div>
+		</div>
+		<!--[if IE]>
+		<div class="content">
+			Open this demo in another browser and upload some files.  You will see the values of the "FlashCookie"
+			appear here as they are changed in the other browser.
+		</div>
+		<script type="text/javascript">
+			isIE = true;
+		</script>
+		<![endif]-->
+		<div class="content">
 			<div id="divCookieValues"></div>
 		</div>
 	</form>
-	<!--[if IE]>
-	<script type="text/javascript">
-		isIE = true;
-	</script>
-	<![endif]-->
 </body>
 </html>
