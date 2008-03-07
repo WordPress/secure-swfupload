@@ -164,28 +164,6 @@ SWFUpload.prototype.getFlashHTML = function () {
 				'<param name="allowScriptAccess" value="always" />',
 				'<param name="flashvars" value="' + this.getFlashVars() + '" />',
 				'</object>'].join("");
-
-				/*
-	// Create Mozilla Embed HTML
-	if (navigator.plugins && navigator.mimeTypes && navigator.mimeTypes.length) {
-		// Build the basic embed html
-		return ['<embed type="application/x-shockwave-flash" src="', this.settings.flash_url, '" width="1px" height="1px"',
-				' id="', this.movieName, '" name="', this.movieName, '" ',
-				'bgcolor="', this.settings.flash_color, '" quality="high" menu="false" allowScriptAccess="always" ',
-				'flashvars="', this.getFlashVars(), '" />'].join("");
-
-		// Create IE Object HTML
-	} else {
-		return ['<object id="', this.movieName, '" classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000" width="1px" height="1px">',
-				'<param name="movie" value="', this.settings.flash_url, '">',
-				'<param name="bgcolor" value="', this.settings.flash_color, '" />',
-				'<param name="quality" value="high" />',
-				'<param name="menu" value="false" />',
-				'<param name="allowScriptAccess" value="always" />',
-				'<param name="flashvars" value="' + this.getFlashVars() + '" />',
-				'</object>'].join("");
-	}
-	*/
 };
 
 // Private: getFlashVars builds the parameter string that will be passed
