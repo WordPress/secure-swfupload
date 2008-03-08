@@ -7,6 +7,7 @@
 
 	Features:
 		* swfupload_load_failed_hander event
+		* swfupload_pre_load_handler event
 		* minimum_flash_version setting (default: "9.0.28")
 		* SWFUpload.onload event for early loading
 
@@ -20,6 +21,7 @@
 			SWFUpload.onload = function () {
 				swfu = new SWFUpload({
 					minimum_flash_version: "9.0.28",
+					swfupload_pre_load_handler: swfuploadPreLoad,
 					swfupload_load_failed_handler: swfuploadLoadFailed
 				});
 			};
@@ -28,8 +30,9 @@
 	Notes:
 		You must provide set minimum_flash_version setting to "8" if you are using SWFUpload for Flash Player 8.
 		The swfuploadLoadFailed event is only fired if the minimum version of Flash Player is not met.  Other issues such as missing SWF files, browser bugs
-		 or corrupt Flash Player installations will not trigger this event.  The swfUploadLoaded event should not fire in these cases and should be used
-		 to display and wire-up the UI.
+		 or corrupt Flash Player installations will not trigger this event.
+		The swfuploadPreLoad event is fired as soon as the minimum version of Flash Player is found.  It does not wait for SWFUpload to load and can
+		 be used to prepare the SWFUploadUI and hide alternate content.
 		swfobject's onDomReady event is cross-browser safe but will default to the window.onload event when DOMReady is not supported by the browser.
 		 Early DOM Loading is supported in major modern browsers but cannot be guaranteed for every browser ever made.
 */
@@ -76,6 +79,7 @@ if (typeof(SWFUpload) === "function") {
 			var hasFlash = swfobject.hasFlashPlayerVersion(this.settings.minimum_flash_version);
 			
 			if (hasFlash) {
+				this.queueEvent("swfupload_pre_load_handler");
 				if (typeof(oldLoadFlash) === "function") {
 					oldLoadFlash.call(this);
 				}
