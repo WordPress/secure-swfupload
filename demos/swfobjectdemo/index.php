@@ -30,7 +30,7 @@
 					progressTarget : "fsUploadProgress",
 					cancelButtonId : "btnCancel"
 				},
-				debug: true,
+				debug: false,
 
 				// The event handler functions are defined in handlers.js
 				swfupload_loaded_handler : swfUploadLoaded,
@@ -60,8 +60,8 @@
 	<div class="title"><a class="likeParent" href="../index.php">SWFUpload v2.1.0 Beta SWFObject Demo</a></div>
 	<form id="form1" action="index.php" method="post" enctype="multipart/form-data">
 		<div>
-			This page demonstrates the SWFObject plugin.  In order to see how the plugin works you need to uninstall your Flash Player (or install a version less that 9.0.28.  The page
-			flicker found in the Graceful Degradation plugin is no longer visible and the swfuploadLoadFailed event allows alternate content to be displayed.
+			This page demonstrates the SWFObject plugin.  In order to see how the plugin works you need to uninstall your Flash Player (or have a version less that 9.0.28) or disable JavaScript.  The page
+			flicker found in the Graceful Degradation plugin is no longer visible.
 		</div>
 		<div id="divSWFUploadUI" class="content" style="display: none;">
 			<fieldset class="flash" id="fsUploadProgress">

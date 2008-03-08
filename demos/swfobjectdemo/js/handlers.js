@@ -13,12 +13,12 @@ The FileProgress class is not part of SWFUpload.
    ********************** */
 
 function swfUploadPreLoad() {
-	var self = this;
 	
 	document.getElementById("divSWFUploadUI").style.display = "block";
 	document.getElementById("divAlternateContent").style.display = "none";
 }
 function swfUploadLoaded() {
+	var self = this;
 	document.getElementById("btnBrowse").onclick = function () { self.selectFiles(); };
 	document.getElementById("btnCancel").onclick = function () { self.cancelQueue(); };
 }
