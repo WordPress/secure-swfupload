@@ -18,6 +18,7 @@
 			<li><a href="applicationdemo/index.php">Application Demo</a></li>
 			<li><a href="v102demo/index.php">SWFUpload v1.0.2 Plugin Demo</a></li>
 			<li><a href="cookiebugdemo/index.php">Cookie Bug Demo</a></li>
+			<li><a href="swfobjectdemo/index.php">SWFObject Plugin Demo</a></li>
 		</ul>
 	</div>
 </body>
