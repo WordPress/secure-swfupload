@@ -45,9 +45,9 @@
 				queue_complete_handler : queueComplete,	// Queue plugin event
 				
 				// SWFObject settings
-				minimum_flash_version: "9.0.28",
+				minimum_flash_version : "9.0.28",
 				swfupload_pre_load_handler : swfUploadPreLoad,
-				swfupload_load_failed_handler: swfUploadLoadFailed,
+				swfupload_load_failed_handler : swfUploadLoadFailed
 			};
 
 			swfu = new SWFUpload(settings);
