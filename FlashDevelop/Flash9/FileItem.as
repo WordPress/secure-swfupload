@@ -57,7 +57,14 @@ package {
 		}
 		
 		public function GetPostObject():Object {
-			return this.postObject;
+			var escapedPostObject:Object = { };
+			for (var k:String in this.postObject) {
+				if (this.postObject.hasOwnProperty(k)) {
+					var escapedName:String = FileItem.EscapeParamName(k);
+					escapedPostObject[escapedName] = this.postObject[k];
+				}
+			}
+			return escapedPostObject;
 		}
 		
 		// Create the simply file object that is passed to the browser
@@ -70,6 +77,15 @@ package {
 		
 		public function toString():String {
 			return "FileItem - ID: " + this.id;
+		}
+		
+		public static function EscapeParamName(name:String):String {
+			//name = name.replace(/[^a-z0-9_]/
+			return name;
+		}
+		public static function EscapeCharacter(character:String):String {
+			if (character == "") return "";
+			return "$" + character.charCodeAt(0);
 		}
 	}
 }

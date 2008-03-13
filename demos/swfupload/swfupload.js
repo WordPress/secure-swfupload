@@ -87,6 +87,7 @@ SWFUpload.prototype.initSettings = function () {
 	this.ensureDefault("file_post_name", "Filedata");
 	this.ensureDefault("post_params", {});
 	this.ensureDefault("use_query_string", false);
+	this.ensureDefault("requeue_on_error", false);
 	
 	// File Settings
 	this.ensureDefault("file_types", "*.*");
@@ -164,28 +165,6 @@ SWFUpload.prototype.getFlashHTML = function () {
 				'<param name="allowScriptAccess" value="always" />',
 				'<param name="flashvars" value="' + this.getFlashVars() + '" />',
 				'</object>'].join("");
-
-				/*
-	// Create Mozilla Embed HTML
-	if (navigator.plugins && navigator.mimeTypes && navigator.mimeTypes.length) {
-		// Build the basic embed html
-		return ['<embed type="application/x-shockwave-flash" src="', this.settings.flash_url, '" width="1px" height="1px"',
-				' id="', this.movieName, '" name="', this.movieName, '" ',
-				'bgcolor="', this.settings.flash_color, '" quality="high" menu="false" allowScriptAccess="always" ',
-				'flashvars="', this.getFlashVars(), '" />'].join("");
-
-		// Create IE Object HTML
-	} else {
-		return ['<object id="', this.movieName, '" classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000" width="1px" height="1px">',
-				'<param name="movie" value="', this.settings.flash_url, '">',
-				'<param name="bgcolor" value="', this.settings.flash_color, '" />',
-				'<param name="quality" value="high" />',
-				'<param name="menu" value="false" />',
-				'<param name="allowScriptAccess" value="always" />',
-				'<param name="flashvars" value="' + this.getFlashVars() + '" />',
-				'</object>'].join("");
-	}
-	*/
 };
 
 // Private: getFlashVars builds the parameter string that will be passed
@@ -198,6 +177,7 @@ SWFUpload.prototype.getFlashVars = function () {
 	return ["movieName=", encodeURIComponent(this.movieName),
 			"&amp;uploadURL=", encodeURIComponent(this.settings.upload_url),
 			"&amp;useQueryString=", encodeURIComponent(this.settings.use_query_string),
+			"&amp;requeueOnError=", encodeURIComponent(this.settings.requeue_on_error),
 			"&amp;params=", encodeURIComponent(paramString),
 			"&amp;filePostName=", encodeURIComponent(this.settings.file_post_name),
 			"&amp;fileTypes=", encodeURIComponent(this.settings.file_types),
@@ -494,6 +474,12 @@ SWFUpload.prototype.setFilePostName = function (filePostName) {
 SWFUpload.prototype.setUseQueryString = function (useQueryString) {
 	this.settings.use_query_string = useQueryString;
 	this.callFlash("SetUseQueryString", false, [useQueryString]);
+};
+
+// Public: setRequeueOnError changes the requeue_on_error setting
+SWFUpload.prototype.setRequeueOnError = function (requeueOnError) {
+	this.settings.use_query_string = useQueryString;
+	this.callFlash("SetRequeueOnError", false, [requeueOnError]);
 };
 
 // Public: setDebugEnabled changes the debug_enabled setting

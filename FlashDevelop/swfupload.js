@@ -87,6 +87,7 @@ SWFUpload.prototype.initSettings = function () {
 	this.ensureDefault("file_post_name", "Filedata");
 	this.ensureDefault("post_params", {});
 	this.ensureDefault("use_query_string", false);
+	this.ensureDefault("requeue_on_error", false);
 	
 	// File Settings
 	this.ensureDefault("file_types", "*.*");
@@ -176,6 +177,7 @@ SWFUpload.prototype.getFlashVars = function () {
 	return ["movieName=", encodeURIComponent(this.movieName),
 			"&amp;uploadURL=", encodeURIComponent(this.settings.upload_url),
 			"&amp;useQueryString=", encodeURIComponent(this.settings.use_query_string),
+			"&amp;requeueOnError=", encodeURIComponent(this.settings.requeue_on_error),
 			"&amp;params=", encodeURIComponent(paramString),
 			"&amp;filePostName=", encodeURIComponent(this.settings.file_post_name),
 			"&amp;fileTypes=", encodeURIComponent(this.settings.file_types),
@@ -472,6 +474,12 @@ SWFUpload.prototype.setFilePostName = function (filePostName) {
 SWFUpload.prototype.setUseQueryString = function (useQueryString) {
 	this.settings.use_query_string = useQueryString;
 	this.callFlash("SetUseQueryString", false, [useQueryString]);
+};
+
+// Public: setRequeueOnError changes the requeue_on_error setting
+SWFUpload.prototype.setRequeueOnError = function (requeueOnError) {
+	this.settings.use_query_string = useQueryString;
+	this.callFlash("SetRequeueOnError", false, [requeueOnError]);
 };
 
 // Public: setDebugEnabled changes the debug_enabled setting
