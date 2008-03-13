@@ -107,15 +107,18 @@ var FeaturesDemoHandlers = {
 			var errorName = "";
 			switch (errorCode) {
 			case SWFUpload.UPLOAD_ERROR.HTTP_ERROR:
+				FeaturesDemo.selQueue.options[FeaturesDemo.selQueue.selectedIndex].text = file.id + ":HTTP:" + file.name;
 				errorName = "HTTP ERROR";
 				break;
 			case SWFUpload.UPLOAD_ERROR.MISSING_UPLOAD_URL:
 				errorName = "MISSING UPLOAD URL";
 				break;
 			case SWFUpload.UPLOAD_ERROR.IO_ERROR:
+				FeaturesDemo.selQueue.options[FeaturesDemo.selQueue.selectedIndex].text = file.id + ":IO  :" + file.name;
 				errorName = "IO ERROR";
 				break;
 			case SWFUpload.UPLOAD_ERROR.SECURITY_ERROR:
+				FeaturesDemo.selQueue.options[FeaturesDemo.selQueue.selectedIndex].text = file.id + ":SEC :" + file.name;
 				errorName = "SECURITY ERROR";
 				break;
 			case SWFUpload.UPLOAD_ERROR.UPLOAD_LIMIT_EXCEEDED:

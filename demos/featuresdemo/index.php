@@ -26,6 +26,7 @@
 				use_query_string : false,
 				post_params: { "post_name1": "post_value1", "post_name2": "post_value2" }, 	// Here are some POST values to send. These can be changed dynamically
 				file_post_name: "Filedata",	// This is the "name" of the file item that the server-side script will receive. Setting this doesn't work in the Linux Flash Player
+				requeue_on_error: false,
 
 				// File Upload Settings
 				file_size_limit : "100 MB",
@@ -214,6 +215,10 @@
 								<div class="checkbox">
 									<input id="cbUseQueryString" type="checkbox" />
 									<label for="cbUseQueryString">use_query_string</label>
+								</div>
+								<div class="checkbox">
+									<input id="cbRequeueOnError" type="checkbox" />
+									<label for="cbRequeueOnError">requeue_on_error</label>
 								</div>
 								<div class="checkbox">
 									<input id="cbDebug" type="checkbox" />

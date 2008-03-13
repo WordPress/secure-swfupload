@@ -261,8 +261,7 @@ SWFUpload.prototype.displayDebugInfo = function () {
 /* Note: addSetting and getSetting are no longer used by SWFUpload but are included
 	the maintain v2 API compatibility
 */
-
-// Public: addSetting adds a setting value. If the value given is undefined or null then the default_value is used.
+// Public: (Deprecated) addSetting adds a setting value. If the value given is undefined or null then the default_value is used.
 SWFUpload.prototype.addSetting = function (name, value, default_value) {
     if (value == undefined) {
         return (this.settings[name] = default_value);
@@ -271,7 +270,7 @@ SWFUpload.prototype.addSetting = function (name, value, default_value) {
 	}
 };
 
-// Public: getSetting gets a setting. Returns an empty string if the setting was not found.
+// Public: (Deprecated) getSetting gets a setting. Returns an empty string if the setting was not found.
 SWFUpload.prototype.getSetting = function (name) {
     if (this.settings[name] != undefined) {
         return this.settings[name];
@@ -295,19 +294,27 @@ SWFUpload.prototype.callFlash = function (functionName, withTimeout, argumentArr
 	var self = this;
 	var callFunction = function () {
 		var movieElement = self.getMovieElement();
+		var returnValue;
 		if (typeof(movieElement[functionName]) === "function") {
 			// We have to go through all this if/else stuff because the Flash functions don't have apply() and only accept the exact number of arguments.
 			if (argumentArray.length === 0) {
-				return movieElement[functionName]();
+				returnValue = movieElement[functionName]();
 			} else if (argumentArray.length === 1) {
-				return movieElement[functionName](argumentArray[0]);
+				returnValue = movieElement[functionName](argumentArray[0]);
 			} else if (argumentArray.length === 2) {
-				return movieElement[functionName](argumentArray[0], argumentArray[1]);
+				returnValue = movieElement[functionName](argumentArray[0], argumentArray[1]);
 			} else if (argumentArray.length === 3) {
-				return movieElement[functionName](argumentArray[0], argumentArray[1], argumentArray[2]);
+				returnValue = movieElement[functionName](argumentArray[0], argumentArray[1], argumentArray[2]);
 			} else {
 				throw "Too many arguments";
 			}
+			
+			// Unescape file post param values
+			if (returnValue != undefined && typeof(returnValue.post) === "object") {
+				returnValue = self.unescapeFilePostParams(returnValue);
+			}
+			
+			return returnValue;
 		} else {
 			throw "Invalid function name";
 		}
@@ -478,7 +485,7 @@ SWFUpload.prototype.setUseQueryString = function (useQueryString) {
 
 // Public: setRequeueOnError changes the requeue_on_error setting
 SWFUpload.prototype.setRequeueOnError = function (requeueOnError) {
-	this.settings.use_query_string = useQueryString;
+	this.settings.requeue_on_error = requeueOnError;
 	this.callFlash("SetRequeueOnError", false, [requeueOnError]);
 };
 
@@ -536,6 +543,29 @@ SWFUpload.prototype.executeNextEvent = function () {
 	
 };
 
+// Private: unescapeFileParams is part of a workaround for a flash bug where objects passed through ExternalInterfance cannot have
+// properties that contain characters that are not valid for JavaScript identifiers. To work around this
+// the Flash Component escapes the parameter names and we must unescape again before passing them along.
+SWFUpload.prototype.unescapeFilePostParams = function (file) {
+	var reg = /[$]([0-9a-f]{4})/i;
+	var unescapedPost = {};
+	var uk;
+
+	for (var k in file.post) {
+		if (file.post.hasOwnProperty(k)) {
+			uk = k;
+			var match;
+			while ((match = reg.exec(uk)) !== null) {
+				uk = uk.replace(match[0], String.fromCharCode(parseInt("0x"+match[1], 16)));
+			}
+			unescapedPost[uk] = file.post[k];
+		}
+	}
+
+	file.post = unescapedPost;
+	return file;
+};
+
 SWFUpload.prototype.flashReady = function () {
 	// Check that the movie element is loaded correctly with its ExternalInterface methods defined
 	var movieElement = this.getMovieElement();
@@ -555,12 +585,14 @@ SWFUpload.prototype.fileDialogStart = function () {
 
 /* Called when a file is successfully added to the queue. */
 SWFUpload.prototype.fileQueued = function (file) {
+	file = this.unescapeFilePostParams(file);
 	this.queueEvent("file_queued_handler", file);
 };
 
 
 /* Handle errors that occur when an attempt to queue a file fails. */
 SWFUpload.prototype.fileQueueError = function (file, errorCode, message) {
+	file = this.unescapeFilePostParams(file);
 	this.queueEvent("file_queue_error_handler", [file, errorCode, message]);
 };
 
@@ -571,12 +603,14 @@ SWFUpload.prototype.fileDialogComplete = function (numFilesSelected, numFilesQue
 };
 
 SWFUpload.prototype.uploadStart = function (file) {
+	file = this.unescapeFilePostParams(file);
 	this.queueEvent("return_upload_start_handler", file);
 };
 
 SWFUpload.prototype.returnUploadStart = function (file) {
 	var returnValue;
 	if (typeof(this.settings.upload_start_handler) === "function") {
+		file = this.unescapeFilePostParams(file);
 		returnValue = this.settings.upload_start_handler.call(this, file);
 	} else if (this.settings.upload_start_handler != undefined) {
 		throw "upload_start_handler must be a function";
@@ -596,18 +630,22 @@ SWFUpload.prototype.returnUploadStart = function (file) {
 
 
 SWFUpload.prototype.uploadProgress = function (file, bytesComplete, bytesTotal) {
+	file = this.unescapeFilePostParams(file);
 	this.queueEvent("upload_progress_handler", [file, bytesComplete, bytesTotal]);
 };
 
 SWFUpload.prototype.uploadError = function (file, errorCode, message) {
+	file = this.unescapeFilePostParams(file);
 	this.queueEvent("upload_error_handler", [file, errorCode, message]);
 };
 
 SWFUpload.prototype.uploadSuccess = function (file, serverData) {
+	file = this.unescapeFilePostParams(file);
 	this.queueEvent("upload_success_handler", [file, serverData]);
 };
 
 SWFUpload.prototype.uploadComplete = function (file) {
+	file = this.unescapeFilePostParams(file);
 	this.queueEvent("upload_complete_handler", file);
 };
 

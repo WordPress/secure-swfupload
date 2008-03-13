@@ -122,6 +122,7 @@ var FeaturesDemo = {
 		FeaturesDemo.rbFlash9 = document.getElementById("rbFlash9");
 		FeaturesDemo.txtFlashColor = document.getElementById("txtFlashColor");
 		FeaturesDemo.cbUseQueryString = document.getElementById("cbUseQueryString");
+		FeaturesDemo.cbRequeueOnError = document.getElementById("cbRequeueOnError");
 		FeaturesDemo.cbDebug = document.getElementById("cbDebug");
 		FeaturesDemo.btnReloadSWFUpload = document.getElementById("btnReloadSWFUpload");
 		FeaturesDemo.selEventsQueue = document.getElementById("selEventsQueue");
@@ -152,6 +153,7 @@ var FeaturesDemo = {
 		FeaturesDemo.rbFlash9.checked = false;
 		FeaturesDemo.txtFlashColor.value = "";
 		FeaturesDemo.cbUseQueryString.checked = false;
+		FeaturesDemo.cbRequeueOnError.checked = false;
 		FeaturesDemo.cbDebug.checked = false;
 		FeaturesDemo.selEventsQueue.options.length = 0;
 		FeaturesDemo.selEventsFile.options.length = 0;
@@ -187,6 +189,7 @@ var FeaturesDemo = {
 		FeaturesDemo.rbFlash9.checked = !flash8;
 		FeaturesDemo.txtFlashColor.value = FeaturesDemo.SU.settings.flash_color;
 		FeaturesDemo.cbUseQueryString.checked = FeaturesDemo.SU.settings.use_query_string;
+		FeaturesDemo.cbRequeueOnError.checked = FeaturesDemo.SU.settings.requeue_on_error;
 		FeaturesDemo.cbDebug.checked = FeaturesDemo.SU.settings.debug;
 	},
 
@@ -299,6 +302,7 @@ var FeaturesDemo = {
 		FeaturesDemo.SU.setFilePostName(FeaturesDemo.txtFilePostName.value);
 		FeaturesDemo.SU.setDebugEnabled(FeaturesDemo.cbDebug.checked);
 		FeaturesDemo.SU.setUseQueryString(FeaturesDemo.cbUseQueryString.checked);
+		FeaturesDemo.SU.setRequeueOnError(FeaturesDemo.cbRequeueOnError.checked);
 
 		// We ignore any changes to the upload_url
 		FeaturesDemo.txtUploadTarget.value = FeaturesDemo.SU.settings.upload_url;
@@ -325,6 +329,7 @@ var FeaturesDemo = {
 			var settings = {
 				upload_url : FeaturesDemo.SU.settings.upload_url,
 				use_query_string : FeaturesDemo.cbUseQueryString.checked,
+				requeue_on_error : FeaturesDemo.cbRequeueOnError.checked,
 				post_params : FeaturesDemo.getParamsObject(),
 				file_size_limit : FeaturesDemo.txtFileSizeLimit.value,
 				file_post_name : FeaturesDemo.txtFilePostName.value,

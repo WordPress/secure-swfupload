@@ -26,7 +26,7 @@ class SWFUpload {
 		var SWFUpload:SWFUpload = new SWFUpload();
 	}
 	
-	private var build_number:String = "SWFUPLOAD 2.1.0 FP8 2008-02-08";
+	private var build_number:String = "SWFUPLOAD 2.1.0 FP8 2008-03-13";
 
 	// State tracking variables
 	private var fileBrowserMany:FileReferenceList = new FileReferenceList();
@@ -73,6 +73,7 @@ class SWFUpload {
 	private var fileSizeLimit:Number;
 	private var fileUploadLimit:Number = 0;
 	private var fileQueueLimit:Number = 0;
+	private var requeueOnError:Boolean = false;
 	private var debugEnabled:Boolean;
 
 	// Error code "constants"
@@ -200,6 +201,12 @@ class SWFUpload {
 		if (this.fileQueueLimit == 0 && this.fileUploadLimit != 0) this.fileQueueLimit = this.fileUploadLimit;
 
 		try {
+			this.requeueOnError	= _root.requeueOnError == "true" ? true : false;		
+		} catch (ex:Object) {
+			this.requeueOnError = false;
+		}
+		
+		try {
 			ExternalInterface.addCallback("SelectFile", this, this.SelectFile);
 			ExternalInterface.addCallback("SelectFiles", this, this.SelectFiles);
 			ExternalInterface.addCallback("StartUpload", this, this.StartUpload);
@@ -223,6 +230,7 @@ class SWFUpload {
 			ExternalInterface.addCallback("SetFileQueueLimit", this, this.SetFileQueueLimit);
 			ExternalInterface.addCallback("SetFilePostName", this, this.SetFilePostName);
 			ExternalInterface.addCallback("SetUseQueryString", this, this.SetUseQueryString);
+			ExternalInterface.addCallback("SetRequeueOnError", this, this.SetRequeueOnError);
 			ExternalInterface.addCallback("SetDebugEnabled", this, this.SetDebugEnabled);
 		} catch (ex:Error) {
 			this.Debug("Callbacks where not set.");
@@ -260,7 +268,7 @@ class SWFUpload {
 		this.Debug("Event: uploadSuccess: File ID: " + this.current_file_item.id + " Data: n/a in Flash 8");
 		ExternalCall.UploadSuccess(this.uploadSuccess_Callback, this.current_file_item.ToJavaScriptObject());
 
-		this.UploadComplete();
+		this.UploadComplete(false);
 		
 	}
 
@@ -270,7 +278,7 @@ class SWFUpload {
 
 		this.Debug("Event: uploadError: HTTP ERROR : File ID: " + this.current_file_item.id + ". HTTP Status: " + httpError + ".");
 		ExternalCall.UploadError(this.uploadError_Callback, this.ERROR_CODE_HTTP_ERROR, this.current_file_item.ToJavaScriptObject(), httpError.toString());
-		this.UploadComplete();
+		this.UploadComplete(true);
 	}
 	
 	// Note: Flash Player does not support Uploads that require authentication. Attempting this will trigger an
@@ -287,7 +295,7 @@ class SWFUpload {
 			ExternalCall.UploadError(this.uploadError_Callback, this.ERROR_CODE_IO_ERROR, this.current_file_item.ToJavaScriptObject(), "IO Error");
 		}
 
-		this.UploadComplete();
+		this.UploadComplete(true);
 	}
 
 	private function SecurityError_Handler(file:FileReference, errorString:String):Void {
@@ -297,7 +305,7 @@ class SWFUpload {
 		this.Debug("Event: uploadError : Security Error : File Number: " + this.current_file_item.id + ". Error:" + errorString);
 		ExternalCall.UploadError(this.uploadError_Callback, this.ERROR_CODE_SECURITY_ERROR, this.current_file_item.ToJavaScriptObject(), errorString);
 
-		this.UploadComplete();
+		this.UploadComplete(true);
 	}
 
 	private function Select_Many_Handler(frl:FileReferenceList):Void {
@@ -460,7 +468,7 @@ class SWFUpload {
 				this.Debug("Event: fileCancelled: File ID: " + this.current_file_item.id + ". Cancelling current upload");
 				ExternalCall.UploadError(this.uploadError_Callback, this.ERROR_CODE_FILE_CANCELLED, this.current_file_item.ToJavaScriptObject(), "File Upload Cancelled.");
 
-				this.UploadComplete(); // <-- this advanced the upload to the next file
+				this.UploadComplete(false);
 		} else if (file_id) {
 				// Find the file in the queue
 				var file_index:Number = this.FindIndexInFileQueue(file_id);
@@ -665,7 +673,11 @@ class SWFUpload {
 	private function SetUseQueryString(use_query_string:Boolean):Void {
 		// Nothing to do. Here only for API compatibility
 	}
-	
+
+	private function SetRequeueOnError(requeue_on_error:Boolean):Void {
+		this.requeueOnError = requeue_on_error;
+	}
+
 	private function SetDebugEnabled(debug_enabled:Boolean):Void {
 		this.debugEnabled = debug_enabled;
 	}
@@ -754,7 +766,7 @@ class SWFUpload {
 				this.Debug("Event: uploadError(): Unhandled exception: " + message);
 				ExternalCall.UploadError(this.uploadError_Callback, this.ERROR_CODE_UPLOAD_FAILED, this.current_file_item.ToJavaScriptObject(), message);
 				
-				this.UploadComplete();
+				this.UploadComplete(false);
 			}
 			this.current_file_item.file_status = FileItem.FILE_STATUS_IN_PROGRESS;
 
@@ -778,14 +790,19 @@ class SWFUpload {
 
 	// Completes the file upload by deleting it's reference, advancing the pointer.
 	// Once this event files a new upload can be started.
-	private function UploadComplete():Void {
+	private function UploadComplete(eligibile_for_requeue:Boolean):Void {
 		var jsFileObj:Object = this.current_file_item.ToJavaScriptObject();
 		
 		this.current_file_item.file_reference.removeListener(this.file_reference_listener);
-		this.current_file_item.file_reference = null;
+		
+		if (!eligibile_for_requeue || this.requeueOnError == false) {
+			this.current_file_item.file_reference = null;
+			this.queued_uploads--;
+		} else {
+			this.file_queue.unshift(this.current_file_item);
+		}
 		
 		this.current_file_item = null;
-		this.queued_uploads--;
 
 		this.Debug("Event: uploadComplete : Upload cycle complete.");
 		ExternalCall.UploadComplete(this.uploadComplete_Callback, jsFileObj);

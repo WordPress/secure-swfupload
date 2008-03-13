@@ -56,21 +56,25 @@ package {
 			delete this.postObject[name];
 		}
 		
-		public function GetPostObject():Object {
-			var escapedPostObject:Object = { };
-			for (var k:String in this.postObject) {
-				if (this.postObject.hasOwnProperty(k)) {
-					var escapedName:String = FileItem.EscapeParamName(k);
-					escapedPostObject[escapedName] = this.postObject[k];
+		public function GetPostObject(escape:Boolean = false):Object {
+			if (escape) {
+				var escapedPostObject:Object = { };
+				for (var k:String in this.postObject) {
+					if (this.postObject.hasOwnProperty(k)) {
+						var escapedName:String = FileItem.EscapeParamName(k);
+						escapedPostObject[escapedName] = this.postObject[k];
+					}
 				}
+				return escapedPostObject;
+			} else {
+				return this.postObject;
 			}
-			return escapedPostObject;
 		}
 		
 		// Create the simply file object that is passed to the browser
 		public function ToJavaScriptObject():Object {
 			this.js_object.filestatus = this.file_status;
-			this.js_object.post = this.GetPostObject();
+			this.js_object.post = this.GetPostObject(true);
 		
 			return this.js_object;
 		}
@@ -79,13 +83,30 @@ package {
 			return "FileItem - ID: " + this.id;
 		}
 		
+		/*
+		// The purpose of this function is to escape the property names so when Flash
+		// passes them back to javascript they can be interpretted correctly.
+		// ***They have to be unescaped again by JavaScript.**
+		//
+		// This works around a bug where Flash sends objects this way:
+		//		object.parametername = "value";
+		// instead of
+		//		object["parametername"] = "value";
+		// This can be a problem if the parameter name has characters that are not
+		// allowed in JavaScript identifiers:
+		// 		object.parameter.name! = "value";
+		// does not work but,
+		//		object["parameter.name!"] = "value";
+		// would have worked.
+		*/
 		public static function EscapeParamName(name:String):String {
-			//name = name.replace(/[^a-z0-9_]/
+			name = name.replace(/[^a-z0-9_]/gi, FileItem.EscapeCharacter);
+			name = name.replace(/^[0-9]/, FileItem.EscapeCharacter);
 			return name;
 		}
-		public static function EscapeCharacter(character:String):String {
-			if (character == "") return "";
-			return "$" + character.charCodeAt(0);
+		public static function EscapeCharacter():String {
+			return "$" + ("0000" + arguments[0].charCodeAt(0).toString(16)).substr(-4, 4);
 		}
+		
 	}
 }

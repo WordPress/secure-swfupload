@@ -1,7 +1,6 @@
 <?php
 	session_start();
-	// I would handle the upload here if I wanted to do anything with it.
-
+	
 	$upload_good = false;
 	if (!isset($_FILES["Filedata"])) {
 		$upload_good = "Not recieved, probably exceeded POST_MAX_SIZE";

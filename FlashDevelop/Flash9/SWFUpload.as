@@ -283,19 +283,17 @@ package {
 
 			this.Debug("Event: uploadError: HTTP ERROR : File ID: " + this.current_file_item.id + ". HTTP Status: " + event.status + ".");
 			ExternalCall.UploadError(this.uploadError_Callback, this.ERROR_CODE_HTTP_ERROR, this.current_file_item.ToJavaScriptObject(), event.status.toString());
-			//this.UploadComplete(true); Testing to see if IO error is also called
+			this.UploadComplete(true); 	// An IO Error is also called so we don't want to complete the upload yet.
 		}
 		
 		// Note: Flash Player does not support Uploads that require authentication. Attempting this will trigger an
 		// IO Error or it will prompt for a username and password and may crash the browser (FireFox/Opera)
 		private function IOError_Handler(event:IOErrorEvent):void {
-			this.upload_errors++;
-			this.current_file_item.file_status = FileItem.FILE_STATUS_ERROR;
+			// Only trigger an IO Error event if we haven't already done an HTTP error
+			if (this.current_file_item.file_status != FileItem.FILE_STATUS_ERROR) {
+				this.upload_errors++;
+				this.current_file_item.file_status = FileItem.FILE_STATUS_ERROR;
 
-			if(this.uploadURL.length == 0) {
-				this.Debug("Event: uploadError : IO Error : File ID: " + this.current_file_item.id + ". Upload URL string is empty.");
-				ExternalCall.UploadError(this.uploadError_Callback, this.ERROR_CODE_MISSING_UPLOAD_URL, this.current_file_item.ToJavaScriptObject(), event.text);
-			} else {
 				this.Debug("Event: uploadError : IO Error : File ID: " + this.current_file_item.id + ". IO Error: " + event.text);
 				ExternalCall.UploadError(this.uploadError_Callback, this.ERROR_CODE_IO_ERROR, this.current_file_item.ToJavaScriptObject(), event.text);
 			}
@@ -769,9 +767,14 @@ package {
 					// Get the request (post values, etc)
 					var request:URLRequest = this.BuildRequest();
 					
-					this.Debug("ReturnUploadStart(): File accepted by startUpload event and readied for upload.  Starting upload to " + request.url + " for File ID: " + this.current_file_item.id);
-					this.current_file_item.file_reference.upload(request, this.filePostName, false);
-					this.current_file_item.file_status = FileItem.FILE_STATUS_IN_PROGRESS;
+					if (this.uploadURL.length == 0) {
+						this.Debug("Event: uploadError : IO Error : File ID: " + this.current_file_item.id + ". Upload URL string is empty.");
+						ExternalCall.UploadError(this.uploadError_Callback, this.ERROR_CODE_MISSING_UPLOAD_URL, this.current_file_item.ToJavaScriptObject(), "Upload URL string is empty.");
+					} else {
+						this.Debug("ReturnUploadStart(): File accepted by startUpload event and readied for upload.  Starting upload to " + request.url + " for File ID: " + this.current_file_item.id);
+						this.current_file_item.file_status = FileItem.FILE_STATUS_IN_PROGRESS;
+						this.current_file_item.file_reference.upload(request, this.filePostName, false);
+					}
 				} catch (ex:Error) {
 					this.Debug("ReturnUploadStart: Exception occurred: " + message);
 
@@ -946,7 +949,9 @@ package {
 			debug_info += "File Queue Limit:       " + this.fileQueueLimit + "\n";
 			debug_info += "Post Params:\n";
 			for (var key:String in this.uploadPostObject) {
-				debug_info += "                        " + key + "=" + this.uploadPostObject[key] + "\n";
+				if (this.uploadPostObject.hasOwnProperty(key)) {
+					debug_info += "                        " + key + "=" + this.uploadPostObject[key] + "\n";
+				}
 			}
 			debug_info += "----- END SWF DEBUG OUTPUT ----\n";
 
