@@ -1,4 +1,4 @@
- * SWFUpload by Jacob Roberts, Feb 2008, www.swfupload.org, swfupload.googlecode.com
+ * SWFUpload by Jacob Roberts, March 2008, www.swfupload.org, swfupload.googlecode.com
 
  * --------- Version 2.1.0 Beta 2-----------
  * = Fixed bug in XHTML fix where it wasn't split correctly by Flash
@@ -11,6 +11,7 @@
  * = Fixed file params not being sent when useQueryString is true
  * + Added SWFObject plugin and demo.
  * + Added CookieBug demo to demonstrate what they bug really is all about.
+ * + Added VB.Net version of the Application Demo
  
  
  * --------- Version 2.1.0 Beta 1-----------

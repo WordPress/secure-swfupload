@@ -117,6 +117,8 @@
 						<li><a href="#getStats">getStats</a></li>
 						<li><a href="#setStats">setStats</a></li>
 						<li><a href="#getFile">getFile</a></li>
+						<li><a href="#addPostParam">addPostParam</a></li>
+						<li><a href="#removePostParam">removePostParam</a></li>
 						<li><a href="#addFileParam">addFileParam</a></li>
 						<li><a href="#removeFileParam">removeFileParam</a></li>
 						<li><a href="#setUploadURL">setUploadURL</a></li>
@@ -483,6 +485,14 @@ swfu.customSettings = {
 	<p>When getting a file by file_id only files in the queue are available.  If the file is not found null is returned.</p>
 	<p>When getting a file by index all queued (or files that generated a queue error) are available.  If the index is out of range then null is returned</p>
 	
+	<h4><a name="addPostParam"></a>void addPostParam(<span class="parameter">name</span>, <span class="parameter">value</span>)</h4>
+	<p>The addPostParam function adds a name/value pair that will be sent in the POST for all files uploaded.</p>
+	<p>The name/value pair will also appear in the post_params setting.</p>
+
+	<h4><a name="removePostParam"></a>void removePostParam(<span class="parameter">name</span>)</h4>
+	<p>The removePostParam function removes a name/value pair from the values sent with the POST for file uploads.</p>
+	<p>The name/value pair is also be removed from the post_params setting.</p>
+
 	<h4><a name="addFileParam"></a>bool addFileParam(<span class="parameter">file_id</span>, <span class="parameter">name</span>, <span class="parameter">value</span>)</h4>
 	<p>The addFileParam function adds a name/value pair that will be sent in the POST with the file specified by the file_id parameter.</p>
 	<p>The name/value pair will only be sent with the file it is added to.  To send name/value pairs with all uploads use the post_param setting.</p>
@@ -595,6 +605,7 @@ swfu.customSettings = {
 		"post_param_name_n" : "post_param_value_n"
 	},
 	use_query_string : false,
+	requeue_on_error : false,
 	file_types : "*.jpg;*.gif",
 	file_types_description: "Web Image Files",
 	file_size_limit : "1024",
@@ -644,6 +655,23 @@ swfu.customSettings = {
 	<h5>use_query_string</h5>
 	<p>
 		<strong>(Flash 9 only)</strong> The use_query_string setting may be true or false.  This value indicates whether SWFUpload should send the post_params and file params on the query string or the post. This setting was introduced in SWFUpload v2.1.0.
+	</p>
+
+	<h5>requeue_on_error</h5>
+	<p>
+		The requeue_on_error setting may be true or false.  When this setting is true any files that has an
+		uploadError (excluding fileQueue errors and the FILE_CANCELLED uploadError) is returned to the front of
+		the queue rather than being discarded.  The file can be uploaded again if needed.  To remove the file from the
+		queue the cancelUpload method must be called.
+	</p>
+	<p>
+		All the events associated with a failed upload are still called and so the requeuing the failed upload can conflict
+		with the Queue Plugin (or custom code that uploads the entire queue).  Code that automatically uploads the next file
+		in the queue will upload the failed file over and over again if care is not taken to allow the failing upload to be
+		cancelled.
+	</p>
+	<p>
+		This setting was introduced in SWFUpload v2.1.0.
 	</p>
 
 	<h5>file_types</h5>
@@ -774,16 +802,26 @@ swfu.customSetting["a_dom_setting"].style.visibility = "hidden";</code>
 	<p>With SWFUpload v2.0 several plugins have been introduced.  They are provided to help with common tasks associated with implementing SWFUpload.</p>
 	<p>Currently most of the documentation for using the plugins is contained in the plugin JavaScript file.</p>
 	
+	<h3>SWFObject</h3>
+	<p>
+		The SWFObject plugin uses the <a href="http://code.google.com/p/swfobject/">SWFObject library</a> to handle the embedding
+		of the SWFUpload Flash Component into the page.
+	</p>
+	<p>
+		This plugin also provides support for Document Ready loading and Flash Version Detection.  Usage details are documented
+		in the plugin file itself.
+	</p>
+	<p>
+		Using this plugin can eliminate the flicker seen in the Graceful Degradation plugin and provides events for loading failure.
+	</p>
+	
 	<h3>Graceful Degradation</h3>
+	
+	<p>This plugin has been superseded by the SWFObject plugin.</p>
 	
 	<p>This plugin provides additional settings and logic for automatically hiding and showing page elements based on
 	whether SWFUpload loads.</p>
 
-	<h3>Document Ready</h3>
-	<p>This plugin provides some functions for loading SWFUpload as soon as possible, rather than waiting until window.onload fires.
-	This is similar to Document Ready functionality found in JavaScript Libraries like Prototype and jQuery.  It should not be mixed
-	with other Document Ready libraries</p>
-	
 	<h3>SWFUpload v1.0.2 Compatibility</h3>
 	<p>Creates compatibility with v1.0.2.  Using this plugin you should be able to drop SWFUpload v2.0 in to a v1.0.2 page.
 	This plugin is not supported and is only intended for users of SWFUpload v1.0.2 who wish to upgrade to v2 without recoding their pages.</p>
@@ -791,10 +829,6 @@ swfu.customSetting["a_dom_setting"].style.visibility = "hidden";</code>
 	<h3>Cookies</h3>
 	<p>In response to the Flash Cookie Bug the Cookies Plugin automatically retrieves your browser's cookies and sends them
 	with the uploads.  The are sent as POST or GET variables to the upload url.</p>
-	
-	<h3>Flash Detection Kit</h3>
-	<p>This plugin is yet to be developed</p>
-	<p>This plugin will implement Adobe's Flash Detection Kit for SWFUpload providing more advanced Flash Detection and upgrade features.</p>
 	
 	<h3>Queue Handling</h3>
 	<p>This plugin provides Queue Handling features such as entire queue uploading, entire queue cancelling and automatic starting of uploads after being queued.</p>
@@ -863,5 +897,11 @@ swfu.customSetting["a_dom_setting"].style.visibility = "hidden";</code>
 	the script runs (if possible).  For PHP, the script continues to run and complete successfully even though Flash has terminated the connection.  Any data returned
 	by the script after Flash has disconnected is lost.</p>
 
+	<h3>Mac Issues</h3>
+	<p>Users have reported that uploading to subdomains does not work with the Mac Flash Player.</p>
+	<p>
+		Users have reported that pages that redirect (HTTP Status 302) are not handled by the Mac Flash Player.  Windows
+		clients seem to handle this issue.
+	</p>
 </body>
 </html>
