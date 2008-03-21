@@ -392,13 +392,6 @@ SWFUpload.prototype.setStats = function (statsObject) {
 	this.callFlash("SetStats", false, [statsObject]);
 };
 
-// Public: setCredentials that will be used to authenticate to the upload_url.
-// Note: This feature does not work.  It has been added in anticipation of
-// the Flex 3 SDK which has not been released yet.
-SWFUpload.prototype.setCredentials = function (name, password) {
-	this.callFlash("SetCrednetials", false, [name, password]);
-};
-
 // Public: getFile retrieves a File object by ID or Index.  If the file is
 // not found then 'null' is returned.
 SWFUpload.prototype.getFile = function (fileID) {
