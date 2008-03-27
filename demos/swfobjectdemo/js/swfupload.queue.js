@@ -51,7 +51,7 @@ if (typeof(SWFUpload) === "function") {
 		var user_upload_complete_handler = this.settings.user_upload_complete_handler;
 		var continueUpload;
 		
-		if (file.file_status === SWFUpload.FILE_STATUS.COMPLETE) {
+		if (file.filestatus === SWFUpload.FILE_STATUS.COMPLETE) {
 			this.customSettings.queue_upload_count++;
 		}
 

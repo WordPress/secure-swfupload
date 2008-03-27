@@ -544,18 +544,21 @@ SWFUpload.prototype.unescapeFilePostParams = function (file) {
 	var unescapedPost = {};
 	var uk;
 
-	for (var k in file.post) {
-		if (file.post.hasOwnProperty(k)) {
-			uk = k;
-			var match;
-			while ((match = reg.exec(uk)) !== null) {
-				uk = uk.replace(match[0], String.fromCharCode(parseInt("0x"+match[1], 16)));
+	if (file != undefined) {
+		for (var k in file.post) {
+			if (file.post.hasOwnProperty(k)) {
+				uk = k;
+				var match;
+				while ((match = reg.exec(uk)) !== null) {
+					uk = uk.replace(match[0], String.fromCharCode(parseInt("0x"+match[1], 16)));
+				}
+				unescapedPost[uk] = file.post[k];
 			}
-			unescapedPost[uk] = file.post[k];
 		}
+
+		file.post = unescapedPost;
 	}
 
-	file.post = unescapedPost;
 	return file;
 };
 
