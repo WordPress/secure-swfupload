@@ -125,7 +125,7 @@ Notes:
 	$file_extension = $path_info["extension"];
 	$is_valid_extension = false;
 	foreach ($extension_whitelist as $extension) {
-		if ($file_extension == $extension) {
+		if (strcasecmp($file_extension, $extension) == 0) {
 			$is_valid_extension = true;
 			break;
 		}
