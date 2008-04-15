@@ -379,7 +379,7 @@ SWFUpload.prototype.stopUpload = function () {
  *   effect.
  * *********************** */
 
-// Public: getStats gets the file statistics object.  It looks like this (where n is a number):
+// Public: getStats gets the file statistics object.
 SWFUpload.prototype.getStats = function () {
 	return this.callFlash("GetStats");
 };
