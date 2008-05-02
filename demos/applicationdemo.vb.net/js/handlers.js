@@ -94,7 +94,6 @@ function uploadComplete(file) {
 }
 
 function uploadError(file, errorCode, message) {
-	alert("error");
 	var imageName =  "error.gif";
 	var progress;
 	try {
