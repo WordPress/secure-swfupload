@@ -1,19 +1,23 @@
-label { display: block; }
-fieldset {
-	border: solid 1px #C0C0C0;
-	padding: 4px;
+label { 
+	display: inline; 
+	width: auto; 
+	text-align:left;  
 }
+
+
 
 table.layout {
 	width: 948px;
 	border-collapse: collapse;
 }
+
 table.layout td {
-	padding: 0px;
+	padding: 0 10px 0 0;
 }
+table.layout td td{ padding: 0;}
 
 input.textbox {
-	margin: 4px 0px;
+	margin: 4px 3px;
 	padding: 1px;
 	border: solid 1px #A7A6AA;
 
@@ -28,6 +32,7 @@ table.btn {
 	border-collapse: collapse;
 	height: 22px;
 	empty-cells: show;
+	padding: 0;
 }
 td.btn-left {
 	width: 2px;
@@ -57,7 +62,8 @@ td.btn-center button {
 	height: 22px;
 	margin: 0px 0px;
 	padding: 0px 5px;
-
+	font-size: 10px;
+	font-weight: 700;
 	overflow: hidden;
 	white-space: nowrap;
 

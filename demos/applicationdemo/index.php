@@ -5,12 +5,11 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" >
 <head>
-    <title>SWFUpload v2.1.0 Application Demo</title>
-
-	<link href="../css/default.css" rel="stylesheet" type="text/css" />
-	<script type="text/javascript" src="../swfupload/swfupload.js"></script>
-	<script type="text/javascript" src="js/handlers.js"></script>
-	<script type="text/javascript">
+<title>SWFUpload Demos - Application Demo</title>
+<link href="../css/default.css" rel="stylesheet" type="text/css" />
+<script type="text/javascript" src="../swfupload/swfupload.js"></script>
+<script type="text/javascript" src="js/handlers.js"></script>
+<script type="text/javascript">
 		var swfu;
 		window.onload = function () {
 			swfu = new SWFUpload({
@@ -46,19 +45,22 @@
 			});
 		};
 	</script>
-
 </head>
 <body>
-	<div id="title" class="title"><a class="likeParent" href="../index.php">SWFUpload v2.1.0 Application Demo</a></div>
-	<div style="margin: 0px 10px;">
-		<div>This demo shows how SWFUpload can behave like an AJAX application.  Images are uploaded by SWFUpload then some JavaScript is used to display the thumbnails without reloading the page.</div>
-		<div>
-			<form>
-				<button id="btnBrowse" type="button" style="padding: 5px;" onclick="swfu.selectFiles(); this.blur();"><img src="images/page_white_add.png" style="padding-right: 3px; vertical-align: bottom;">Select Images <span style="font-size: 7pt;">(2 MB Max)</span></button>
-			</form>
-		</div>
-		<div id="divFileProgressContainer" style="height: 75px;"></div>
-		<div id="thumbnails"></div>
-	</div>
+<div id="header">
+	<h1 id="logo"><a href="../">SWFUpload</a></h1>
+	<div id="version">v2.1.0 Beta</div>
+</div>
+
+<div id="content">
+
+	<h2>Application Demo</h2>
+	<p>This demo shows how SWFUpload can behave like an AJAX application.  Images are uploaded by SWFUpload then some JavaScript is used to display the thumbnails without reloading the page.</p>
+	<form>
+		<button id="btnBrowse" type="button" style="padding: 5px;" onclick="swfu.selectFiles(); this.blur();"><img src="images/page_white_add.png" style="padding-right: 3px; vertical-align: bottom;">Select Images <span style="font-size: 7pt;">(2 MB Max)</span></button>
+	</form>
+	<div id="divFileProgressContainer" style="height: 75px;"></div>
+	<div id="thumbnails"></div>
+</div>
 </body>
 </html>

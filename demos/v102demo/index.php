@@ -1,16 +1,13 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" >
 <head>
-    <title>SWFUpload v2.1.0 Demo</title>
-
-	<link href="../css/default.css" rel="stylesheet" type="text/css" />
-	<link type="text/css" rel="stylesheet" href="link/swfupload.v102.theme.css" />
-
-	<script type="text/javascript" src="../swfupload/swfupload.js"></script>
-	<script type="text/javascript" src="link/swfupload.v102.js"></script>
-	<script type="text/javascript" src="link/swfupload.v102.callbacks.js"></script>
-	
-	<script type="text/javascript">
+<title>SWFUpload Demos - v1.0.2 Plugin Demo</title>
+<link href="../css/default.css" rel="stylesheet" type="text/css" />
+<link type="text/css" rel="stylesheet" href="link/swfupload.v102.theme.css" />
+<script type="text/javascript" src="../swfupload/swfupload.js"></script>
+<script type="text/javascript" src="link/swfupload.v102.js"></script>
+<script type="text/javascript" src="link/swfupload.v102.callbacks.js"></script>
+<script type="text/javascript">
 	
 		var swfu;
 	
@@ -43,26 +40,26 @@
 		};
 		
 	</script>
-
-	
 </head>
-	<body>
-		<div class="title"><a class="likeParent" href="../index.php">SWFUpload v2.1.0 - v1.0.2 Plugin Demo</a></div>
-		<div class="content">
-			<div>This demo shows how to use the SWFUpload v1.0.2 Plugin.  This demo is a recreation of the swfupload.mammon.se demo (now defunct) with only small modifications to the CSS file.</div>
-			
-			<h3>Demo</h3>
-			<p>Replace contents of a div with links for uploading and browsing, degrades gracefully if flash/javascript isn't accessible</p>
-			<div id="SWFUploadTarget">
-				<form action="upload.php" method="post" enctype="multipart/form-data">
-					<input type="file" name="Filedata" id="Filedata" />
-					<input type="submit" value="upload test" />
-				</form>
-			</div>
-			<h4 id="queueinfo">Queue is empty</h4>
-			<div id="SWFUploadFileListingFiles"></div>
-			<br class="clr" />
-			<a class="swfuploadbtn" id="cancelqueuebtn" href="javascript:cancelQueue();">Cancel queue</a>
-		</div>
-	</body>
+<body>
+<div id="header">
+	<h1 id="logo"><a href="../">SWFUpload</a></h1>
+	<div id="version">v2.1.0 Beta</div>
+</div>
+<div id="content">
+	<h2>v1.0.2 Plugin Demo</h2>
+	<p>This demo shows how to use the SWFUpload v1.0.2 Plugin.  This demo is a recreation of the swfupload.mammon.se demo (now defunct) with only small modifications to the CSS file.</p>
+	<h3>Demo</h3>
+	<p>Replace contents of a div with links for uploading and browsing, degrades gracefully if flash/javascript isn't accessible</p>
+	<div id="SWFUploadTarget">
+		<form action="upload.php" method="post" enctype="multipart/form-data">
+			<input type="file" name="Filedata" id="Filedata" />
+			<input type="submit" value="upload test" />
+		</form>
+	</div>
+	<h4 id="queueinfo">Queue is empty</h4>
+	<div id="SWFUploadFileListingFiles"></div>
+	<br class="clr" />
+	<a class="swfuploadbtn" id="cancelqueuebtn" href="javascript:cancelQueue();">Cancel queue</a> </div>
+</body>
 </html>

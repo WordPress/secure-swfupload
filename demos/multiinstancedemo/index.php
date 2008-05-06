@@ -8,17 +8,17 @@
 
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
 <html xmlns="http://www.w3.org/1999/xhtml" >
 <head>
-    <title>SWFUpload v2.1.0 Multi-Instance Demo</title>
-
-	<link href="../css/default.css" rel="stylesheet" type="text/css" />
-	<script type="text/javascript" src="../swfupload/swfupload.js"></script>
-	<script type="text/javascript" src="js/swfupload.graceful_degradation.js"></script>
-	<script type="text/javascript" src="js/swfupload.queue.js"></script>
-	<script type="text/javascript" src="js/fileprogress.js"></script>
-	<script type="text/javascript" src="js/handlers.js"></script>
-	<script type="text/javascript">
+<title>SWFUpload Demos - Multi-Instance Demo</title>
+<link href="../css/default.css" rel="stylesheet" type="text/css" />
+<script type="text/javascript" src="../swfupload/swfupload.js"></script>
+<script type="text/javascript" src="js/swfupload.graceful_degradation.js"></script>
+<script type="text/javascript" src="js/swfupload.queue.js"></script>
+<script type="text/javascript" src="js/fileprogress.js"></script>
+<script type="text/javascript" src="js/handlers.js"></script>
+<script type="text/javascript">
 		var upload1, upload2;
 
 		window.onload = function() {
@@ -100,59 +100,62 @@
 
 	     }
 	</script>
-
 </head>
 <body>
-	<div class="title"><a class="likeParent" href="../index.php">SWFUpload v2.1.0 Multi-Instance Demo</a></div>
+<div id="header">
+	<h1 id="logo"><a href="../">SWFUpload</a></h1>
+	<div id="version">v2.1.0 Beta</div>
+</div>
+<div id="content">
+	<h2>Multi-Instance Demo</h2>
 	<form id="form1" action="index.php" method="post" enctype="multipart/form-data">
-		<div>This page demonstrates how multiple instances of SWFUpload can be loaded on the same page.
-			It also demonstrates the use of the graceful degradation plugin and the queue plugin.</div>
-		<div class="content">
-			<table>
-				<tr valign="top">
-					<td>
-						<div id="flashUI1" style="display: none;">
-							<fieldset class="flash" id="fsUploadProgress1">
-								<legend>Large File Upload Site</legend>
-							</fieldset>
-							<div>
-								<input type="button" value="Upload file (Max 100 MB)" onclick="upload1.selectFiles()" style="font-size: 8pt;" />
-								<input id="btnCancel1" type="button" value="Cancel Uploads" onclick="cancelQueue(upload1);" disabled="disabled" style="font-size: 8pt;" /><br />
-							</div>
+		<p>This page demonstrates how multiple instances of SWFUpload can be loaded on the same page.
+			It also demonstrates the use of the graceful degradation plugin and the queue plugin.</p>
+		<table>
+			<tr valign="top">
+				<td><div id="flashUI1" style="display: none;">
+						<fieldset class="flash" id="fsUploadProgress1">
+						<legend>Large File Upload Site</legend>
+						</fieldset>
+						<div>
+							<input type="button" value="Upload file (Max 100 MB)" onclick="upload1.selectFiles()" style="font-size: 8pt;" />
+							<input id="btnCancel1" type="button" value="Cancel Uploads" onclick="cancelQueue(upload1);" disabled="disabled" style="font-size: 8pt;" />
+							<br />
 						</div>
-						<div id="degradedUI1">
-							<fieldset>
-								<legend>Large File Upload Site</legend>
-								<input type="file" name="anyfile1" /> (Any file, Max 100 MB)<br/>
-							</fieldset>
-							<div>
-								<input type="submit" value="Submit Files" />
-							</div>
+					</div>
+					<div id="degradedUI1">
+						<fieldset>
+						<legend>Large File Upload Site</legend>
+						<input type="file" name="anyfile1" />
+						(Any file, Max 100 MB)<br/>
+						</fieldset>
+						<div>
+							<input type="submit" value="Submit Files" />
 						</div>
-					</td>
-					<td>
-						<div id="flashUI2" style="display: none;">
-							<fieldset class="flash" id="fsUploadProgress2">
-								<legend>Small File Upload Site</legend>
-							</fieldset>
-							<div>
-								<input type="button" value="Upload file (Max 200KB)" onclick="upload2.selectFiles()" style="font-size: 8pt;" />
-								<input id="btnCancel2" type="button" value="Cancel Uploads" onclick="cancelQueue(upload2);" disabled="disabled" style="font-size: 8pt;" /><br />
-							</div>
+					</div></td>
+				<td><div id="flashUI2" style="display: none;">
+						<fieldset class="flash" id="fsUploadProgress2">
+						<legend>Small File Upload Site</legend>
+						</fieldset>
+						<div>
+							<input type="button" value="Upload file (Max 200KB)" onclick="upload2.selectFiles()" style="font-size: 8pt;" />
+							<input id="btnCancel2" type="button" value="Cancel Uploads" onclick="cancelQueue(upload2);" disabled="disabled" style="font-size: 8pt;" />
+							<br />
 						</div>
-						<div id="degradedUI2">
-							<fieldset>
-								<legend>Small File Upload Site</legend>
-								<input type="file" name="anyfile2" /> (Any file, Max 200KB)<br/>
-							</fieldset>
-							<div>
-								<input type="submit" value="Submit Files" />
-							</div>
+					</div>
+					<div id="degradedUI2">
+						<fieldset>
+						<legend>Small File Upload Site</legend>
+						<input type="file" name="anyfile2" />
+						(Any file, Max 200KB)<br/>
+						</fieldset>
+						<div>
+							<input type="submit" value="Submit Files" />
 						</div>
-					</td>
-				</tr>
-			</table>
-		</div>
+					</div></td>
+			</tr>
+		</table>
 	</form>
+</div>
 </body>
 </html>

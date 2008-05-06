@@ -1,13 +1,13 @@
 <%@ Page Language="VB" AutoEventWireup="true" CodeFile="Default.aspx.vb" Inherits="_Default"
-%><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
+%>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" >
 <head runat="server">
-    <title>SWFUpload Revision v2.1.0 Application Demo (ASP.Net VB.Net 2.0)</title>
-	<link href="default.css" rel="stylesheet" type="text/css" />
-	<script type="text/javascript" src="../swfupload/swfupload.js"></script>
-	<script type="text/javascript" src="js/handlers.js"></script>
-	<script type="text/javascript">
+<title>SWFUpload Revision v2.1.0 Application Demo (ASP.Net VB.Net 2.0)</title>
+<link href="../css/default.css" rel="stylesheet" type="text/css" />
+<script type="text/javascript" src="../swfupload/swfupload.js"></script>
+<script type="text/javascript" src="js/handlers.js"></script>
+<script type="text/javascript">
 		var swfu;
 		window.onload = function () {
 			swfu = new SWFUpload({
@@ -48,17 +48,24 @@
 	</script>
 </head>
 <body>
-    <form id="form1" runat="server">
-	    <div id="title" class="title">SWFUpload v2.1.0 Application Demo (ASP.Net VB.Net 2.0)</div>
-			<div id="swfu_container" style="margin: 0px 10px;">
-		    <div>
-				<button id="btnBrowse" type="button" style="padding: 5px;" onclick="swfu.selectFiles(); this.blur();"><img src="images/page_white_add.png" style="padding-right: 3px; vertical-align: bottom;" alt="Add Icon" />Select Images <span style="font-size: 7pt;"></span></button>
-		    </div>
-		    <div id="divFileProgressContainer" style="height: 75px;"></div>
-		    <div id="thumbnails"></div>
-				<br />
+<form id="form1" runat="server">
+
+<div id="header">
+			<h1 id="logo"><a href="../">SWFUpload</a></h1>
+			<div id="version">v2.1.0 Beta</div>
+		</div>
+	<div id="content">
+		<h2>Application Demo (ASP.Net VB.Net 2.0)</h2>
+		<div id="swfu_container" style="margin: 0px 10px;">
 			<div>
-				<asp:Button ID="btnLogout" Text="Logout" runat="server" /><br />
+				<button id="btnBrowse" type="button" style="padding: 5px;" onclick="swfu.selectFiles(); this.blur();"><img src="images/page_white_add.png" style="padding-right: 3px; vertical-align: bottom;" alt="Add Icon" />Select Images <span style="font-size: 7pt;"></span></button>
+			</div>
+			<div id="divFileProgressContainer" style="height: 75px;"></div>
+			<div id="thumbnails"></div>
+			<br />
+			<div>
+				<asp:Button ID="btnLogout" Text="Logout" runat="server" />
+				<br />
 				<br />
 				This page demonstrations the following:
 				<ul>
@@ -69,9 +76,9 @@
 				</ul>
 				<br />
 				This does not demonstrate a real-world application.  The images are not saved and thumbnails are stored
-				in the user's session which does not scale.  User credentials are stored in plain text in the web.config.
-			</div>
-	    </div>
-    </form>
+				in the user's session which does not scale.  User credentials are stored in plain text in the web.config. </div>
+		</div>
+	</div>
+</form>
 </body>
 </html>
