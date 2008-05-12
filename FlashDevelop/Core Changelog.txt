@@ -1,5 +1,12 @@
- * SWFUpload by Jacob Roberts, March 2008, www.swfupload.org, swfupload.googlecode.com
+ * SWFUpload Core, May 2008, www.swfupload.org, swfupload.googlecode.com
 
+ * --------- Version 2.1.0 -----------
+ * = Fixed GET values so they are escaped properly
+ * + Added destroy function
+ * = Added exception handling around browse() calls
+ * = Minor code cleanup
+ * + Split Core and Demos
+ 
  * --------- Version 2.1.0 Beta 2-----------
  * = Fixed bug in XHTML fix where it wasn't split correctly by Flash
  * = Fixed file params "undefined" in debug output

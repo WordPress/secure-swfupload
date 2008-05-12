@@ -1,0 +1,7 @@
+ * SWFUpload Demos, May 2008, www.swfupload.org, swfupload.googlecode.com
+
+ * --------- Version 2.1.0 -----------
+ * + Features Demo uses new destroy function
+ * + Split Core and Demo
+ 
+ */
