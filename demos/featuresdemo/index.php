@@ -65,7 +65,7 @@
 	<form>
 		The Features Demo allows you to experiment with all the features and settings that SWFUpload v2.0 offers.<br />
 		<br />
-		You can change all the settings except &apos;upload_url&apos;.<br />
+		You can change all the settings except 'upload_url'.<br />
 		<br />
 		<strong>Your PHP Session ID is <?php echo session_id(); ?>.</strong> This is provided so you can see the Flash Player Cookie
 		bug in action.  Compare this Session ID to the Session ID and Cookies displayed in the Server Data section

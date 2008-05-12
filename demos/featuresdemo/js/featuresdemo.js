@@ -320,14 +320,13 @@ var FeaturesDemo = {
 	},
 	reloadSWFUpload: function () {
 		try {
-			FeaturesDemo.SU.stopUpload();
-			FeaturesDemo.SU.movieElement.parentNode.removeChild(FeaturesDemo.SU.movieElement);
-			FeaturesDemo.SU.movieElement = null;
-
 			var flash_url = FeaturesDemo.rbFlash8.checked ? "../swfupload/swfupload_f8.swf" : "../swfupload/swfupload_f9.swf";
+			var upload_url = FeaturesDemo.SU.settings.upload_url;
+
+			FeaturesDemo.SU.destroy();
 			
 			var settings = {
-				upload_url : FeaturesDemo.SU.settings.upload_url,
+				upload_url : upload_url,
 				use_query_string : FeaturesDemo.cbUseQueryString.checked,
 				requeue_on_error : FeaturesDemo.cbRequeueOnError.checked,
 				post_params : FeaturesDemo.getParamsObject(),

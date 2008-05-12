@@ -108,6 +108,7 @@
 						<li><a href="#addSetting">addSetting</a> (deprecated)</li>
 						<li><a href="#getSetting">getSetting</a> (deprecated)</li>
 						<li><a href="#retrieveSetting">retrieveSetting</a> (removed in v2.1.0)</li>
+						<li><a href="#destroy">destroy</a> (added in v2.1.0)</li>
 						<li><a href="#displayDebugInfo">displayDebugInfo</a></li>
 						<li><a href="#selectFile">selectFile</a></li>
 						<li><a href="#selectFiles">selectFiles</a></li>
@@ -445,6 +446,12 @@ swfu.customSettings = {
 	<p><strong>Removed in v2.1.0</strong> The retrieveSetting function is similar to the addSetting function except it does not modify the internal settings object.  retrieveSetting
 	returns the setting_value unless it is undefined in which case it returns the default_value</p>
 	<p>This is a utility function.</p>
+	
+	<h4><a name="destroy"></a>bool destroy()</h4>
+	<p><strong>Added in v2.1.0</strong></p>
+	<p>Removes the SWF DOM elements and then destroys SWFUpload internal references. Used for removing a SWFUpload instance from a page.</p>
+	<p>Returns true if the elements were removed successfully. Returns false if any error occurs leaving the SWFUpload instance in an inconsistant state.</p>
+	<p><em>This has not been tested against the SWFUpload plugins and may not be compatible (especially the SWFObject plugin).</em></p>
 	
 	<h4><a name="displayDebugInfo"></a>void displayDebugInfo()</h4>
 	<p>The displayDebugInfo outputs SWFUpload settings using the debug event.  This function is automatically called after initilization if the debug setting is 'true'</p>
@@ -843,6 +850,9 @@ swfu.customSetting["a_dom_setting"].style.visibility = "hidden";</code>
 	<h3>Upload Progress in Linux</h3>
 	<p>The Flash Player in Linux sends a single uploadProgress event after the file has finished uploading.</p>
 	
+	<h3>Upload Progress in OS X</h3>
+	<p>There have been some reports that uploadProgress events are not fired in MAC Flash Players. The specifics haven't been pinned down but be aware of the possible issue.</p>
+	
 	<h3>Proxies</h3>
 	<p>The Flash Player may not properly use proxies.  It does not handle authenticating proxies well (if at all) and will some-times crash.</p>
 	<p>Some anti-virus software uses a proxy to scan uploads and cause SWFUpload to believe the entire file has been uploaded.  SWFUpload will fire uploadProgress events very quickly
@@ -854,7 +864,9 @@ swfu.customSetting["a_dom_setting"].style.visibility = "hidden";</code>
 	mod_security will reject the upload.  mod_security can be disabled using your .htaccess file</p>
 	
 	<h3>SSL</h3>
-	<p>There have been some reports that the Flash Player cannot upload through SSL.  The issue has not been pinned down but uploading over SSL may be unreliable.</p>
+	<p>There have been some reports that the Flash Player cannot upload through SSL.
+	The issue has not been pinned down but uploading over SSL may be unreliable. There especially seems to be an issue with
+	using self-signed certificates.</p>
 	
 	<h3>Authentication</h3>
 	<p>HTTP Authentication is not well supported by the Flash Player.  Later versions of Flash Player behave better.  Old version of Flash Player would crash the browser.</p>
@@ -871,7 +883,7 @@ swfu.customSetting["a_dom_setting"].style.visibility = "hidden";</code>
 	<h3>Cookie issue</h3>
 	<p>On Windows the Non-IE Flash Player plugin (FireFox, Opera, Safari, etc) sends the IE cookies regardless of the browser used.  This breaks authentication and sessions for many server-side scripting technologies.</p>
 	<p>Developers should manually pass Session and Authentication cookie information and manually restore Sessions on the Server Side if they wish to use Sessions</p>
-	<p>SWFUpload package contains work-around sample code for PHP and ASP.Net</p>
+	<p>The SWFUpload package contains work-around sample code for PHP and ASP.Net</p>
 	
 	<h3>ExternalInterface bugs</h3>
 	<p>Flash Player does not properly escape data when communication with the browser/JavaScript.  SWFUpload goes to great lengths to work-around this issue.  If this
@@ -897,11 +909,21 @@ swfu.customSetting["a_dom_setting"].style.visibility = "hidden";</code>
 	the script runs (if possible).  For PHP, the script continues to run and complete successfully even though Flash has terminated the connection.  Any data returned
 	by the script after Flash has disconnected is lost.</p>
 
-	<h3>Mac Issues</h3>
-	<p>Users have reported that uploading to subdomains does not work with the Mac Flash Player.</p>
-	<p>
-		Users have reported that pages that redirect (HTTP Status 302) are not handled by the Mac Flash Player.  Windows
-		clients seem to handle this issue.
-	</p>
+	<h3>Other Mac Issues</h3>
+	<ul>
+		<li>
+			Users have reported that uploading to subdomains does not work with the Mac Flash Player.
+		</li>
+		<li>
+				Users have reported that pages that redirect (HTTP Status 302) are not handled by the Mac Flash Player.  Windows
+				clients seem to handle this issue.
+		</li>
+		<li>
+				The flash documentation states that on OS early than OS X 10.3 the bytes loaded is always reported as -1. SWFUpload converts
+				this to 0 but the total bytes will never be sent and 100% won't be reached.  The UI should be updated to display 100% complete in
+				uploadSuccess or uploadComplete events to maintain a consistent UI.
+		</li>
+	</ul>
+	
 </body>
 </html>
