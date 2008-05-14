@@ -111,6 +111,18 @@ ul li {
 	list-style:square; 
 }
 
+code {
+	display: block;
+	background:#edffb8 none repeat scroll 0%;
+	border-color:#b2da3a;
+	border-style:solid;
+	border-width:1px 0;
+	font-size: 1em;
+	margin: 1em 0pt;
+	overflow:auto;
+	padding: 0.3em 0.4em;
+	white-space:pre;
+}
 
 /* -- Layout ------------------------------- */
 
@@ -233,7 +245,14 @@ td {
 	background-color: #F7F7F7;
 	overflow: hidden;
 }
-
+/* Message */
+.message {
+	margin: 1em 0;
+	padding: 10px 20px;
+	border: solid 1px #FFDD99;
+	background-color: #FFFFCC;
+	overflow: hidden;
+}
 /* Error */
 .red {
 	border: solid 1px #B50000;
