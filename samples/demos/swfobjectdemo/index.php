@@ -17,7 +17,7 @@ SWFUpload.onload = function () {
 		upload_url: "../simpledemo/upload.php",	// Relative to the SWF file
 		post_params: {
 			"PHPSESSID" : "NONE",
-			"HELLO-WORLD" : "DUDE",
+			"HELLO-WORLD" : "Here I Am",
 			".what" : "OKAY"
 		},
 		file_size_limit : "100 MB",
@@ -57,16 +57,24 @@ SWFUpload.onload = function () {
 <body>
 <div id="header">
 	<h1 id="logo"><a href="../">SWFUpload</a></h1>
-	<div id="version">v2.1.0 Beta</div>
+	<div id="version">v2.1.0</div>
 </div>
 
 <div id="content">
 
 	<h2>SWFObject Demo</h2>
 	<form id="form1" action="index.php" method="post" enctype="multipart/form-data">
-		<p> This page demonstrates the SWFObject plugin.  In order to see how the plugin works you need to uninstall your Flash Player (or have a version less that 9.0.28) or disable JavaScript.  The page
-			flicker found in the Graceful Degradation plugin is no longer visible. </p>
-		<div id="divSWFUploadUI" style="display: none;">
+		<p> This page demonstrates the SWFObject plugin.  Do each of the following (one at a time) to see the plugin work: </p>
+			<ul>
+				<li>Uninstall your Flash Player or install a version less than 9.0.28</li>
+				<li>Cause the SWF file to fail to load by deleting or renaming swfupload_f9.swf (simulating a very slow or failed download)</li>
+				<li>Disable JavaScript</li>
+			</ul>
+		<p>
+			Each of these tests demontrate how these issues can be handled by SWFUpload and the SWFObject libraries. You'll also notice
+			that the page flicker found in the Graceful Degradation plugin has been eliminated.
+		</p>
+		<div id="divSWFUploadUI" style="visibility: hidden;">
 			<fieldset class="flash" id="fsUploadProgress">
 			<legend>Upload Queue</legend>
 			</fieldset>
@@ -77,12 +85,19 @@ SWFUpload.onload = function () {
 				<br />
 			</p>
 		</div>
-		<div id="divAlternateContent" class="content" style="background-color: #FFFF66; border-top: solid 4px #FF9966; border-bottom: solid 4px #FF9966; margin: 10px 25px; padding: 10px 15px;"> We're sorry.  SWFUpload could not load.
-			<noscript>
-			You must have JavaScript enabled to enjoy SWFUpload.
-			</noscript>
-			<span id="spanNeedsFlash" style="display: none;">You need to install or upgrade your Flash Player.
-			visit the <a href="http://www.adobe.com/shockwave/download/download.cgi?P1_Prod_Version=ShockwaveFlash">Adobe website</a> to get the Flash Player.</span> </div>
+		<noscript style="display: block; background-color: #FFFF66; border-top: solid 4px #FF9966; border-bottom: solid 4px #FF9966; margin: 10px 25px; padding: 10px 15px;">
+			We're sorry.  SWFUpload could not load.  You must have JavaScript enabled to enjoy SWFUpload.
+		</noscript>
+		<div id="divLoadingContent" class="content" style="background-color: #FFFF66; border-top: solid 4px #FF9966; border-bottom: solid 4px #FF9966; margin: 10px 25px; padding: 10px 15px; display: none;">
+			SWFUpload is loading. Please wait a moment...
+		</div>
+		<div id="divLongLoading" class="content" style="background-color: #FFFF66; border-top: solid 4px #FF9966; border-bottom: solid 4px #FF9966; margin: 10px 25px; padding: 10px 15px; display: none;">
+			SWFUpload is taking a long time to load or the load has failed.  Please make sure JavaScript is enabled and that a working version of the Adobe Flash Player is installed.
+		</div>
+		<div id="divAlternateContent" class="content" style="background-color: #FFFF66; border-top: solid 4px #FF9966; border-bottom: solid 4px #FF9966; margin: 10px 25px; padding: 10px 15px; display: none;">
+			We're sorry.  SWFUpload could not load.  You may need to install or upgrade Flash Player.
+			Visit the <a href="http://www.adobe.com/shockwave/download/download.cgi?P1_Prod_Version=ShockwaveFlash">Adobe website</a> to get the Flash Player.
+		</div>
 	</form>
 </div>
 </body>

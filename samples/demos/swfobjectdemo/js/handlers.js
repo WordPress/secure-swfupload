@@ -13,19 +13,47 @@ The FileProgress class is not part of SWFUpload.
    ********************** */
 
 function swfUploadPreLoad() {
+	var self = this;
+	var loading = function () {
+		document.getElementById("divSWFUploadUI").style.display = "none";
+		document.getElementById("divLoadingContent").style.display = "";
+
+		var longLoad = function () {
+			document.getElementById("divLoadingContent").style.display = "none";
+			document.getElementById("divLongLoading").style.display = "";
+		};
+		this.customSettings.loadingTimeout = setTimeout(function () {
+				longLoad.call(self)
+			},
+			15 * 1000
+		);
+	};
 	
-	document.getElementById("divSWFUploadUI").style.display = "block";
-	document.getElementById("divAlternateContent").style.display = "none";
+	this.customSettings.loadingTimeout = setTimeout(function () {
+			loading.call(self);
+		},
+		2*1000
+	);
 }
 function swfUploadLoaded() {
 	var self = this;
+	clearTimeout(this.customSettings.loadingTimeout);
+	document.getElementById("divSWFUploadUI").style.visibility = "visible";
+	document.getElementById("divSWFUploadUI").style.display = "block";
+	document.getElementById("divLoadingContent").style.display = "none";
+	document.getElementById("divLongLoading").style.display = "none";
+	document.getElementById("divAlternateContent").style.display = "none";
+	
 	document.getElementById("btnBrowse").onclick = function () { self.selectFiles(); };
 	document.getElementById("btnCancel").onclick = function () { self.cancelQueue(); };
 }
    
 function swfUploadLoadFailed() {
+	clearTimeout(this.customSettings.loadingTimeout);
 	document.getElementById("divSWFUploadUI").style.display = "none";
-	document.getElementById("spanNeedsFlash").style.display = "";
+	document.getElementById("divLoadingContent").style.display = "none";
+	document.getElementById("divLongLoading").style.display = "none";
+	document.getElementById("divAlternateContent").style.display = "";
 }
    
    

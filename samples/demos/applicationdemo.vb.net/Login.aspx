@@ -9,7 +9,7 @@
 <form id="form1" runat="server">
 	<div id="header">
 		<h1 id="logo"><a href="../">SWFUpload</a></h1>
-		<div id="version">v2.1.0 Beta</div>
+		<div id="version">v2.1.0</div>
 	</div>
 	<h2>Application Demo (ASP.Net 2.0)</h2>
 	<div class="content">
