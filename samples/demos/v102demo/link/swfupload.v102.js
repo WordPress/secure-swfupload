@@ -21,74 +21,78 @@ var SWFUpload;
 if (typeof(SWFUpload) === "function") {
 	SWFUpload.v102 = {};
 	
+	SWFUpload.prototype.baseInitSettings = SWFUpload.prototype.initSettings;
 	SWFUpload.prototype.initSettings = function () {
-		var v102Settings = this.settings;
-		this.settings = {};
-
 		var provideDefault = function (value, defaultValue) {
 			return (value == undefined) ? defaultValue : value;
 		};
 		
-		this.settings.custom_settings = provideDefault(v102Settings.custom_settings, {});
-		this.customSettings = this.settings.custom_settings;
+		var newSettings = {};
+		var v102Settings = this.settings;
+		var customSettings = this.settings.custom_settings || {};
 
 		// Store v1.0.2 settings
-		this.customSettings.v102 = {};
-		this.customSettings.v102.target 				= provideDefault(v102Settings.target, "");
-		this.customSettings.v102.create_ui 				= provideDefault(v102Settings.create_ui, false);
-		this.customSettings.v102.browse_link_class 		= provideDefault(v102Settings.browse_link_class, "SWFBrowseLink");
-		this.customSettings.v102.upload_link_class 		= provideDefault(v102Settings.upload_link_class, "SWFUploadLink");
-		this.customSettings.v102.browse_link_innerhtml 	= provideDefault(v102Settings.browse_link_innerhtml, "<span>Browse...</span>");
-		this.customSettings.v102.upload_link_innerhtml 	= provideDefault(v102Settings.upload_link_innerhtml, "<span>Upload</span>");
-		this.customSettings.v102.auto_upload 			= !!provideDefault(v102Settings.auto_upload, false);
+		customSettings.v102 = {};
+		customSettings.v102.target 					= provideDefault(v102Settings.target, "");
+		customSettings.v102.create_ui 				= provideDefault(v102Settings.create_ui, false);
+		customSettings.v102.browse_link_class 		= provideDefault(v102Settings.browse_link_class, "SWFBrowseLink");
+		customSettings.v102.upload_link_class 		= provideDefault(v102Settings.upload_link_class, "SWFUploadLink");
+		customSettings.v102.browse_link_innerhtml 	= provideDefault(v102Settings.browse_link_innerhtml, "<span>Browse...</span>");
+		customSettings.v102.upload_link_innerhtml 	= provideDefault(v102Settings.upload_link_innerhtml, "<span>Upload</span>");
+		customSettings.v102.auto_upload 			= !!provideDefault(v102Settings.auto_upload, false);
 		
 		// Store v1.0.2 events
-		this.customSettings.v102.upload_file_queued_callback 	= provideDefault(v102Settings.upload_file_queued_callback, null);
-		this.customSettings.v102.upload_file_start_callback 	= provideDefault(v102Settings.upload_file_start_callback, null);
-		this.customSettings.v102.upload_file_complete_callback 	= provideDefault(v102Settings.upload_file_complete_callback, null);
-		this.customSettings.v102.upload_queue_complete_callback = provideDefault(v102Settings.upload_queue_complete_callback, null);
-		this.customSettings.v102.upload_progress_callback 		= provideDefault(v102Settings.upload_progress_callback, null);
-		this.customSettings.v102.upload_dialog_cancel_callback 	= provideDefault(v102Settings.upload_dialog_cancel_callback, null);
-		this.customSettings.v102.upload_file_error_callback 	= provideDefault(v102Settings.upload_file_error_callback, null);
-		this.customSettings.v102.upload_file_cancel_callback 	= provideDefault(v102Settings.upload_file_cancel_callback, null);
-		this.customSettings.v102.upload_queue_cancel_callback 	= provideDefault(v102Settings.upload_queue_cancel_callback, null);
-		this.customSettings.v102.queue_cancelled_flag			= false;
+		customSettings.v102.upload_file_queued_callback 	= provideDefault(v102Settings.upload_file_queued_callback, null);
+		customSettings.v102.upload_file_start_callback 	= provideDefault(v102Settings.upload_file_start_callback, null);
+		customSettings.v102.upload_file_complete_callback 	= provideDefault(v102Settings.upload_file_complete_callback, null);
+		customSettings.v102.upload_queue_complete_callback = provideDefault(v102Settings.upload_queue_complete_callback, null);
+		customSettings.v102.upload_progress_callback 		= provideDefault(v102Settings.upload_progress_callback, null);
+		customSettings.v102.upload_dialog_cancel_callback 	= provideDefault(v102Settings.upload_dialog_cancel_callback, null);
+		customSettings.v102.upload_file_error_callback 	= provideDefault(v102Settings.upload_file_error_callback, null);
+		customSettings.v102.upload_file_cancel_callback 	= provideDefault(v102Settings.upload_file_cancel_callback, null);
+		customSettings.v102.upload_queue_cancel_callback 	= provideDefault(v102Settings.upload_queue_cancel_callback, null);
+		customSettings.v102.queue_cancelled_flag			= false;
 
 		// Upload backend settings
-		this.settings.upload_url = provideDefault(v102Settings.upload_script, "");
-		this.settings.file_post_name = "Filedata";
-		this.settings.post_params = {};
+		newSettings.upload_url 		= provideDefault(v102Settings.upload_script, "");
+		newSettings.file_post_name 	= "Filedata";
+		newSettings.post_params 	= {};
 
 		// File Settings
-		this.settings.file_types = provideDefault(v102Settings.allowed_filetypes, "*.*");
-		this.settings.file_types_description = provideDefault(v102Settings.allowed_filetypes_description, "All Files");
-		this.settings.file_size_limit = provideDefault(v102Settings.allowed_filesize, "1024");
-		this.settings.file_upload_limit = 0;
-		this.settings.file_queue_limit = 0;
+		newSettings.file_types 				= provideDefault(v102Settings.allowed_filetypes, "*.*");
+		newSettings.file_types_description 	= provideDefault(v102Settings.allowed_filetypes_description, "All Files");
+		newSettings.file_size_limit 		= provideDefault(v102Settings.allowed_filesize, "1024");
+		newSettings.file_upload_limit 		= 0;
+		newSettings.file_queue_limit 		= 0;
 
 		// Flash Settings
-		this.settings.flash_url = provideDefault(v102Settings.flash_path, "swfupload.swf");
-		this.settings.flash_color = provideDefault(v102Settings.flash_color, "#000000");
+		newSettings.flash_url 	= provideDefault(v102Settings.flash_path, "swfupload_f8.swf");
+		newSettings.flash_color = provideDefault(v102Settings.flash_color, "#000000");
 
 		// Debug Settings
-		this.settings.debug_enabled = this.settings.debug = provideDefault(v102Settings.debug,  false);
+		newSettings.debug_enabled = this.settings.debug = provideDefault(v102Settings.debug,  false);
 
 
 		// Event Handlers
-		this.settings.swfupload_loaded_handler 		= SWFUpload.v102.swfUploadLoaded;
-		this.settings.file_dialog_start_handler 	= null;
-		this.settings.file_queued_handler 			= SWFUpload.v102.fileQueued;
-		this.settings.file_queue_error_handler 		= SWFUpload.v102.uploadError;
-		this.settings.file_dialog_complete_handler 	= SWFUpload.v102.fileDialogComplete;
+		newSettings.swfupload_loaded_handler 		= SWFUpload.v102.swfUploadLoaded;
+		newSettings.file_dialog_start_handler 		= null;
+		newSettings.file_queued_handler 			= SWFUpload.v102.fileQueued;
+		newSettings.file_queue_error_handler 		= SWFUpload.v102.uploadError;
+		newSettings.file_dialog_complete_handler 	= SWFUpload.v102.fileDialogComplete;
 		
-		this.settings.upload_start_handler		= SWFUpload.v102.uploadStart;
-		this.settings.return_upload_start_handler = this.returnUploadStart;
-		this.settings.upload_progress_handler	= SWFUpload.v102.uploadProgress;
-		this.settings.upload_error_handler		= SWFUpload.v102.uploadError;
-		this.settings.upload_success_handler		= SWFUpload.v102.uploadSuccess;
-		this.settings.upload_complete_handler	= SWFUpload.v102.uploadComplete;
+		newSettings.upload_start_handler		= SWFUpload.v102.uploadStart;
+		newSettings.return_upload_start_handler = this.returnUploadStart;
+		newSettings.upload_progress_handler		= SWFUpload.v102.uploadProgress;
+		newSettings.upload_error_handler		= SWFUpload.v102.uploadError;
+		newSettings.upload_success_handler		= SWFUpload.v102.uploadSuccess;
+		newSettings.upload_complete_handler		= SWFUpload.v102.uploadComplete;
 
-		this.settings.debug_handler				= SWFUpload.v102.debug;
+		newSettings.debug_handler				= SWFUpload.v102.debug;
+		
+		newSettings.custom_settings = customSettings;
+		this.settings = newSettings;
+		
+		this.baseInitSettings();	// Cause SWFUpload to initialize itself
 		
 		// Hook up the v1.0.2 methods
 		this.browse = SWFUpload.v102.browse;
