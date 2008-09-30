@@ -298,6 +298,12 @@ package {
 			}
 			
 			try {
+				this.SetButtonDisabled(Number(root.loaderInfo.parameters.buttonDisabled));
+			} catch (ex:Object) {
+				this.SetButtonDisabled(Number(false));
+			}
+			
+			try {
 				ExternalInterface.addCallback("SelectFile", this.SelectFile);
 				ExternalInterface.addCallback("SelectFiles", this.SelectFiles);
 				ExternalInterface.addCallback("StartUpload", this.StartUpload);
@@ -329,6 +335,7 @@ package {
 				ExternalInterface.addCallback("SetButtonText", this.SetButtonText);
 				ExternalInterface.addCallback("SetButtonTextStyle", this.SetButtonTextStyle);
 				ExternalInterface.addCallback("SetButtonAction", this.SetButtonAction);
+				ExternalInterface.addCallback("SetButtonDisabled", this.SetButtonDisabled);
 			} catch (ex:Error) {
 				this.Debug("Callbacks where not set.");
 				return;
@@ -800,7 +807,9 @@ package {
 			this.buttonImageURL = button_image_url;
 
 			try {
-				this.buttonLoader.load(new URLRequest(this.buttonImageURL));
+				if (this.buttonImageURL != undefined && this.buttonImageURL !== "") {
+					this.buttonLoader.load(new URLRequest(this.buttonImageURL));
+				}
 			} catch (ex:Object) {
 				
 			}
@@ -864,6 +873,11 @@ package {
 			var style:StyleSheet = new StyleSheet();
 			style.parseCSS(this.buttonTextStyle);
 			this.buttonTextField.styleSheet = style;
+		}
+		
+		private function SetButtonDisabled(disabled:Boolean):void {
+			this.buttonStateDisabled = disabled;
+			this.UpdateButtonState();
 		}
 		
 		private function UpdateTextDimensions():void {
