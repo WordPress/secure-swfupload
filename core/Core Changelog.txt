@@ -1,5 +1,12 @@
  * SWFUpload Core, May 2008, www.swfupload.org, swfupload.googlecode.com
 
+ * --------- Version 2.2.0 -----------
+ * + Adding Flash Player 10 Support
+ *   = Added setting for defining a button image
+ *   = Added setting for defining button text
+ *   = Added setting for defining button width & height
+ *   = Added setting for defining what element the Flash Movie should replace.
+
  * --------- Version 2.1.0 -----------
  * = Fixed GET values so they are escaped properly
  * + Added destroy function
