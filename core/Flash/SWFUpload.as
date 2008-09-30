@@ -1,10 +1,5 @@
 package {
-	/*
-	* Todo:
-	* I should look in to using array.splice to remove cancelled files from the array.
-	* Add GetFile(file_id) function that returns the FileItem js object for any file (defaults to current or first in queue).
-	* */
-
+	import flash.display.Loader;
 	import flash.display.Stage;
 	import flash.display.Sprite;
 	import flash.net.FileReferenceList;
@@ -27,7 +22,7 @@ package {
 			var SWFUpload:SWFUpload = new SWFUpload();
 		}
 		
-		private const build_number:String = "SWFUPLOAD 2.1.0 FP9 2008-05-12";
+		private const build_number:String = "SWFUPLOAD 2.2.0 2008-09-30";
 		
 		// State tracking variables
 		private var fileBrowserMany:FileReferenceList = new FileReferenceList();
@@ -76,6 +71,13 @@ package {
 		private var requeueOnError:Boolean = false;
 		private var debugEnabled:Boolean;
 
+		private var buttonImageURL:String;
+		private var buttonWidth:Number;
+		private var buttonHeight:Number;
+		private var buttonText:String;
+		private var buttonTextStyle:String;
+		private var buttonAction:Number;
+		
 		// Error code "constants"
 		// Size check constants
 		private var SIZE_TOO_BIG:Number		= 1;
@@ -100,6 +102,12 @@ package {
 		private var ERROR_CODE_FILE_CANCELLED:Number				= -280;
 		private var ERROR_CODE_UPLOAD_STOPPED:Number				= -290;
 
+		
+		// Button Actions
+		private var BUTTON_ACTION_SELECT_FILE:Number                = -100;
+		private var BUTTON_ACTION_SELECT_FILES:Number               = -110;
+		private var BUTTON_ACTION_START_UPLOAD:Number               = -120;
+		
 		public function SWFUpload() {
 			// Do the feature detection.  Make sure this version of Flash supports the features we need. If not
 			// abort initialization.
@@ -118,6 +126,9 @@ package {
 			this.fileBrowserMany.addEventListener(Event.SELECT, this.Select_Many_Handler);
 			this.fileBrowserMany.addEventListener(Event.CANCEL,  this.DialogCancelled_Handler);
 
+			// Setup the button and text label
+			
+			
 			// Get the move name
 			this.movieName = root.loaderInfo.parameters.movieName;
 
@@ -206,7 +217,35 @@ package {
 			} catch (ex:Object) {
 				this.requeueOnError = false;
 			}
+
+			try {
+				this.SetButtonImageURL(String(root.loaderInfo.parameters.buttonImageURL));
+			} catch (ex:Object) {
+				this.SetButtonImageURL("");
+			}
+			try {
+				this.SetButtonDimensions(Number(root.loaderInfo.parameters.buttonWidth), Number(root.loaderInfo.parameters.buttonHeight));
+			} catch (ex:Object) {
+				this.SetButtonDimensions(0, 0);
+			}
+			try {
+				this.SetButtonText(String(root.loaderInfo.parameters.buttonText));
+			} catch (ex:Object) {
+				this.SetButtonText("");
+			}
 			
+			try {
+				this.SetButtonTextStyle(String(root.loaderInfo.parameters.buttonTextStyle));
+			} catch (ex:Object) {
+				this.SetButtonTextStyle("");
+			}
+
+			try {
+				this.SetButtonAction(Number(root.loaderInfo.parameters.buttonAction));
+			} catch (ex:Object) {
+				this.SetButtonAction(this.BUTTON_ACTION_SELECT_FILES);
+			}
+
 			try {
 				ExternalInterface.addCallback("SelectFile", this.SelectFile);
 				ExternalInterface.addCallback("SelectFiles", this.SelectFiles);
@@ -233,6 +272,12 @@ package {
 				ExternalInterface.addCallback("SetUseQueryString", this.SetUseQueryString);
 				ExternalInterface.addCallback("SetRequeueOnError", this.SetRequeueOnError);
 				ExternalInterface.addCallback("SetDebugEnabled", this.SetDebugEnabled);
+
+				ExternalInterface.addCallback("SetButtonImageURL", this.SetButtonImageURL);
+				ExternalInterface.addCallback("SetButtonDimensions", this.SetButtonDimensions);
+				ExternalInterface.addCallback("SetButtonText", this.SetButtonText);
+				ExternalInterface.addCallback("SetButtonTextStyle", this.SetButtonTextStyle);
+				ExternalInterface.addCallback("SetButtonAction", this.SetButtonAction);
 			} catch (ex:Error) {
 				this.Debug("Callbacks where not set.");
 				return;
@@ -695,6 +740,78 @@ package {
 		
 		private function SetDebugEnabled(debug_enabled:Boolean):void {
 			this.debugEnabled = debug_enabled;
+		}
+		
+		private function SetButtonImageURL(button_image_url:String):void {
+			this.buttonImageURL = button_image_url;
+			
+			try {
+				var loader:Loader = new Loader();
+				loader.addEventListener(Event.COMPLETE, function (e:Event) { this.SetupButton(loader); } );
+				loader.load(new URLRequest(this.buttonImageURL));
+			} catch (ex:Object) {
+								
+			}
+			
+			// FIXME -- Download the button image and set up the button
+		}
+		private var button:Sprite;
+		private function SetupButton(loader:Loader):void {
+			this.stage.removeChild(this.button);
+			this.button = new Sprite();
+			this.stage.addChild(this.button);
+			this.button.addChild(loader);
+			
+			this.button.addEventListener(MouseEvent.MOUSE_DOWN, );
+			this.button.addEventListener(MouseEvent.MOUSE_UP, );
+			this.button.addEventListener(MouseEvent.MOUSE_OVER, );
+			this.button.addEventListener(MouseEvent.MOUSE_OUT, );
+			this.button.addEventListener(Event.MOUSE_LEAVE, );
+			
+			
+			this.SetButtonDimensions();
+		}
+
+		private function SetButtonDimensions(width:Number = null, height:Number = null):void {
+			if (width < 0) width = 0;
+			if (height < 0) height = 0;
+			
+			if (width !== null) {
+				this.buttonWidth = width;
+			}
+			if (height !== null) {
+				this.buttonHeight = height;
+			}
+			
+			this.button.width = this.buttonWidth;
+			this.button.height = this.buttonHeight;
+			
+			// FIXME -- Set the button dimensions and reposition it as needed
+			this.button.x = this.buttonWidth / -2;
+			this.button.y = this.buttonHeight / -2;
+			
+			this.SetupText();
+		}
+		
+		private function SetButtonText(button_text:String):void {
+			this.buttonText = button_text;
+			// FIXME -- Set the text displayed over the button
+		}
+		
+		private function SetButtonTextStyle(button_text_style:String):void {
+			this.buttonTextStyle = button_text_style;
+			// FIXME -- Set the style of the text
+		}
+		
+		private function SetupText():void {
+			// Remove the current Text
+			// Create and setup a new Text (dimensions, text, style)
+			// Add Text to the Stage
+			// Position the Text
+		}
+		
+		private function SetButtonAction(button_action:Number):void {
+			this.buttonAction = button_action;
 		}
 		
 		/* *************************************************************

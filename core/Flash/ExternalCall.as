@@ -96,7 +96,7 @@ package {
 		
 		private static function EscapeString(message:String):String {
 			var replacePattern:RegExp = /\\/g; //new RegExp("/\\/", "g");
-			return message.replace(replacePattern, "$&$&");
+			return message.replace(replacePattern, "\\\\");
 		}
 		private static function EscapeArray(message_array:Array):Array {
 			var length:uint = message_array.length;
