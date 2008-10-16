@@ -109,7 +109,7 @@ SWFUpload.prototype.initSettings = function () {
 	this.ensureDefault("button_width", 1);
 	this.ensureDefault("button_height", 1);
 	this.ensureDefault("button_text", "");
-	this.ensureDefault("button_text_style", "");
+	this.ensureDefault("button_text_style", "color: #000000; font-size: 16pt;");
 	this.ensureDefault("button_action", SWFUpload.BUTTON_ACTION.SELECT_FILES);
 	this.ensureDefault("button_disabled", false);
 	this.ensureDefault("button_placeholder_id", null);
@@ -178,7 +178,7 @@ SWFUpload.prototype.appendFlash = function () {
 
 // Private: replaceWithFlash replaces the button_placeholder element with the flash movie.
 SWFUpload.prototype.replaceWithFlash = function () {
-	var targetElement, container;
+	var targetElement, tempParent;
 
 	// Make sure an element with the ID we are going to use doesn't already exist
 	if (document.getElementById(this.movieName) !== null) {
@@ -186,7 +186,7 @@ SWFUpload.prototype.replaceWithFlash = function () {
 	}
 
 	// Get the body tag where we will be adding the flash movie
-	targetElement = document.getElementsByID(this.settings.button_placeholder_id);
+	targetElement = document.getElementById(this.settings.button_placeholder_id);
 
 	if (targetElement == undefined) {
 		throw "Could not find the placeholder element.";
@@ -195,14 +195,20 @@ SWFUpload.prototype.replaceWithFlash = function () {
 	// Append the container and load the flash
 	tempParent = document.createElement("div");
 	tempParent.innerHTML = this.getFlashHTML();	// Using innerHTML is non-standard but the only sensible way to dynamically add Flash in IE (and maybe other browsers)
+	targetElement.parentNode.replaceChild(tempParent.firstChild, targetElement);
+	//targetElement.innerHTML = this.getFlashHTML();
 	
-	targetElement.parent.replaceChild(targetElement, tempParent.firstChild);
+	// Fix IE Flash/Form bug
+	if (window[this.movieName] == undefined) {
+		window[this.movieName] = this.getMovieElement();
+	}
+	
 };
 
 // Private: getFlashHTML generates the object tag needed to embed the flash in to the document
 SWFUpload.prototype.getFlashHTML = function () {
 	// Flash Satay object syntax: http://www.alistapart.com/articles/flashsatay
-	return ['<object id="', this.movieName, '" type="application/x-shockwave-flash" data="', this.settings.flash_url, '" width="', this.settings.button_width, '" height="', this.settings.button_height, '" style="-moz-user-focus: ignore;">',
+	return ['<object id="', this.movieName, '" type="application/x-shockwave-flash" data="', this.settings.flash_url, '" width="', this.settings.button_width, '" height="', this.settings.button_height, '">',
 				'<param name="movie" value="', this.settings.flash_url, '" />',
 				'<param name="bgcolor" value="', this.settings.flash_color, '" />',
 				'<param name="quality" value="high" />',
@@ -230,7 +236,8 @@ SWFUpload.prototype.getFlashVars = function () {
 			"&amp;fileSizeLimit=", encodeURIComponent(this.settings.file_size_limit),
 			"&amp;fileUploadLimit=", encodeURIComponent(this.settings.file_upload_limit),
 			"&amp;fileQueueLimit=", encodeURIComponent(this.settings.file_queue_limit),
-			"&amp;buttonImage_url=", encodeURIComponent(this.settings.button_image_url),
+			"&amp;debugEnabled=", encodeURIComponent(this.settings.debug_enabled),
+			"&amp;buttonImageURL=", encodeURIComponent(this.settings.button_image_url),
 			"&amp;buttonWidth=", encodeURIComponent(this.settings.button_width),
 			"&amp;buttonHeight=", encodeURIComponent(this.settings.button_height),
 			"&amp;buttonText=", encodeURIComponent(this.settings.button_text),
@@ -305,6 +312,8 @@ SWFUpload.prototype.destroy = function () {
 		delete this.customSettings;
 		delete this.eventQueue;
 		delete this.movieName;
+		
+		delete window[this.movieName];
 		
 		return true;
 	} catch (ex1) {

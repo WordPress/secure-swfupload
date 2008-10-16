@@ -1,7 +1,10 @@
 package {
+	import flash.display.DisplayObjectContainer;
 	import flash.display.Loader;
 	import flash.display.Stage;
 	import flash.display.Sprite;
+	import flash.display.StageAlign;
+	import flash.display.StageScaleMode;
 	import flash.net.FileReferenceList;
 	import flash.net.FileReference;
 	import flash.net.FileFilter;
@@ -12,9 +15,12 @@ package {
 	import flash.external.ExternalInterface;
 	import flash.system.Security;
 	import flash.text.AntiAliasType;
+	import flash.text.StaticText;
 	import flash.text.StyleSheet;
+	import flash.text.TextDisplayMode;
 	import flash.text.TextField;
 	import flash.text.TextFieldType;
+	import flash.text.TextFieldAutoSize;
 	import flash.text.TextFormat;
 	import flash.ui.Mouse;
 
@@ -28,7 +34,7 @@ package {
 			var SWFUpload:SWFUpload = new SWFUpload();
 		}
 		
-		private const build_number:String = "SWFUPLOAD 2.2.0 2008-09-30";
+		private const build_number:String = "SWFUPLOAD 2.2.0 Alpha 2008-10-16";
 		
 		// State tracking variables
 		private var fileBrowserMany:FileReferenceList = new FileReferenceList();
@@ -137,47 +143,60 @@ package {
 			this.fileBrowserMany.addEventListener(Event.SELECT, this.Select_Many_Handler);
 			this.fileBrowserMany.addEventListener(Event.CANCEL,  this.DialogCancelled_Handler);
 
+
+			this.stage.align = StageAlign.TOP_LEFT;
+			this.stage.scaleMode = StageScaleMode.NO_SCALE;			
+
 			// Setup the button and text label
 			this.buttonLoader = new Loader();
 			this.stage.addChild(this.buttonLoader);
 
+			var self:SWFUpload = this;
+			
 			this.stage.addEventListener(MouseEvent.CLICK, function (event:MouseEvent):void {
-				this.UpdateButtonState();
-				this.ButtonClickHandler(Event);
+				self.UpdateButtonState();
+				self.ButtonClickHandler(event);
 			});
 			this.stage.addEventListener(MouseEvent.MOUSE_DOWN, function (event:MouseEvent):void {
-				this.buttonStateMouseDown = true;
-				this.UpdateButtonState();
+				self.buttonStateMouseDown = true;
+				self.UpdateButtonState();
 			});
 			this.stage.addEventListener(MouseEvent.MOUSE_UP, function (event:MouseEvent):void {
-				this.buttonStateMouseDown = false;
-				this.UpdateButtonState();
+				self.buttonStateMouseDown = false;
+				self.UpdateButtonState();
 			});
 			this.stage.addEventListener(MouseEvent.MOUSE_OVER, function (event:MouseEvent):void {
-				this.buttonStateMouseDown = event.buttonDown;
-				this.buttonStateOver = true;
-				this.UpdateButtonState();
+				self.buttonStateMouseDown = event.buttonDown;
+				self.buttonStateOver = true;
+				self.UpdateButtonState();
 			});
 			this.stage.addEventListener(MouseEvent.MOUSE_OUT, function (event:MouseEvent):void {
-				this.buttonStateMouseDown = false;
-				this.buttonStateOver = false;
-				this.UpdateButtonState();
+				self.buttonStateMouseDown = false;
+				self.buttonStateOver = false;
+				self.UpdateButtonState();
 			});
+			// Handle the mouse leaving the flash movie altogether
 			this.stage.addEventListener(Event.MOUSE_LEAVE, function (event:Event):void {
-				this.buttonStateMouseDown = false;
-				this.buttonStateOver = false;
-				this.UpdateButtonState();
+				self.buttonStateMouseDown = false;
+				self.buttonStateOver = false;
+				self.UpdateButtonState();
 			});
 			
 			this.buttonTextField = new TextField();
 			this.buttonTextField.type = TextFieldType.DYNAMIC;
 			this.buttonTextField.antiAliasType = AntiAliasType.ADVANCED;
+			this.buttonTextField.autoSize = TextFieldAutoSize.CENTER;
 			this.buttonTextField.cacheAsBitmap = true;
-			this.buttonTextField.wordWrap = false;
+			this.buttonTextField.multiline = true;
+			this.buttonTextField.wordWrap = true;
 			this.buttonTextField.tabEnabled = false;
 			this.buttonTextField.background = false;
+			this.buttonTextField.border = false;
 			this.buttonTextField.selectable = false;
+			this.buttonTextField.condenseWhite = true;
+			
 			this.stage.addChild(this.buttonTextField);
+			
 			// FIXME -- figure out about alignment
 			
 			// Get the movie name
@@ -274,11 +293,13 @@ package {
 			} catch (ex:Object) {
 				this.SetButtonDimensions(0, 0);
 			}
+
 			try {
 				this.SetButtonImageURL(String(root.loaderInfo.parameters.buttonImageURL));
 			} catch (ex:Object) {
 				this.SetButtonImageURL("");
 			}
+			
 			try {
 				this.SetButtonText(String(root.loaderInfo.parameters.buttonText));
 			} catch (ex:Object) {
@@ -298,9 +319,9 @@ package {
 			}
 			
 			try {
-				this.SetButtonDisabled(Number(root.loaderInfo.parameters.buttonDisabled));
+				this.SetButtonDisabled(root.loaderInfo.parameters.buttonDisabled == "true" ? true : false);
 			} catch (ex:Object) {
-				this.SetButtonDisabled(Number(false));
+				this.SetButtonDisabled(Boolean(false));
 			}
 			
 			try {
@@ -807,11 +828,10 @@ package {
 			this.buttonImageURL = button_image_url;
 
 			try {
-				if (this.buttonImageURL != undefined && this.buttonImageURL !== "") {
+				if (this.buttonImageURL === null || this.buttonImageURL !== "") {
 					this.buttonLoader.load(new URLRequest(this.buttonImageURL));
 				}
 			} catch (ex:Object) {
-				
 			}
 		}
 		
@@ -830,8 +850,8 @@ package {
 		}
 		
 		private function UpdateButtonState():void {
-			var xOffset:Number = this.buttonWidth / -2;
-			var yOffset:Number = this.buttonHeight / -2 + 1;
+			var xOffset:Number = 0;
+			var yOffset:Number = 0;
 			
 			this.buttonLoader.x = xOffset;
 			this.buttonLoader.y = yOffset;
@@ -864,7 +884,8 @@ package {
 		
 		private function SetButtonText(button_text:String):void {
 			this.buttonText = button_text;
-			this.buttonTextField.htmlText = this.buttonText;
+			
+			this.SetButtonTextStyle(this.buttonTextStyle);
 		}
 		
 		private function SetButtonTextStyle(button_text_style:String):void {
@@ -873,6 +894,8 @@ package {
 			var style:StyleSheet = new StyleSheet();
 			style.parseCSS(this.buttonTextStyle);
 			this.buttonTextField.styleSheet = style;
+			this.buttonTextField.htmlText = this.buttonText;
+			this.UpdateTextDimensions();			
 		}
 		
 		private function SetButtonDisabled(disabled:Boolean):void {
@@ -881,10 +904,22 @@ package {
 		}
 		
 		private function UpdateTextDimensions():void {
+			var textWidth:Number = this.buttonTextField.textWidth;
+			var textHeight:Number = this.buttonTextField.textHeight;
+			
+			var leftOverWidth:Number = this.buttonWidth - textWidth;
+			var leftOverHeight:Number = this.buttonHeight - textHeight;
+			
+			if (leftOverWidth > 0) {
+				this.buttonTextField.x = Math.floor(leftOverWidth / 2);
+				this.buttonTextField.y = Math.floor(leftOverHeight / 2);
+			} else {
+				this.buttonTextField.x = 0;
+				this.buttonTextField.y = 0;
+			}
+			
 			this.buttonTextField.width = this.buttonWidth;
 			this.buttonTextField.height = this.buttonHeight;
-			this.buttonTextField.x = this.buttonWidth / -2;
-			this.buttonTextField.y = this.buttonHeight / -2 + 1;
 		}
 		
 		private function SetButtonAction(button_action:Number):void {

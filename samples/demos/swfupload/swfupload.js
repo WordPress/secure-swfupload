@@ -43,7 +43,7 @@ SWFUpload.prototype.initSWFUpload = function (settings) {
 /* *************** */
 SWFUpload.instances = {};
 SWFUpload.movieCount = 0;
-SWFUpload.version = "2.1.0";
+SWFUpload.version = "2.2.0 Alpha";
 SWFUpload.QUEUE_ERROR = {
 	QUEUE_LIMIT_EXCEEDED	  		: -100,
 	FILE_EXCEEDS_SIZE_LIMIT  		: -110,
@@ -69,7 +69,11 @@ SWFUpload.FILE_STATUS = {
 	COMPLETE	 : -4,
 	CANCELLED	 : -5
 };
-
+SWFUpload.BUTTON_ACTION = {
+	SELECT_FILE  : -100,
+	SELECT_FILES : -110,
+	START_UPLOAD : -120
+};
 
 /* ******************** */
 /* Instance Members  */
@@ -100,6 +104,16 @@ SWFUpload.prototype.initSettings = function () {
 	this.ensureDefault("flash_url", "swfupload_f9.swf");
 	this.ensureDefault("flash_color", "#FFFFFF");
 
+	// Button Settings
+	this.ensureDefault("button_image_url", 0);
+	this.ensureDefault("button_width", 1);
+	this.ensureDefault("button_height", 1);
+	this.ensureDefault("button_text", "");
+	this.ensureDefault("button_text_style", "color: #000000; font-size: 16pt;");
+	this.ensureDefault("button_action", SWFUpload.BUTTON_ACTION.SELECT_FILES);
+	this.ensureDefault("button_disabled", false);
+	this.ensureDefault("button_placeholder_id", null);
+	
 	// Debug Settings
 	this.ensureDefault("debug", false);
 	this.settings.debug_enabled = this.settings.debug;	// Here to maintain v2 API
@@ -128,9 +142,17 @@ SWFUpload.prototype.initSettings = function () {
 	delete this.ensureDefault;
 };
 
-// Private: loadFlash generates the HTML tag for the Flash
-// It then adds the flash to the body
 SWFUpload.prototype.loadFlash = function () {
+	if (this.settings.button_placeholder_id !== "") {
+		this.replaceWithFlash();
+	} else {
+		this.appendFlash();
+	}
+};
+
+// Private: appendFlash gets the HTML tag for the Flash
+// It then appends the flash to the body
+SWFUpload.prototype.appendFlash = function () {
 	var targetElement, container;
 
 	// Make sure an element with the ID we are going to use doesn't already exist
@@ -154,10 +176,39 @@ SWFUpload.prototype.loadFlash = function () {
 	container.innerHTML = this.getFlashHTML();	// Using innerHTML is non-standard but the only sensible way to dynamically add Flash in IE (and maybe other browsers)
 };
 
+// Private: replaceWithFlash replaces the button_placeholder element with the flash movie.
+SWFUpload.prototype.replaceWithFlash = function () {
+	var targetElement, tempParent;
+
+	// Make sure an element with the ID we are going to use doesn't already exist
+	if (document.getElementById(this.movieName) !== null) {
+		throw "ID " + this.movieName + " is already in use. The Flash Object could not be added";
+	}
+
+	// Get the body tag where we will be adding the flash movie
+	targetElement = document.getElementById(this.settings.button_placeholder_id);
+
+	if (targetElement == undefined) {
+		throw "Could not find the placeholder element.";
+	}
+
+	// Append the container and load the flash
+	tempParent = document.createElement("div");
+	tempParent.innerHTML = this.getFlashHTML();	// Using innerHTML is non-standard but the only sensible way to dynamically add Flash in IE (and maybe other browsers)
+	targetElement.parentNode.replaceChild(tempParent.firstChild, targetElement);
+	//targetElement.innerHTML = this.getFlashHTML();
+	
+	// Fix IE Flash/Form bug
+	if (window[this.movieName] == undefined) {
+		window[this.movieName] = this.getMovieElement();
+	}
+	
+};
+
 // Private: getFlashHTML generates the object tag needed to embed the flash in to the document
 SWFUpload.prototype.getFlashHTML = function () {
 	// Flash Satay object syntax: http://www.alistapart.com/articles/flashsatay
-	return ['<object id="', this.movieName, '" type="application/x-shockwave-flash" data="', this.settings.flash_url, '" width="1" height="1" style="-moz-user-focus: ignore;">',
+	return ['<object id="', this.movieName, '" type="application/x-shockwave-flash" data="', this.settings.flash_url, '" width="', this.settings.button_width, '" height="', this.settings.button_height, '">',
 				'<param name="movie" value="', this.settings.flash_url, '" />',
 				'<param name="bgcolor" value="', this.settings.flash_color, '" />',
 				'<param name="quality" value="high" />',
@@ -185,7 +236,15 @@ SWFUpload.prototype.getFlashVars = function () {
 			"&amp;fileSizeLimit=", encodeURIComponent(this.settings.file_size_limit),
 			"&amp;fileUploadLimit=", encodeURIComponent(this.settings.file_upload_limit),
 			"&amp;fileQueueLimit=", encodeURIComponent(this.settings.file_queue_limit),
-			"&amp;debugEnabled=", encodeURIComponent(this.settings.debug_enabled)].join("");
+			"&amp;debugEnabled=", encodeURIComponent(this.settings.debug_enabled),
+			"&amp;buttonImageURL=", encodeURIComponent(this.settings.button_image_url),
+			"&amp;buttonWidth=", encodeURIComponent(this.settings.button_width),
+			"&amp;buttonHeight=", encodeURIComponent(this.settings.button_height),
+			"&amp;buttonText=", encodeURIComponent(this.settings.button_text),
+			"&amp;buttonTextStyle=", encodeURIComponent(this.settings.button_text_style),
+			"&amp;buttonAction=", encodeURIComponent(this.settings.button_action),
+			"&amp;buttonDisabled=", encodeURIComponent(this.settings.button_disabled)
+		].join("");
 };
 
 // Public: getMovieElement retrieves the DOM reference to the Flash element added by SWFUpload
@@ -253,6 +312,8 @@ SWFUpload.prototype.destroy = function () {
 		delete this.customSettings;
 		delete this.eventQueue;
 		delete this.movieName;
+		
+		delete window[this.movieName];
 		
 		return true;
 	} catch (ex1) {
@@ -368,7 +429,7 @@ SWFUpload.prototype.callFlash = function (functionName, argumentArray) {
    ***************************** */
 
 // Public: selectFile causes a File Selection Dialog window to appear.  This
-// dialog only allows 1 file to be selected.
+// dialog only allows 1 file to be selected. WARNING: this function does not work in Flash Player 10
 SWFUpload.prototype.selectFile = function () {
 	this.callFlash("SelectFile");
 };
@@ -377,7 +438,7 @@ SWFUpload.prototype.selectFile = function () {
 // dialog allows the user to select any number of files
 // Flash Bug Warning: Flash limits the number of selectable files based on the combined length of the file names.
 // If the selection name length is too long the dialog will fail in an unpredictable manner.  There is no work-around
-// for this bug.
+// for this bug.  WARNING: this function does not work in Flash Player 10
 SWFUpload.prototype.selectFiles = function () {
 	this.callFlash("SelectFiles");
 };
@@ -519,6 +580,41 @@ SWFUpload.prototype.setDebugEnabled = function (debugEnabled) {
 	this.callFlash("SetDebugEnabled", [debugEnabled]);
 };
 
+// Public: setButtonImageURL loads a button image sprite
+SWFUpload.prototype.setButtonImageURL = function (buttonImageURL) {
+	this.settings.button_image_url = buttonImageURL;
+	this.callFlash("SetButtonImageURL", [buttonImageURL]);
+};
+
+// Public: setButtonDimensions resizes the Flash Movie and button
+SWFUpload.prototype.setButtonDimensions = function (width, height) {
+	this.settings.button_width = width;
+	this.settings.button_height = height;
+	
+	// FIXME -- resize the movie
+	
+	this.callFlash("SetButtonDimensions", [width, height]);
+};
+// Public: setButtonText Changes the text overlaid on the button
+SWFUpload.prototype.setButtonText = function (html) {
+	this.settings.button_text= html;
+	this.callFlash("SetButtonText", [html]);
+};
+// Public: setButtonTextStyle changes the CSS used to style the HTML/Text overlaid on the button
+SWFUpload.prototype.setButtonTextStyle = function (css) {
+	this.settings.button_text_style = css;
+	this.callFlash("SetButtonTextStyle", [css]);
+};
+// Public: setButtonDisabled disables/enables the button
+SWFUpload.prototype.setButtonDisabled = function (isDisabled) {
+	this.settings.button_disabled = isDisabled;
+	this.callFlash("SetButtonDisabled", [isDisabled]);
+};
+// Public: setButtonAction sets the action that occurs when the button is clicked
+SWFUpload.prototype.setButtonAction = function (buttonAction) {
+	this.settings.button_action = buttonAction;
+	this.callFlash("SetButtonAction", [buttonAction]);
+};
 
 /* *******************************
 	Flash Event Interfaces

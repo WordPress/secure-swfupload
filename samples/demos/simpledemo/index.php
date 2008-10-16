@@ -12,7 +12,7 @@
 
 		window.onload = function() {
 			var settings = {
-				flash_url : "../swfupload/swfupload_f9.swf",
+				flash_url : "../swfupload/swfupload.swf",
 				upload_url: "../simpledemo/upload.php",	// Relative to the SWF file
 				post_params: {"PHPSESSID" : "<?php echo session_id(); ?>"},
 				file_size_limit : "100 MB",
@@ -24,8 +24,16 @@
 					progressTarget : "fsUploadProgress",
 					cancelButtonId : "btnCancel"
 				},
-				debug: false,
+				debug: true,
 
+				// Button settings
+				button_image_url: "../simpledemo/images/TestImageNoText_65x29.png",	// Relative to the Flash file
+				button_width: "65",
+				button_height: "29",
+				button_placeholder_id: "spanButtonPlaceHolder",
+				button_text: '<span class="theFont">Hello</span>',
+				button_text_style: ".theFont { font-size: 16; }",
+				
 				// The event handler functions are defined in handlers.js
 				file_queued_handler : fileQueued,
 				file_queue_error_handler : fileQueueError,
@@ -58,6 +66,7 @@
 			</fieldset>
 		<div id="divStatus">0 Files Uploaded</div>
 			<div>
+				<span id="spanButtonPlaceHolder"></span>
 				<input type="button" value="Upload file (Max 100 MB)" onclick="swfu.selectFiles()" style="font-size: 8pt;" />
 				<input id="btnCancel" type="button" value="Cancel All Uploads" onclick="swfu.cancelQueue();" disabled="disabled" style="font-size: 8pt;" />
 			</div>

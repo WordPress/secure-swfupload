@@ -17,7 +17,7 @@
 			swfu = new SWFUpload({
 				upload_script : "../v102demo/upload.php",
 				target : "SWFUploadTarget",
-				flash_path : "../swfupload/swfupload_f8.swf",
+				flash_path : "../swfupload/swfupload_f9.swf",
 				allowed_filesize : 30720,	// 30 MB
 				allowed_filetypes : "*.*",
 				allowed_filetypes_description : "All files...",

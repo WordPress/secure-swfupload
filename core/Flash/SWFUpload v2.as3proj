@@ -5,9 +5,9 @@
     <movie disabled="False" />
     <movie input="" />
     <movie path="swfupload.swf" />
-    <movie fps="30" />
-    <movie width="1" />
-    <movie height="1" />
+    <movie fps="15" />
+    <movie width="300" />
+    <movie height="300" />
     <movie version="9" />
     <movie background="#FFFFFF" />
   </output>
