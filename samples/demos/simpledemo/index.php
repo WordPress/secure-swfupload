@@ -24,7 +24,7 @@
 					progressTarget : "fsUploadProgress",
 					cancelButtonId : "btnCancel"
 				},
-				debug: true,
+				debug: false,
 
 				// Button settings
 				button_image_url: "../simpledemo/images/TestImageNoText_65x29.png",	// Relative to the Flash file
@@ -33,6 +33,8 @@
 				button_placeholder_id: "spanButtonPlaceHolder",
 				button_text: '<span class="theFont">Hello</span>',
 				button_text_style: ".theFont { font-size: 16; }",
+				button_text_left_padding: 12,
+				button_text_top_padding: 3,
 				
 				// The event handler functions are defined in handlers.js
 				file_queued_handler : fileQueued,
@@ -53,7 +55,7 @@
 <body>
 <div id="header">
 	<h1 id="logo"><a href="../">SWFUpload</a></h1>
-	<div id="version">v2.1.0</div>
+	<div id="version">v2.2.0</div>
 </div>
 
 <div id="content">
@@ -67,7 +69,6 @@
 		<div id="divStatus">0 Files Uploaded</div>
 			<div>
 				<span id="spanButtonPlaceHolder"></span>
-				<input type="button" value="Upload file (Max 100 MB)" onclick="swfu.selectFiles()" style="font-size: 8pt;" />
 				<input id="btnCancel" type="button" value="Cancel All Uploads" onclick="swfu.cancelQueue();" disabled="disabled" style="font-size: 8pt;" />
 			</div>
 

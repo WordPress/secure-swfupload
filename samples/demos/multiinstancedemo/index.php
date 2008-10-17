@@ -14,7 +14,6 @@
 <title>SWFUpload Demos - Multi-Instance Demo</title>
 <link href="../css/default.css" rel="stylesheet" type="text/css" />
 <script type="text/javascript" src="../swfupload/swfupload.js"></script>
-<script type="text/javascript" src="js/swfupload.graceful_degradation.js"></script>
 <script type="text/javascript" src="js/swfupload.queue.js"></script>
 <script type="text/javascript" src="js/fileprogress.js"></script>
 <script type="text/javascript" src="js/handlers.js"></script>
@@ -45,11 +44,15 @@
 				upload_success_handler : uploadSuccess,
 				upload_complete_handler : uploadComplete,
 
-				// Flash Settings
-				flash_url : "../swfupload/swfupload_f8.swf",	// Relative to this file (or you can use absolute paths)
+				// Button Settings
+				button_image_url : "../multiinstancedemo/XPButtonUploadText_61x22.png",	// Relative to the SWF file
+				button_placeholder_id : "spanButtonPlaceholder1",
+				button_width: 61,
+				button_height: 22,
 				
-				swfupload_element_id : "flashUI1",		// Setting from graceful degradation plugin
-				degraded_element_id : "degradedUI1",	// Setting from graceful degradation plugin
+				// Flash Settings
+				flash_url : "../swfupload/swfupload.swf",
+				
 
 				custom_settings : {
 					progressTarget : "fsUploadProgress1",
@@ -83,8 +86,14 @@
 				upload_success_handler : uploadSuccess,
 				upload_complete_handler : uploadComplete,
 
+				// Button Settings
+				button_image_url : "../multiinstancedemo/XPButtonUploadText_61x22.png",	// Relative to the SWF file
+				button_placeholder_id : "spanButtonPlaceholder2",
+				button_width: 61,
+				button_height: 22,
+				
 				// Flash Settings
-				flash_url : "../swfupload/swfupload_f8.swf",	// Relative to this file (or you can use absolute paths)
+				flash_url : "../swfupload/swfupload.swf",
 
 				swfupload_element_id : "flashUI2",		// Setting from graceful degradation plugin
 				degraded_element_id : "degradedUI2",	// Setting from graceful degradation plugin
@@ -104,7 +113,7 @@
 <body>
 <div id="header">
 	<h1 id="logo"><a href="../">SWFUpload</a></h1>
-	<div id="version">v2.1.0</div>
+	<div id="version">v2.2.0</div>
 </div>
 <div id="content">
 	<h2>Multi-Instance Demo</h2>
@@ -113,46 +122,30 @@
 			It also demonstrates the use of the graceful degradation plugin and the queue plugin.</p>
 		<table>
 			<tr valign="top">
-				<td><div id="flashUI1" style="display: none;">
+				<td>
+					<div>
 						<fieldset class="flash" id="fsUploadProgress1">
 						<legend>Large File Upload Site</legend>
 						</fieldset>
 						<div>
-							<input type="button" value="Upload file (Max 100 MB)" onclick="upload1.selectFiles()" style="font-size: 8pt;" />
+							<span id="spanButtonPlaceholder1"></span>
 							<input id="btnCancel1" type="button" value="Cancel Uploads" onclick="cancelQueue(upload1);" disabled="disabled" style="font-size: 8pt;" />
 							<br />
 						</div>
 					</div>
-					<div id="degradedUI1">
-						<fieldset>
-						<legend>Large File Upload Site</legend>
-						<input type="file" name="anyfile1" />
-						(Any file, Max 100 MB)<br/>
-						</fieldset>
-						<div>
-							<input type="submit" value="Submit Files" />
-						</div>
-					</div></td>
-				<td><div id="flashUI2" style="display: none;">
+				</td>
+				<td>
+					<div>
 						<fieldset class="flash" id="fsUploadProgress2">
 						<legend>Small File Upload Site</legend>
 						</fieldset>
 						<div>
-							<input type="button" value="Upload file (Max 200KB)" onclick="upload2.selectFiles()" style="font-size: 8pt;" />
+							<span id="spanButtonPlaceholder2"></span>
 							<input id="btnCancel2" type="button" value="Cancel Uploads" onclick="cancelQueue(upload2);" disabled="disabled" style="font-size: 8pt;" />
 							<br />
 						</div>
 					</div>
-					<div id="degradedUI2">
-						<fieldset>
-						<legend>Small File Upload Site</legend>
-						<input type="file" name="anyfile2" />
-						(Any file, Max 200KB)<br/>
-						</fieldset>
-						<div>
-							<input type="submit" value="Submit Files" />
-						</div>
-					</div></td>
+				</td>
 			</tr>
 		</table>
 	</form>

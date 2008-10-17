@@ -154,7 +154,7 @@ function uploadSuccess(file, serverData) {
 function uploadComplete(file) {
 	try {
 		if (this.customSettings.upload_successful) {
-			document.getElementById("btnBrowse").disabled = "true";
+			this.setButtonDisabled(true);
 			uploadDone();
 		} else {
 			file.id = "singlefile";	// This makes it so FileProgress only makes a single UI element, instead of one for each file

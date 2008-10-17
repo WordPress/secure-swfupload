@@ -19,7 +19,7 @@
                 },
 
 				// File Upload Settings
-				file_size_limit : "2048",	// 2MB
+				file_size_limit : "2 MB",
 				file_types : "*.jpg",
 				file_types_description : "JPG Images",
 				file_upload_limit : "0",    // Zero means unlimited
@@ -34,8 +34,18 @@
 				upload_success_handler : uploadSuccess,
 				upload_complete_handler : uploadComplete,
 
+				// Button settings
+				button_image_url : "../applicationdemo.vb.net/images/XPButtonNoText_160x22.png",	// Relative to the SWF file
+				button_placeholder_id : "spanButtonPlaceholder",
+				button_width: 160,
+				button_height: 22,
+				button_text : '<span class="button">Select Images <span class="buttonSmall">(2 MB Max)</span></span>',
+				button_text_style : '.button { font-family: Helvetica, Arial, sans-serif; font-size: 14pt; } .buttonSmall { font-size: 10pt; }',
+				button_text_top_padding: 1,
+				button_text_left_padding: 5,
+
 				// Flash Settings
-				flash_url : "../swfupload/swfupload_f9.swf",	// Relative to this file
+				flash_url : "../swfupload/swfupload.swf",	// Relative to this file
 
 				custom_settings : {
 					upload_target : "divFileProgressContainer"
@@ -58,7 +68,7 @@
 		<h2>Application Demo (ASP.Net VB.Net 2.0)</h2>
 		<div id="swfu_container" style="margin: 0px 10px;">
 			<div>
-				<button id="btnBrowse" type="button" style="padding: 5px;" onclick="swfu.selectFiles(); this.blur();"><img src="images/page_white_add.png" style="padding-right: 3px; vertical-align: bottom;" alt="Add Icon" />Select Images <span style="font-size: 7pt;"></span></button>
+				<span id="spanButtonPlaceholder"></span>
 			</div>
 			<div id="divFileProgressContainer" style="height: 75px;"></div>
 			<div id="thumbnails"></div>

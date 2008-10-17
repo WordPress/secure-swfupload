@@ -1,17 +1,20 @@
 /**
- * SWFUpload v2.1.0 by Jacob Roberts, Feb 2008, http://www.swfupload.org, http://swfupload.googlecode.com, http://www.swfupload.org
- * -------- -------- -------- -------- -------- -------- -------- --------
- * SWFUpload is (c) 2006 Lars Huring, Olov Nilzén and Mammon Media and is released under the MIT License:
+ * SWFUpload: http://www.swfupload.org, http://swfupload.googlecode.com
+ *
+ * mmSWFUpload 1.0: Flash upload dialog - http://profandesign.se/swfupload/,  http://www.vinterwebb.se/
+ *
+ * SWFUpload is (c) 2006-2007 Lars Huring, Olov Nilzén and Mammon Media and is released under the MIT License:
  * http://www.opensource.org/licenses/mit-license.php
  *
- * See Changelog.txt for version history
+ * SWFUpload 2 is (c) 2007-2008 Jake Roberts and is released under the MIT License:
+ * http://www.opensource.org/licenses/mit-license.php
  *
  */
 
 
-/* *********** */
-/* Constructor */
-/* *********** */
+/* ******************* */
+/* Constructor & Init  */
+/* ******************* */
 
 var SWFUpload = function (settings) {
 	this.initSWFUpload(settings);
@@ -110,6 +113,8 @@ SWFUpload.prototype.initSettings = function () {
 	this.ensureDefault("button_height", 1);
 	this.ensureDefault("button_text", "");
 	this.ensureDefault("button_text_style", "color: #000000; font-size: 16pt;");
+	this.ensureDefault("button_text_top_padding", 0);
+	this.ensureDefault("button_text_left_padding", 0);
 	this.ensureDefault("button_action", SWFUpload.BUTTON_ACTION.SELECT_FILES);
 	this.ensureDefault("button_disabled", false);
 	this.ensureDefault("button_placeholder_id", null);
@@ -208,7 +213,7 @@ SWFUpload.prototype.replaceWithFlash = function () {
 // Private: getFlashHTML generates the object tag needed to embed the flash in to the document
 SWFUpload.prototype.getFlashHTML = function () {
 	// Flash Satay object syntax: http://www.alistapart.com/articles/flashsatay
-	return ['<object id="', this.movieName, '" type="application/x-shockwave-flash" data="', this.settings.flash_url, '" width="', this.settings.button_width, '" height="', this.settings.button_height, '">',
+	return ['<object id="', this.movieName, '" type="application/x-shockwave-flash" data="', this.settings.flash_url, '" width="', this.settings.button_width, '" height="', this.settings.button_height, ' class="swfupload" style="vertical-align: middle;">',
 				'<param name="movie" value="', this.settings.flash_url, '" />',
 				'<param name="bgcolor" value="', this.settings.flash_color, '" />',
 				'<param name="quality" value="high" />',
@@ -241,6 +246,8 @@ SWFUpload.prototype.getFlashVars = function () {
 			"&amp;buttonWidth=", encodeURIComponent(this.settings.button_width),
 			"&amp;buttonHeight=", encodeURIComponent(this.settings.button_height),
 			"&amp;buttonText=", encodeURIComponent(this.settings.button_text),
+			"&amp;buttonTextTopPadding=", encodeURIComponent(this.settings.button_text_top_padding),
+			"&amp;buttonTextLeftPadding=", encodeURIComponent(this.settings.button_text_left_padding),
 			"&amp;buttonTextStyle=", encodeURIComponent(this.settings.button_text_style),
 			"&amp;buttonAction=", encodeURIComponent(this.settings.button_action),
 			"&amp;buttonDisabled=", encodeURIComponent(this.settings.button_disabled)
@@ -264,7 +271,7 @@ SWFUpload.prototype.getMovieElement = function () {
 // Private: buildParamString takes the name/value pairs in the post_params setting object
 // and joins them up in to a string formatted "name=value&amp;name=value"
 SWFUpload.prototype.buildParamString = function () {
-	var postParams = this.settings.post_params;
+	var postParams = this.settings.post_params; 
 	var paramStringPairs = [];
 
 	if (typeof(postParams) === "object") {
@@ -293,11 +300,11 @@ SWFUpload.prototype.destroy = function () {
 		} catch (ex) {
 		}
 		
-		if (movieElement != undefined && movieElement.parentNode != undefined && typeof(movieElement.parentNode.removeChild) === "function") {
+		if (movieElement != undefined && movieElement.parentNode != undefined && typeof movieElement.parentNode.removeChild === "function") {
 			var container = movieElement.parentNode;
 			if (container != undefined) {
 				container.removeChild(movieElement);
-				if (container.parentNode != undefined && typeof(container.parentNode.removeChild) === "function") {
+				if (container.parentNode != undefined && typeof container.parentNode.removeChild === "function") {
 					container.parentNode.removeChild(container);
 				}
 			}
@@ -346,16 +353,16 @@ SWFUpload.prototype.displayDebugInfo = function () {
 			"\t", "debug:                  ", this.settings.debug.toString(), "\n",
 			"\t", "custom_settings:        ", this.settings.custom_settings.toString(), "\n",
 			"Event Handlers:\n",
-			"\t", "swfupload_loaded_handler assigned:  ", (typeof(this.settings.swfupload_loaded_handler) === "function").toString(), "\n",
-			"\t", "file_dialog_start_handler assigned: ", (typeof(this.settings.file_dialog_start_handler) === "function").toString(), "\n",
-			"\t", "file_queued_handler assigned:       ", (typeof(this.settings.file_queued_handler) === "function").toString(), "\n",
-			"\t", "file_queue_error_handler assigned:  ", (typeof(this.settings.file_queue_error_handler) === "function").toString(), "\n",
-			"\t", "upload_start_handler assigned:      ", (typeof(this.settings.upload_start_handler) === "function").toString(), "\n",
-			"\t", "upload_progress_handler assigned:   ", (typeof(this.settings.upload_progress_handler) === "function").toString(), "\n",
-			"\t", "upload_error_handler assigned:      ", (typeof(this.settings.upload_error_handler) === "function").toString(), "\n",
-			"\t", "upload_success_handler assigned:    ", (typeof(this.settings.upload_success_handler) === "function").toString(), "\n",
-			"\t", "upload_complete_handler assigned:   ", (typeof(this.settings.upload_complete_handler) === "function").toString(), "\n",
-			"\t", "debug_handler assigned:             ", (typeof(this.settings.debug_handler) === "function").toString(), "\n"
+			"\t", "swfupload_loaded_handler assigned:  ", (typeof this.settings.swfupload_loaded_handler === "function").toString(), "\n",
+			"\t", "file_dialog_start_handler assigned: ", (typeof this.settings.file_dialog_start_handler === "function").toString(), "\n",
+			"\t", "file_queued_handler assigned:       ", (typeof this.settings.file_queued_handler === "function").toString(), "\n",
+			"\t", "file_queue_error_handler assigned:  ", (typeof this.settings.file_queue_error_handler === "function").toString(), "\n",
+			"\t", "upload_start_handler assigned:      ", (typeof this.settings.upload_start_handler === "function").toString(), "\n",
+			"\t", "upload_progress_handler assigned:   ", (typeof this.settings.upload_progress_handler === "function").toString(), "\n",
+			"\t", "upload_error_handler assigned:      ", (typeof this.settings.upload_error_handler === "function").toString(), "\n",
+			"\t", "upload_success_handler assigned:    ", (typeof this.settings.upload_success_handler === "function").toString(), "\n",
+			"\t", "upload_complete_handler assigned:   ", (typeof this.settings.upload_complete_handler === "function").toString(), "\n",
+			"\t", "debug_handler assigned:             ", (typeof this.settings.debug_handler === "function").toString(), "\n"
 		].join("")
 	);
 };
@@ -393,7 +400,7 @@ SWFUpload.prototype.callFlash = function (functionName, argumentArray) {
 	var callFunction = function () {
 		var movieElement = self.getMovieElement();
 		var returnValue;
-		if (typeof(movieElement[functionName]) === "function") {
+		if (typeof movieElement[functionName] === "function") {
 			// We have to go through all this if/else stuff because the Flash functions don't have apply() and only accept the exact number of arguments.
 			if (argumentArray.length === 0) {
 				returnValue = movieElement[functionName]();
@@ -408,7 +415,7 @@ SWFUpload.prototype.callFlash = function (functionName, argumentArray) {
 			}
 			
 			// Unescape file post param values
-			if (returnValue != undefined && typeof(returnValue.post) === "object") {
+			if (returnValue != undefined && typeof returnValue.post === "object") {
 				returnValue = self.unescapeFilePostParams(returnValue);
 			}
 			
@@ -597,9 +604,16 @@ SWFUpload.prototype.setButtonDimensions = function (width, height) {
 };
 // Public: setButtonText Changes the text overlaid on the button
 SWFUpload.prototype.setButtonText = function (html) {
-	this.settings.button_text= html;
+	this.settings.button_text = html;
 	this.callFlash("SetButtonText", [html]);
 };
+// Public: setButtonTextPadding changes the top and left padding of the text overlay
+SWFUpload.prototype.setButtonTextStyle = function (left, top) {
+	this.settings.button_text_top_padding = top;
+	this.settings.button_text_left_padding = left;
+	this.callFlash("SetButtonTextPadding", [left, top]);
+};
+
 // Public: setButtonTextStyle changes the CSS used to style the HTML/Text overlaid on the button
 SWFUpload.prototype.setButtonTextStyle = function (css) {
 	this.settings.button_text_style = css;
@@ -639,7 +653,7 @@ SWFUpload.prototype.queueEvent = function (handlerName, argumentArray) {
 	}
 	
 	var self = this;
-	if (typeof(this.settings[handlerName]) === "function") {
+	if (typeof this.settings[handlerName] === "function") {
 		// Queue the event
 		this.eventQueue.push(function () {
 			this.settings[handlerName].apply(this, argumentArray);
@@ -666,7 +680,7 @@ SWFUpload.prototype.executeNextEvent = function () {
 	}
 };
 
-// Private: unescapeFileParams is part of a workaround for a flash bug where objects passed through ExternalInterfance cannot have
+// Private: unescapeFileParams is part of a workaround for a flash bug where objects passed through ExternalInterface cannot have
 // properties that contain characters that are not valid for JavaScript identifiers. To work around this
 // the Flash Component escapes the parameter names and we must unescape again before passing them along.
 SWFUpload.prototype.unescapeFilePostParams = function (file) {
@@ -680,7 +694,7 @@ SWFUpload.prototype.unescapeFilePostParams = function (file) {
 				uk = k;
 				var match;
 				while ((match = reg.exec(uk)) !== null) {
-					uk = uk.replace(match[0], String.fromCharCode(parseInt("0x"+match[1], 16)));
+					uk = uk.replace(match[0], String.fromCharCode(parseInt("0x" + match[1], 16)));
 				}
 				unescapedPost[uk] = file.post[k];
 			}
@@ -695,7 +709,7 @@ SWFUpload.prototype.unescapeFilePostParams = function (file) {
 SWFUpload.prototype.flashReady = function () {
 	// Check that the movie element is loaded correctly with its ExternalInterface methods defined
 	var movieElement = this.getMovieElement();
-	if (typeof(movieElement.StartUpload) !== "function") {
+	if (typeof movieElement.StartUpload !== "function") {
 		throw "ExternalInterface methods failed to initialize.";
 	}
 	
@@ -735,7 +749,7 @@ SWFUpload.prototype.uploadStart = function (file) {
 
 SWFUpload.prototype.returnUploadStart = function (file) {
 	var returnValue;
-	if (typeof(this.settings.upload_start_handler) === "function") {
+	if (typeof this.settings.upload_start_handler === "function") {
 		file = this.unescapeFilePostParams(file);
 		returnValue = this.settings.upload_start_handler.call(this, file);
 	} else if (this.settings.upload_start_handler != undefined) {
@@ -803,7 +817,7 @@ SWFUpload.prototype.debugMessage = function (message) {
 		var exceptionMessage, exceptionValues = [];
 
 		// Check for an exception object and print it nicely
-		if (typeof(message) === "object" && typeof(message.name) === "string" && typeof(message.message) === "string") {
+		if (typeof message === "object" && typeof message.name === "string" && typeof message.message === "string") {
 			for (var key in message) {
 				if (message.hasOwnProperty(key)) {
 					exceptionValues.push(key + ": " + message[key]);

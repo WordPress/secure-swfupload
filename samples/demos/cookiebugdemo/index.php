@@ -13,9 +13,15 @@
 
 	window.onload = function() {
 		var settings = {
-			flash_url : "../swfupload/swfupload_f9.swf",
+			flash_url : "../swfupload/swfupload.swf",
 			upload_url: "../cookiebugdemo/upload.php",	// Relative to the SWF file
 			file_size_limit : "1 MB",
+
+			// Button Settings
+			button_image_url : "../cookiebugdemo/XPButtonUploadText_61x22.png",	// Relative to the SWF file
+			button_placeholder_id : "spanButtonPlaceholder",
+			button_width: 61,
+			button_height: 22,
 
 			file_dialog_complete_handler : fileDialogComplete,
 			upload_success_handler : uploadSuccess
@@ -59,7 +65,7 @@
 <body>
 <div id="header">
 	<h1 id="logo"><a href="../">SWFUpload</a></h1>
-	<div id="version">v2.1.0</div>
+	<div id="version">v2.2.0</div>
 </div>
 
 <div id="content">
@@ -74,7 +80,7 @@
 				uploaded.  The cookies values will appear below and, due to the Flash Cookie Bug, will also appear
 				in IE. </p>
 			<p>
-				<input type="button" value="Upload file (Max 1 MB)" onclick="swfu.selectFiles()" style="font-size: 8pt;" />
+				<span id="spanButtonPlaceholder"></span>
 			</p>
 			<p id="divStatus">0 Files Uploaded</p>
 		</div>

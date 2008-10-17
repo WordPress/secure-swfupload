@@ -13,7 +13,7 @@ var swfu;
 
 SWFUpload.onload = function () {
 	var settings = {
-		flash_url : "../swfupload/swfupload_f9.swf",
+		flash_url : "../swfupload/swfupload.swf",
 		upload_url: "../simpledemo/upload.php",	// Relative to the SWF file
 		post_params: {
 			"PHPSESSID" : "NONE",
@@ -30,6 +30,12 @@ SWFUpload.onload = function () {
 			cancelButtonId : "btnCancel"
 		},
 		debug: false,
+
+		// Button Settings
+		button_image_url : "../swfobjectdemo/XPButtonUploadText_61x22.png",	// Relative to the SWF file
+		button_placeholder_id : "spanButtonPlaceholder",
+		button_width: 61,
+		button_height: 22,
 
 		// The event handler functions are defined in handlers.js
 		swfupload_loaded_handler : swfUploadLoaded,
@@ -57,7 +63,7 @@ SWFUpload.onload = function () {
 <body>
 <div id="header">
 	<h1 id="logo"><a href="../">SWFUpload</a></h1>
-	<div id="version">v2.1.0</div>
+	<div id="version">v2.2.0</div>
 </div>
 
 <div id="content">
@@ -80,7 +86,7 @@ SWFUpload.onload = function () {
 			</fieldset>
 			<p id="divStatus">0 Files Uploaded</p>
 			<p>
-				<input id="btnBrowse" type="button" value="Upload file (Max 100 MB)" style="font-size: 8pt;" />
+				<span id="spanButtonPlaceholder"></span>
 				<input id="btnCancel" type="button" value="Cancel All Uploads" disabled="disabled" style="font-size: 8pt;" />
 				<br />
 			</p>
@@ -92,7 +98,7 @@ SWFUpload.onload = function () {
 			SWFUpload is loading. Please wait a moment...
 		</div>
 		<div id="divLongLoading" class="content" style="background-color: #FFFF66; border-top: solid 4px #FF9966; border-bottom: solid 4px #FF9966; margin: 10px 25px; padding: 10px 15px; display: none;">
-			SWFUpload is taking a long time to load or the load has failed.  Please make sure JavaScript is enabled and that a working version of the Adobe Flash Player is installed.
+			SWFUpload is taking a long time to load or the load has failed.  Please make sure that the Flash Plugin is enabled and that a working version of the Adobe Flash Player is installed.
 		</div>
 		<div id="divAlternateContent" class="content" style="background-color: #FFFF66; border-top: solid 4px #FF9966; border-bottom: solid 4px #FF9966; margin: 10px 25px; padding: 10px 15px; display: none;">
 			We're sorry.  SWFUpload could not load.  You may need to install or upgrade Flash Player.

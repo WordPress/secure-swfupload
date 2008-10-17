@@ -4,8 +4,10 @@
  * + Adding Flash Player 10 Support
  *   = Added setting for defining a button image
  *   = Added setting for defining button text
- *   = Added setting for defining button width & height
+ *   = Added setting for defining button width, height and padding
  *   = Added setting for defining what element the Flash Movie should replace.
+ * = Fixed issue with ExternalInterface string escaping
+ * - Dropped Flash Player 8 support
 
  * --------- Version 2.1.0 -----------
  * = Fixed GET values so they are escaped properly

@@ -44,7 +44,7 @@ function swfUploadLoaded() {
 	document.getElementById("divLongLoading").style.display = "none";
 	document.getElementById("divAlternateContent").style.display = "none";
 	
-	document.getElementById("btnBrowse").onclick = function () { self.selectFiles(); };
+	//document.getElementById("btnBrowse").onclick = function () { self.selectFiles(); };
 	document.getElementById("btnCancel").onclick = function () { self.cancelQueue(); };
 }
    

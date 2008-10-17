@@ -64,12 +64,20 @@ function uploadProgress(file, bytesLoaded) {
 
 function uploadSuccess(file, serverData) {
 	try {
-		addImage("thumbnail.php?id=" + serverData);
-
 		var progress = new FileProgress(file,  this.customSettings.upload_target);
 
-		progress.setStatus("Thumbnail Created.");
-		progress.toggleCancel(false);
+		if (serverData.substring(0, 7) === "FILEID:") {
+			addImage("thumbnail.php?id=" + serverData.substring(7));
+
+			progress.setStatus("Thumbnail Created.");
+			progress.toggleCancel(false);
+		} else {
+			addImage("images/error.gif");
+			progress.setStatus("Error.");
+			progress.toggleCancel(false);
+			alert(serverData);
+
+		}
 
 
 	} catch (ex) {

@@ -14,11 +14,11 @@
 		window.onload = function () {
 			swfu = new SWFUpload({
 				// Backend Settings
-				upload_url: "../applicationdemo/upload.php",	// Relative to the SWF file
+				upload_url: "../applicationdemo/upload.php",	// Relative to the SWF file or absolute
 				post_params: {"PHPSESSID": "<?php echo session_id(); ?>"},
 
 				// File Upload Settings
-				file_size_limit : "2048",	// 2MB
+				file_size_limit : "2 MB",	// 2MB
 				file_types : "*.jpg",
 				file_types_description : "JPG Images",
 				file_upload_limit : "0",
@@ -33,8 +33,18 @@
 				upload_success_handler : uploadSuccess,
 				upload_complete_handler : uploadComplete,
 
+				// Button Settings
+				button_image_url : "../applicationdemo/images/XPButtonNoText_160x22.png",	// Relative to the SWF file
+				button_placeholder_id : "spanButtonPlaceholder",
+				button_width: 160,
+				button_height: 22,
+				button_text : '<span class="button">Select Images <span class="buttonSmall">(2 MB Max)</span></span>',
+				button_text_style : '.button { font-family: Helvetica, Arial, sans-serif; font-size: 14pt; } .buttonSmall { font-size: 10pt; }',
+				button_text_top_padding: 1,
+				button_text_left_padding: 5,
+				
 				// Flash Settings
-				flash_url : "../swfupload/swfupload_f9.swf",	// Relative to this file
+				flash_url : "../swfupload/swfupload.swf",
 
 				custom_settings : {
 					upload_target : "divFileProgressContainer"
@@ -49,7 +59,7 @@
 <body>
 <div id="header">
 	<h1 id="logo"><a href="../">SWFUpload</a></h1>
-	<div id="version">v2.1.0</div>
+	<div id="version">v2.2.0</div>
 </div>
 <div id="content">
 	<h2>Application Demo</h2>
@@ -66,7 +76,7 @@
 	} else {
 	?>
 	<form>
-		<button id="btnBrowse" type="button" style="padding: 5px;" onclick="swfu.selectFiles(); this.blur();"><img src="images/page_white_add.png" style="padding-right: 3px; vertical-align: bottom;">Select Images <span style="font-size: 7pt;">(2 MB Max)</span></button>
+		<span id="spanButtonPlaceholder"></span>
 	</form>
 	<?php
 	}

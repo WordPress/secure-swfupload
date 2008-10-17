@@ -15,6 +15,7 @@ package {
 	import flash.external.ExternalInterface;
 	import flash.system.Security;
 	import flash.text.AntiAliasType;
+	import flash.text.GridFitType;
 	import flash.text.StaticText;
 	import flash.text.StyleSheet;
 	import flash.text.TextDisplayMode;
@@ -34,7 +35,7 @@ package {
 			var SWFUpload:SWFUpload = new SWFUpload();
 		}
 		
-		private const build_number:String = "SWFUPLOAD 2.2.0 Alpha 2008-10-16";
+		private const build_number:String = "SWFUPLOAD 2.2.0 Alpha 2008-10-17";
 		
 		// State tracking variables
 		private var fileBrowserMany:FileReferenceList = new FileReferenceList();
@@ -90,6 +91,8 @@ package {
 		private var buttonHeight:Number;
 		private var buttonText:String;
 		private var buttonTextStyle:String;
+		private var buttonTextTopPadding:Number;
+		private var buttonTextLeftPadding:Number;
 		private var buttonAction:Number;
 		private var buttonStateOver:Boolean;
 		private var buttonStateMouseDown:Boolean;
@@ -185,10 +188,10 @@ package {
 			this.buttonTextField = new TextField();
 			this.buttonTextField.type = TextFieldType.DYNAMIC;
 			this.buttonTextField.antiAliasType = AntiAliasType.ADVANCED;
-			this.buttonTextField.autoSize = TextFieldAutoSize.CENTER;
+			this.buttonTextField.autoSize = TextFieldAutoSize.NONE;
 			this.buttonTextField.cacheAsBitmap = true;
 			this.buttonTextField.multiline = true;
-			this.buttonTextField.wordWrap = true;
+			this.buttonTextField.wordWrap = false;
 			this.buttonTextField.tabEnabled = false;
 			this.buttonTextField.background = false;
 			this.buttonTextField.border = false;
@@ -307,6 +310,18 @@ package {
 			}
 			
 			try {
+				this.SetButtonTextPadding(Number(root.loaderInfo.parameters.buttonTextLeftPadding), Number(root.loaderInfo.parameters.buttonTextTopPadding));
+			} catch (ex:Object) {
+				this.SetButtonTextPadding(0, 0);
+			}
+
+			try {
+				this.SetButtonTextStyle(String(root.loaderInfo.parameters.buttonTextStyle));
+			} catch (ex:Object) {
+				this.SetButtonTextStyle("");
+			}
+
+			try {
 				this.SetButtonTextStyle(String(root.loaderInfo.parameters.buttonTextStyle));
 			} catch (ex:Object) {
 				this.SetButtonTextStyle("");
@@ -354,6 +369,7 @@ package {
 				ExternalInterface.addCallback("SetButtonImageURL", this.SetButtonImageURL);
 				ExternalInterface.addCallback("SetButtonDimensions", this.SetButtonDimensions);
 				ExternalInterface.addCallback("SetButtonText", this.SetButtonText);
+				ExternalInterface.addCallback("SetButtonTextPadding", this.SetButtonTextPadding);
 				ExternalInterface.addCallback("SetButtonTextStyle", this.SetButtonTextStyle);
 				ExternalInterface.addCallback("SetButtonAction", this.SetButtonAction);
 				ExternalInterface.addCallback("SetButtonDisabled", this.SetButtonDisabled);
@@ -878,7 +894,9 @@ package {
 				this.buttonHeight = height;
 			}
 			
-			this.UpdateTextDimensions();
+			this.buttonTextField.width = this.buttonWidth;
+			this.buttonTextField.height = this.buttonHeight;
+			
 			this.UpdateButtonState();
 		}
 		
@@ -895,31 +913,16 @@ package {
 			style.parseCSS(this.buttonTextStyle);
 			this.buttonTextField.styleSheet = style;
 			this.buttonTextField.htmlText = this.buttonText;
-			this.UpdateTextDimensions();			
+		}
+
+		private function SetButtonTextPadding(left:Number, top:Number):void {
+				this.buttonTextField.x = this.buttonTextLeftPadding = left;
+				this.buttonTextField.y = this.buttonTextTopPadding = top;
 		}
 		
 		private function SetButtonDisabled(disabled:Boolean):void {
 			this.buttonStateDisabled = disabled;
 			this.UpdateButtonState();
-		}
-		
-		private function UpdateTextDimensions():void {
-			var textWidth:Number = this.buttonTextField.textWidth;
-			var textHeight:Number = this.buttonTextField.textHeight;
-			
-			var leftOverWidth:Number = this.buttonWidth - textWidth;
-			var leftOverHeight:Number = this.buttonHeight - textHeight;
-			
-			if (leftOverWidth > 0) {
-				this.buttonTextField.x = Math.floor(leftOverWidth / 2);
-				this.buttonTextField.y = Math.floor(leftOverHeight / 2);
-			} else {
-				this.buttonTextField.x = 0;
-				this.buttonTextField.y = 0;
-			}
-			
-			this.buttonTextField.width = this.buttonWidth;
-			this.buttonTextField.height = this.buttonHeight;
 		}
 		
 		private function SetButtonAction(button_action:Number):void {

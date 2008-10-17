@@ -1,5 +1,9 @@
  * SWFUpload Demos, May 2008, www.swfupload.org, swfupload.googlecode.com
 
+ * --------- Version 2.2.0 -----------
+ * + Updated all demos for Flash Player 10
+ * + Added new SWFUpload functionality to Features Demo
+
  * --------- Version 2.1.0 -----------
  * + Features Demo uses new destroy function
  * + Split Core and Demo
