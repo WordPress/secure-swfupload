@@ -104,8 +104,8 @@ SWFUpload.prototype.initSettings = function () {
 	this.ensureDefault("file_queue_limit", 0);
 
 	// Flash Settings
-	this.ensureDefault("flash_url", "swfupload_f9.swf");
-	this.ensureDefault("flash_color", "#FFFFFF");
+	this.ensureDefault("flash_url", "swfupload.swf");
+	this.ensureDefault("prevent_swf_caching", false);
 
 	// Button Settings
 	this.ensureDefault("button_image_url", 0);
@@ -212,10 +212,11 @@ SWFUpload.prototype.replaceWithFlash = function () {
 
 // Private: getFlashHTML generates the object tag needed to embed the flash in to the document
 SWFUpload.prototype.getFlashHTML = function () {
+	var flash_url = this.settings.flash_url + (this.setting.prevent_swf_caching ? ("?swfuploadrnd=" + Math.random() * 999999999) : "");
+	
 	// Flash Satay object syntax: http://www.alistapart.com/articles/flashsatay
-	return ['<object id="', this.movieName, '" type="application/x-shockwave-flash" data="', this.settings.flash_url, '" width="', this.settings.button_width, '" height="', this.settings.button_height, ' class="swfupload" style="vertical-align: middle;">',
+	return ['<object id="', this.movieName, '" type="application/x-shockwave-flash" data="', flash_url, '" width="', this.settings.button_width, '" height="', this.settings.button_height, ' class="swfupload">',
 				'<param name="movie" value="', this.settings.flash_url, '" />',
-				'<param name="bgcolor" value="', this.settings.flash_color, '" />',
 				'<param name="quality" value="high" />',
 				'<param name="menu" value="false" />',
 				'<param name="allowScriptAccess" value="always" />',
@@ -339,19 +340,32 @@ SWFUpload.prototype.displayDebugInfo = function () {
 			"Version: ", SWFUpload.version, "\n",
 			"Movie Name: ", this.movieName, "\n",
 			"Settings:\n",
-			"\t", "upload_url:             ", this.settings.upload_url, "\n",
-			"\t", "use_query_string:       ", this.settings.use_query_string.toString(), "\n",
-			"\t", "file_post_name:         ", this.settings.file_post_name, "\n",
-			"\t", "post_params:            ", this.settings.post_params.toString(), "\n",
-			"\t", "file_types:             ", this.settings.file_types, "\n",
-			"\t", "file_types_description: ", this.settings.file_types_description, "\n",
-			"\t", "file_size_limit:        ", this.settings.file_size_limit, "\n",
-			"\t", "file_upload_limit:      ", this.settings.file_upload_limit, "\n",
-			"\t", "file_queue_limit:       ", this.settings.file_queue_limit, "\n",
-			"\t", "flash_url:              ", this.settings.flash_url, "\n",
-			"\t", "flash_color:            ", this.settings.flash_color, "\n",
-			"\t", "debug:                  ", this.settings.debug.toString(), "\n",
-			"\t", "custom_settings:        ", this.settings.custom_settings.toString(), "\n",
+			"\t", "upload_url:               ", this.settings.upload_url, "\n",
+			"\t", "flash_url:                ", this.settings.flash_url, "\n",
+			"\t", "use_query_string:         ", this.settings.use_query_string.toString(), "\n",
+			"\t", "file_post_name:           ", this.settings.file_post_name, "\n",
+			"\t", "post_params:              ", this.settings.post_params.toString(), "\n",
+			"\t", "file_types:               ", this.settings.file_types, "\n",
+			"\t", "file_types_description:   ", this.settings.file_types_description, "\n",
+			"\t", "file_size_limit:          ", this.settings.file_size_limit, "\n",
+			"\t", "file_upload_limit:        ", this.settings.file_upload_limit, "\n",
+			"\t", "file_queue_limit:         ", this.settings.file_queue_limit, "\n",
+			"\t", "debug:                    ", this.settings.debug.toString(), "\n",
+
+			"\t", "prevent_swf_caching:      ", this.settings.prevent_swf_caching.toString(), "\n",
+
+			"\t", "button_placeholder_id:    ", this.settings.button_placeholder_id.toString(), "\n",
+			"\t", "button_image_url:         ", this.settings.button_image_url.toString(), "\n",
+			"\t", "button_width:             ", this.settings.button_width.toString(), "\n",
+			"\t", "button_height:            ", this.settings.button_height.toString(), "\n",
+			"\t", "button_text:              ", this.settings.button_text.toString(), "\n",
+			"\t", "button_text_style:        ", this.settings.button_text_style.toString(), "\n",
+			"\t", "button_text_top_padding:  ", this.settings.button_text_top_padding.toString(), "\n",
+			"\t", "button_text_left_padding: ", this.settings.button_text_left_padding.toString(), "\n",
+			"\t", "button_action:            ", this.settings.button_action.toString(), "\n",
+			"\t", "button_disabled:          ", this.settings.button_disabled.toString(), "\n",
+
+			"\t", "custom_settings:          ", this.settings.custom_settings.toString(), "\n",
 			"Event Handlers:\n",
 			"\t", "swfupload_loaded_handler assigned:  ", (typeof this.settings.swfupload_loaded_handler === "function").toString(), "\n",
 			"\t", "file_dialog_start_handler assigned: ", (typeof this.settings.file_dialog_start_handler === "function").toString(), "\n",
@@ -598,7 +612,11 @@ SWFUpload.prototype.setButtonDimensions = function (width, height) {
 	this.settings.button_width = width;
 	this.settings.button_height = height;
 	
-	// FIXME -- resize the movie
+	var movie = this.getMovieElement();
+	if (movie != undefined) {
+		movie.style.width = width + "px";
+		movie.style.height = (Math.floor(height / 4)) + "px";
+	}
 	
 	this.callFlash("SetButtonDimensions", [width, height]);
 };
@@ -608,7 +626,7 @@ SWFUpload.prototype.setButtonText = function (html) {
 	this.callFlash("SetButtonText", [html]);
 };
 // Public: setButtonTextPadding changes the top and left padding of the text overlay
-SWFUpload.prototype.setButtonTextStyle = function (left, top) {
+SWFUpload.prototype.setButtonTextPadding = function (left, top) {
 	this.settings.button_text_top_padding = top;
 	this.settings.button_text_left_padding = left;
 	this.callFlash("SetButtonTextPadding", [left, top]);
