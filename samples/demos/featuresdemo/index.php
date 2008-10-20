@@ -20,7 +20,7 @@
 			suo = new SWFUpload({
 				// Backend Settings
 				upload_url: "../featuresdemo/upload.php?get_name=get_value",	// I can pass query strings here if I want
-				use_query_string : false,
+
 				post_params: { "post_name1": "post_value1", "post_name2": "post_value2" }, 	// Here are some POST values to send. These can be changed dynamically
 				file_post_name: "Filedata",	// This is the "name" of the file item that the server-side script will receive. Setting this doesn't work in the Linux Flash Player
 				requeue_on_error: false,
@@ -31,6 +31,16 @@
 				file_types_description : "All Files",
 				file_upload_limit : "10",
 
+				button_image_url : "../featuresdemo/images/button_270x22.png",
+				button_width : 270,
+				button_height : 22,
+				button_action : SWFUpload.BUTTON_ACTION.SELECT_FILES,
+				button_placeholder_id : "spanButtonPlaceholder",
+				button_text : '<span class="btnText">Select Files...</span>',
+				button_text_style : ".btnText { font-size: 10; font-weight: bold; font-family: MS Shell Dlg; }",
+				button_text_top_padding : 3,
+				button_text_left_padding : 100,
+				
 				// Event Handler Settings
 				swfupload_loaded_handler : FeaturesDemoHandlers.swfUploadLoaded,
 				file_dialog_start_handler : FeaturesDemoHandlers.fileDialogStart,
@@ -46,7 +56,7 @@
 				debug_handler : FeaturesDemoHandlers.debug,
 				
 				// Flash Settings
-				flash_url : "../swfupload/swfupload_f9.swf",	// Relative to this file
+				flash_url : "../swfupload/swfupload.swf",	// Relative to this file
 
 				// Debug Settings
 				debug: true		// For the purposes of this demo I wan't debug info shown
@@ -83,18 +93,7 @@
 					<div>
 						<table class="btn">
 							<tr>
-								<td class="btn-left"></td>
-								<td class="btn-center"><button id="btnBrowseSingle" type="button" class="action">Select Single File...</button></td>
-								<td class="btn-right"></td>
-							</tr>
-						</table>
-					</div>
-					<div>
-						<table class="btn">
-							<tr>
-								<td class="btn-left"></td>
-								<td class="btn-center"><button id="btnBrowse" type="button" class="action">Select Files...</button></td>
-								<td class="btn-right"></td>
+								<td colspan="3"><span id="spanButtonPlaceholder"></span></td>
 							</tr>
 						</table>
 					</div>
@@ -125,7 +124,24 @@
 							</tr>
 						</table>
 					</div>
-					</fieldset></td>
+					</fieldset>
+					<fieldset id="fsStaticSettings">
+					<legend>Static Settings</legend>
+					<div>
+						<div class="checkbox">
+							<input id="cbPreventSWFCaching" type="checkbox" />
+							<label for="cbPreventSWFCaching">prevent_swf_caching</label>
+						</div>
+						<table class="btn">
+							<tr>
+								<td class="btn-left"></td>
+								<td class="btn-center"><button id="btnReloadSWFUpload" type="button">Reload SWFUpload</button></td>
+								<td class="btn-right"></td>
+							</tr>
+						</table>
+					</div>
+					</fieldset>
+				</td>
 				<td style="width: 316px;"><fieldset>
 					<legend>Post Params</legend>
 					<div>
@@ -190,50 +206,100 @@
 						<label for="txtFlashHTML">Flash HTML</label>
 						<textarea id="txtFlashHTML" wrap="soft" style="height: 100px;"></textarea>
 					</div>
-					</fieldset></td>
+					</fieldset>
+				</td>
 				<td style="width: 316px;"><fieldset>
 					<legend>Dynamic Settings</legend>
 					<div id="divDynamicSettingForm">
-						<div>
-							<label for="txtUploadTarget">upload_url:</label>
-							<input id="txtUploadTarget" type="text" class="textbox" />
-						</div>
-						<div>
-							<label for="txtFilePostName">file_post_name</label>
-							<input id="txtFilePostName" type="text" class="textbox" />
-						</div>
-						<div>
-							<label for="txtFileTypes">file_types</label>
-							<input id="txtFileTypes" type="text" class="textbox" />
-						</div>
-						<div>
-							<label for="txtFileTypesDescription">file_types_description</label>
-							<input id="txtFileTypesDescription" type="text" class="textbox" />
-						</div>
-						<div>
-							<label for="txtFileSizeLimit">file_size_limit</label>
-							<input id="txtFileSizeLimit" type="text" class="textbox" />
-						</div>
-						<div>
-							<label for="txtFileUploadLimit">file_upload_limit</label>
-							<input id="txtFileUploadLimit" type="text" class="textbox" />
-						</div>
-						<div>
-							<label for="txtFileQueueLimit">file_queue_limit</label>
-							<input id="txtFileQueueLimit" type="text" class="textbox" />
-						</div>
-						<div class="checkbox">
-							<input id="cbUseQueryString" type="checkbox" />
-							<label for="cbUseQueryString">use_query_string</label>
-						</div>
-						<div class="checkbox">
-							<input id="cbRequeueOnError" type="checkbox" />
-							<label for="cbRequeueOnError">requeue_on_error</label>
-						</div>
-						<div class="checkbox">
-							<input id="cbDebug" type="checkbox" />
-							<label for="cbDebug">debug</label>
-						</div>
+						<table>
+							<tr>
+								<td>
+									<div>
+										<label for="txtUploadTarget">upload_url</label>
+										<input id="txtUploadTarget" type="text" class="textbox" />
+									</div>
+									<div>
+										<label for="txtFilePostName">file_post_name</label>
+										<input id="txtFilePostName" type="text" class="textbox" />
+									</div>
+									<div>
+										<label for="txtFileTypes">file_types</label>
+										<input id="txtFileTypes" type="text" class="textbox" />
+									</div>
+									<div>
+										<label for="txtFileTypesDescription">file_types_description</label>
+										<input id="txtFileTypesDescription" type="text" class="textbox" />
+									</div>
+									<div>
+										<label for="txtFileSizeLimit">file_size_limit</label>
+										<input id="txtFileSizeLimit" type="text" class="textbox" />
+									</div>
+									<div>
+										<label for="txtFileUploadLimit">file_upload_limit</label>
+										<input id="txtFileUploadLimit" type="text" class="textbox" />
+									</div>
+									<div>
+										<label for="txtFileQueueLimit">file_queue_limit</label>
+										<input id="txtFileQueueLimit" type="text" class="textbox" />
+									</div>
+									<div class="checkbox">
+										<input id="cbUseQueryString" type="checkbox" />
+										<label for="cbUseQueryString">use_query_string</label>
+									</div>
+									<div class="checkbox">
+										<input id="cbRequeueOnError" type="checkbox" />
+										<label for="cbRequeueOnError">requeue_on_error</label>
+									</div>
+									<div class="checkbox">
+										<input id="cbDebug" type="checkbox" />
+										<label for="cbDebug">debug</label>
+									</div>
+								</td>
+								<td>
+									<div class="checkbox">
+										<label>button_action</label>
+										<div style="margin-left: 10px;">
+										<input id="rbButtonActionSelectFile" type="radio" name="button_action" /> Select File<br />
+										<input id="rbButtonActionSelectFiles" type="radio" name="button_action" /> Select Files<br />
+										<input id="rbButtonActionStartUpload" type="radio" name="button_action" /> Start Upload<br />
+										</div>
+									</div>
+									<div>
+										<label for="txtButtonImageUrl">button_image_url</label>
+										<input id="txtButtonImageUrl" type="text" class="textbox" />
+									</div>
+									<div>
+										<label for="txtButtonText">button_text</label>
+										<input id="txtButtonText" type="text" class="textbox" />
+									</div>
+									<div>
+										<label for="txtButtonWidth">button_width</label>
+										<input id="txtButtonWidth" type="text" class="textbox" />
+									</div>
+									<div>
+										<label for="txtButtonHeight">button_height</label>
+										<input id="txtButtonHeight" type="text" class="textbox" />
+									</div>
+									<div>
+										<label for="txtButtonTextStyle">button_text_style</label>
+										<input id="txtButtonTextStyle" type="text" class="textbox" />
+									</div>
+									<div>
+										<label for="txtButtonTextLeftPadding">button_text_left_padding</label>
+										<input id="txtButtonTextLeftPadding" type="text" class="textbox" />
+									</div>
+									<div>
+										<label for="txtButtonTextTopPadding">button_text_top_padding</label>
+										<input id="txtButtonTextTopPadding" type="text" class="textbox" />
+									</div>
+									<div class="checkbox">
+										<input id="cbButtonDisabled" type="checkbox" />
+										<label for="cbButtonDisabled">button_disabled</label>
+									</div>
+								</td>
+							</tr>
+							
+						</table>
 					</div>
 					<div>
 						<table class="btn">
@@ -245,34 +311,7 @@
 						</table>
 					</div>
 					</fieldset>
-					<fieldset id="fsStaticSettings">
-					<legend>Static Settings</legend>
-					<div>
-						<label>flash_url</label>
-						<input type="radio" name="flash_url" id="rbFlash8" style="width: auto; vertical-align: middle;" />
-						<label style="float: none; width: auto; display: inline;" for="rbFlash8">SWFUpload FP8</label>
-						<br />
-					</div>
-					<div>
-						<label for="txtFlashURL"></label>
-						<input type="radio" name="flash_url" id="rbFlash9" style="width: auto; vertical-align: middle;" />
-						<label style="float: none; width: auto; display: inline;" for="rbFlash9">SWFUpload FP9</label>
-						<br />
-					</div>
-					<div>
-						<label for="txtFlashColor">flash_color</label>
-						<input id="txtFlashColor" type="text" class="textbox" />
-					</div>
-					<div>
-						<table class="btn">
-							<tr>
-								<td class="btn-left"></td>
-								<td class="btn-center"><button id="btnReloadSWFUpload" type="button">Reload SWFUpload</button></td>
-								<td class="btn-right"></td>
-							</tr>
-						</table>
-					</div>
-					</fieldset></td>
+				</td>
 			</tr>
 			<tr>
 				<td colspan="3"><fieldset>

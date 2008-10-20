@@ -213,7 +213,7 @@ SWFUpload.prototype.replaceWithFlash = function () {
 
 // Private: getFlashHTML generates the object tag needed to embed the flash in to the document
 SWFUpload.prototype.getFlashHTML = function () {
-	var flash_url = this.settings.flash_url + (this.settings.prevent_swf_caching ? ("?swfuploadrnd=" + Math.random() * 999999999) : "");
+	var flash_url = this.settings.flash_url + (this.settings.prevent_swf_caching ? ("?swfuploadrnd=" + Math.floor(Math.random() * 999999999)) : "");
 	
 	// Flash Satay object syntax: http://www.alistapart.com/articles/flashsatay
 	return ['<object id="', this.movieName, '" type="application/x-shockwave-flash" data="', flash_url, '" width="', this.settings.button_width, '" height="', this.settings.button_height, '" class="swfupload">',
@@ -616,7 +616,7 @@ SWFUpload.prototype.setButtonDimensions = function (width, height) {
 	var movie = this.getMovieElement();
 	if (movie != undefined) {
 		movie.style.width = width + "px";
-		movie.style.height = (Math.floor(height / 4)) + "px";
+		movie.style.height = height + "px";
 	}
 	
 	this.callFlash("SetButtonDimensions", [width, height]);

@@ -6,21 +6,6 @@ var FeaturesDemo = {
 		FeaturesDemo.cacheFields();
 		FeaturesDemo.loadAll();
 
-		FeaturesDemo.btnBrowse.onclick = function () {
-			try {
-				FeaturesDemo.selectFiles();
-			} catch (ex) {
-			}
-			return false;
-		};
-		
-		FeaturesDemo.btnBrowseSingle.onclick = function () {
-			try {
-				FeaturesDemo.selectFile();
-			} catch (ex) {
-			}
-			return false;
-		};
 		FeaturesDemo.btnStartSelectedFile.onclick = function () {
 			try {
 				FeaturesDemo.startSelectedFile();
@@ -84,7 +69,7 @@ var FeaturesDemo = {
 			}
 			return false;
 		};
-
+		
 		document.getElementById("spanLoadStatus").innerHTML = "loaded";
 	},
 	cacheFields: function () {
@@ -92,8 +77,6 @@ var FeaturesDemo = {
 			return;
 		}
 		
-		FeaturesDemo.btnBrowse = document.getElementById("btnBrowse");
-		FeaturesDemo.btnBrowseSingle = document.getElementById("btnBrowseSingle");
 		FeaturesDemo.selQueue = document.getElementById("selQueue");
 		FeaturesDemo.btnStartSelectedFile = document.getElementById("btnStartSelectedFile");
 		FeaturesDemo.btnStopUpload = document.getElementById("btnStopUpload");
@@ -118,11 +101,9 @@ var FeaturesDemo = {
 		FeaturesDemo.txtFileSizeLimit = document.getElementById("txtFileSizeLimit");
 		FeaturesDemo.txtFileUploadLimit = document.getElementById("txtFileUploadLimit");
 		FeaturesDemo.txtFileQueueLimit = document.getElementById("txtFileQueueLimit");
-		FeaturesDemo.rbFlash8 = document.getElementById("rbFlash8");
-		FeaturesDemo.rbFlash9 = document.getElementById("rbFlash9");
-		FeaturesDemo.txtFlashColor = document.getElementById("txtFlashColor");
 		FeaturesDemo.cbUseQueryString = document.getElementById("cbUseQueryString");
 		FeaturesDemo.cbRequeueOnError = document.getElementById("cbRequeueOnError");
+		FeaturesDemo.cbPreventSWFCaching = document.getElementById("cbPreventSWFCaching");
 		FeaturesDemo.cbDebug = document.getElementById("cbDebug");
 		FeaturesDemo.btnReloadSWFUpload = document.getElementById("btnReloadSWFUpload");
 		FeaturesDemo.selEventsQueue = document.getElementById("selEventsQueue");
@@ -130,6 +111,18 @@ var FeaturesDemo = {
 		FeaturesDemo.SWFUpload_Console = document.getElementById("SWFUpload_Console");
 		FeaturesDemo.divServerData = document.getElementById("divServerData");
 
+		FeaturesDemo.rbButtonActionSelectFile = document.getElementById("rbButtonActionSelectFile");
+		FeaturesDemo.rbButtonActionSelectFiles = document.getElementById("rbButtonActionSelectFiles");
+		FeaturesDemo.rbButtonActionStartUpload = document.getElementById("rbButtonActionStartUpload");
+		FeaturesDemo.txtButtonImageUrl = document.getElementById("txtButtonImageUrl");
+		FeaturesDemo.txtButtonText = document.getElementById("txtButtonText");
+		FeaturesDemo.txtButtonWidth = document.getElementById("txtButtonWidth");
+		FeaturesDemo.txtButtonHeight = document.getElementById("txtButtonHeight");
+		FeaturesDemo.txtButtonTextStyle = document.getElementById("txtButtonTextStyle");
+		FeaturesDemo.txtButtonTextLeftPadding = document.getElementById("txtButtonTextLeftPadding");
+		FeaturesDemo.txtButtonTextTopPadding = document.getElementById("txtButtonTextTopPadding");
+		FeaturesDemo.cbButtonDisabled = document.getElementById("cbButtonDisabled");
+		
 		FeaturesDemo.is_cached = true;
 	},
 	clearAll: function () {
@@ -149,16 +142,27 @@ var FeaturesDemo = {
 		FeaturesDemo.txtFileSizeLimit.value = "";
 		FeaturesDemo.txtFileUploadLimit.value = "";
 		FeaturesDemo.txtFileQueueLimit.value = "";
-		FeaturesDemo.rbFlash8.checked = false;
-		FeaturesDemo.rbFlash9.checked = false;
-		FeaturesDemo.txtFlashColor.value = "";
 		FeaturesDemo.cbUseQueryString.checked = false;
+		FeaturesDemo.cbPreventSWFCaching.checked = false;
 		FeaturesDemo.cbRequeueOnError.checked = false;
 		FeaturesDemo.cbDebug.checked = false;
 		FeaturesDemo.selEventsQueue.options.length = 0;
 		FeaturesDemo.selEventsFile.options.length = 0;
 		FeaturesDemo.SWFUpload_Console.value = "";
 		FeaturesDemo.divServerData.innerHTML = "";
+
+		FeaturesDemo.rbButtonActionSelectFile.checked = false;
+		FeaturesDemo.rbButtonActionSelectFiles.checked = false;
+		FeaturesDemo.rbButtonActionStartUpload.checked = false;
+		FeaturesDemo.txtButtonImageUrl.value = "";
+		FeaturesDemo.txtButtonText.value = "";
+		FeaturesDemo.txtButtonWidth.value = "";
+		FeaturesDemo.txtButtonHeight.value = "";
+		FeaturesDemo.txtButtonTextStyle.value = "";
+		FeaturesDemo.txtButtonTextLeftPadding.value = "";
+		FeaturesDemo.txtButtonTextTopPadding.value = "";
+		FeaturesDemo.cbButtonDisabled.checked = false;
+		
 	},
 	loadAll: function () {
 		var param_obj = FeaturesDemo.SU.settings.post_params;
@@ -169,11 +173,17 @@ var FeaturesDemo = {
 			}
 		}
 
-		var flash8;
-		if (FeaturesDemo.SU.settings.flash_url.indexOf('swfupload_f8.swf') > -1) {
-			flash8 = true;
-		} else {
-			flash8 = false;
+		switch (FeaturesDemo.SU.settings.button_action) {
+		case SWFUpload.BUTTON_ACTION.SELECT_FILE:
+			FeaturesDemo.rbButtonActionSelectFile.checked = true;
+			break;
+		case SWFUpload.BUTTON_ACTION.START_UPLOAD:
+			FeaturesDemo.rbButtonActionStartUpload.checked = true;
+			break;
+		case SWFUpload.BUTTON_ACTION.SELECT_FILES:
+		default:
+			FeaturesDemo.rbButtonActionSelectFiles.checked = true;
+			break;
 		}
 		
 		FeaturesDemo.txtUploadTarget.value = FeaturesDemo.SU.settings.upload_url;
@@ -185,20 +195,21 @@ var FeaturesDemo = {
 		FeaturesDemo.txtFileSizeLimit.value = FeaturesDemo.SU.settings.file_size_limit;
 		FeaturesDemo.txtFileUploadLimit.value = FeaturesDemo.SU.settings.file_upload_limit;
 		FeaturesDemo.txtFileQueueLimit.value = FeaturesDemo.SU.settings.file_queue_limit;
-		FeaturesDemo.rbFlash8.checked = flash8;
-		FeaturesDemo.rbFlash9.checked = !flash8;
-		FeaturesDemo.txtFlashColor.value = FeaturesDemo.SU.settings.flash_color;
 		FeaturesDemo.cbUseQueryString.checked = FeaturesDemo.SU.settings.use_query_string;
 		FeaturesDemo.cbRequeueOnError.checked = FeaturesDemo.SU.settings.requeue_on_error;
+		FeaturesDemo.cbPreventSWFCaching.checked = FeaturesDemo.SU.settings.prevent_swf_caching;
 		FeaturesDemo.cbDebug.checked = FeaturesDemo.SU.settings.debug;
+		
+		FeaturesDemo.txtButtonImageUrl.value = FeaturesDemo.SU.settings.button_image_url;
+		FeaturesDemo.txtButtonText.value = FeaturesDemo.SU.settings.button_text;
+		FeaturesDemo.txtButtonWidth.value = FeaturesDemo.SU.settings.button_width;
+		FeaturesDemo.txtButtonHeight.value = FeaturesDemo.SU.settings.button_height;
+		FeaturesDemo.txtButtonTextStyle.value = FeaturesDemo.SU.settings.button_text_style;
+		FeaturesDemo.txtButtonTextLeftPadding.value = FeaturesDemo.SU.settings.button_text_left_padding;
+		FeaturesDemo.txtButtonTextTopPadding.value = FeaturesDemo.SU.settings.button_text_top_padding;
+		FeaturesDemo.cbButtonDisabled.checked = FeaturesDemo.SU.settings.button_disabled;
 	},
 
-	selectFiles: function () {
-		FeaturesDemo.SU.selectFiles();
-	},
-	selectFile: function () {
-		FeaturesDemo.SU.selectFile();
-	},
 	startSelectedFile: function () {
 		if (FeaturesDemo.selQueue.options.length === 0) {
 			alert("You must queue a file first");
@@ -303,7 +314,25 @@ var FeaturesDemo = {
 		FeaturesDemo.SU.setDebugEnabled(FeaturesDemo.cbDebug.checked);
 		FeaturesDemo.SU.setUseQueryString(FeaturesDemo.cbUseQueryString.checked);
 		FeaturesDemo.SU.setRequeueOnError(FeaturesDemo.cbRequeueOnError.checked);
+		
+		FeaturesDemo.SU.setButtonDimensions(FeaturesDemo.txtButtonWidth.value, FeaturesDemo.txtButtonHeight.value);
+		FeaturesDemo.SU.setButtonText(FeaturesDemo.txtButtonText.value);
+		FeaturesDemo.SU.setButtonTextStyle(FeaturesDemo.txtButtonTextStyle.value);
+		FeaturesDemo.SU.setButtonTextPadding(FeaturesDemo.txtButtonTextLeftPadding.value, FeaturesDemo.txtButtonTextTopPadding.value);
+		FeaturesDemo.SU.setButtonDisabled(FeaturesDemo.cbButtonDisabled.checked);
 
+		switch (true) {
+		case FeaturesDemo.rbButtonActionSelectFiles.checked:
+			FeaturesDemo.SU.setButtonAction(SWFUpload.BUTTON_ACTION.SELECT_FILES);
+			break;
+		case FeaturesDemo.rbButtonActionSelectFile.checked:
+			FeaturesDemo.SU.setButtonAction(SWFUpload.BUTTON_ACTION.SELECT_FILE);
+			break;
+		case FeaturesDemo.rbButtonActionStartUpload.checked:
+			FeaturesDemo.SU.setButtonAction(SWFUpload.BUTTON_ACTION.START_UPLOAD);
+			break;
+		}
+		
 		// We ignore any changes to the upload_url
 		FeaturesDemo.txtUploadTarget.value = FeaturesDemo.SU.settings.upload_url;
 
@@ -320,13 +349,8 @@ var FeaturesDemo = {
 	},
 	reloadSWFUpload: function () {
 		try {
-			var flash_url = FeaturesDemo.rbFlash8.checked ? "../swfupload/swfupload_f8.swf" : "../swfupload/swfupload_f9.swf";
-			var upload_url = FeaturesDemo.SU.settings.upload_url;
-
-			FeaturesDemo.SU.destroy();
-			
 			var settings = {
-				upload_url : upload_url,
+				upload_url : FeaturesDemo.SU.settings.upload_url,
 				use_query_string : FeaturesDemo.cbUseQueryString.checked,
 				requeue_on_error : FeaturesDemo.cbRequeueOnError.checked,
 				post_params : FeaturesDemo.getParamsObject(),
@@ -344,11 +368,28 @@ var FeaturesDemo = {
 				upload_success_handler : FeaturesDemoHandlers.uploadSuccess,
 				upload_complete_handler : FeaturesDemoHandlers.uploadComplete,
 				debug_handler : FeaturesDemoHandlers.debug,
-				flash_url : flash_url,
-				flash_color : FeaturesDemo.txtFlashColor.value,
-				debug : FeaturesDemo.cbDebug.checked
+				flash_url : "../swfupload/swfupload.swf",
+				debug : FeaturesDemo.cbDebug.checked,
+				prevent_swf_caching : FeaturesDemo.cbPreventSWFCaching.checked,
+				button_placeholder_id : "spanButtonPlaceholder",
+				button_image_url : FeaturesDemo.txtButtonImageUrl.value,
+				button_width : FeaturesDemo.txtButtonWidth.value,
+				button_height : FeaturesDemo.txtButtonHeight.value,
+				button_text : FeaturesDemo.txtButtonText.value,
+				button_text_style : FeaturesDemo.txtButtonTextStyle.value,
+				button_text_top_padding : FeaturesDemo.txtButtonTextTopPadding.value,
+				button_text_left_padding : FeaturesDemo.txtButtonTextLeftPadding.value,
+				button_disabled : FeaturesDemo.cbButtonDisabled.checked
 			};
 
+			var movie = FeaturesDemo.SU.getMovieElement();
+			
+			var placeHolder = document.createElement("span");
+			placeHolder.id = "spanButtonPlaceholder";
+			movie.parentNode.replaceChild(placeHolder, movie);
+			
+			FeaturesDemo.SU.destroy();
+			
 			FeaturesDemo.clearAll();
 
 			FeaturesDemo.SU = new SWFUpload(settings);

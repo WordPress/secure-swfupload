@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 	session_start();
 	
 	$upload_good = false;
@@ -61,3 +61,8 @@
 <p>Here is the current session id:</p>
 <p><?php echo htmlspecialchars(session_id()); ?></p>
 <p>Compare this to the session id displayed near the top of the Features Demo page. The Flash Player plug-in does not send the correct cookies in some browsers.</p>
+<p>Here are some special characters:</p>
+<p>Unicode: ☺☻♂♂♠♣♥♦</p>
+<p>"\r\n\u0040\x40\004</p>
+<p>The above line should say: quote backslash r backslash n backslash u 0 0 4 0 backslash x 4 0 backslash 0 0 4</p>
+<p>If you see any @ signs the escaping didn't work right.</p>
