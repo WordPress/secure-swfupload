@@ -152,6 +152,9 @@ package {
 
 			// Setup the button and text label
 			this.buttonLoader = new Loader();
+			var doNothing:Function = function ():void { };
+			this.buttonLoader.contentLoaderInfo.addEventListener(IOErrorEvent.IO_ERROR, doNothing );
+			this.buttonLoader.contentLoaderInfo.addEventListener(HTTPStatusEvent.HTTP_STATUS, doNothing );
 			this.stage.addChild(this.buttonLoader);
 
 			var self:SWFUpload = this;
@@ -844,7 +847,7 @@ package {
 			this.buttonImageURL = button_image_url;
 
 			try {
-				if (this.buttonImageURL === null || this.buttonImageURL !== "") {
+				if (this.buttonImageURL !== null && this.buttonImageURL !== "") {
 					this.buttonLoader.load(new URLRequest(this.buttonImageURL));
 				}
 			} catch (ex:Object) {

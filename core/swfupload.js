@@ -108,7 +108,7 @@ SWFUpload.prototype.initSettings = function () {
 	this.ensureDefault("prevent_swf_caching", false);
 
 	// Button Settings
-	this.ensureDefault("button_image_url", 0);
+	this.ensureDefault("button_image_url", "");
 	this.ensureDefault("button_width", 1);
 	this.ensureDefault("button_height", 1);
 	this.ensureDefault("button_text", "");
@@ -214,9 +214,10 @@ SWFUpload.prototype.replaceWithFlash = function () {
 // Private: getFlashHTML generates the object tag needed to embed the flash in to the document
 SWFUpload.prototype.getFlashHTML = function () {
 	var flash_url = this.settings.flash_url + (this.settings.prevent_swf_caching ? ("?swfuploadrnd=" + Math.floor(Math.random() * 999999999)) : "");
+	var transparent = this.settings.button_image_url === "" ? true : false;
 	
 	// Flash Satay object syntax: http://www.alistapart.com/articles/flashsatay
-	return ['<object id="', this.movieName, '" type="application/x-shockwave-flash" data="', flash_url, '" width="', this.settings.button_width, '" height="', this.settings.button_height, '" class="swfupload">',
+	return ['<object id="', this.movieName, '" type="application/x-shockwave-flash" data="', flash_url, '" width="', this.settings.button_width, '" height="', this.settings.button_height, '" wmode="', transparent ? "transparent" : "opaque" ,'"','" class="swfupload">',
 				'<param name="movie" value="', this.settings.flash_url, '" />',
 				'<param name="quality" value="high" />',
 				'<param name="menu" value="false" />',
@@ -604,6 +605,12 @@ SWFUpload.prototype.setDebugEnabled = function (debugEnabled) {
 
 // Public: setButtonImageURL loads a button image sprite
 SWFUpload.prototype.setButtonImageURL = function (buttonImageURL) {
+	if (buttonImageURL == undefined) {
+		buttonImageURL = "";
+	}
+	
+	this.getMovieElement().setAttribute("wmode", buttonImageURL === "" ? "transparent" : "opaque");
+	
 	this.settings.button_image_url = buttonImageURL;
 	this.callFlash("SetButtonImageURL", [buttonImageURL]);
 };
