@@ -1,17 +1,16 @@
+var formChecker = null;
 function swfUploadLoaded() {
 	var btnSubmit = document.getElementById("btnSubmit");
-	var txtLastName = document.getElementById("lastname");
-	var txtFirstName = document.getElementById("firstname");
-	var txtEducation = document.getElementById("education");
-	var txtReferences = document.getElementById("references");
 	
 	btnSubmit.onclick = doSubmit;
 	btnSubmit.disabled = true;
 	
-	txtLastName.onchange = validateForm;
+	/*txtLastName.onchange = validateForm;
 	txtFirstName.onchange = validateForm;
 	txtEducation.onchange = validateForm;
 	txtReferences.onchange = validateForm;
+	*/
+	formChecker = window.setInterval(validateForm, 1000);
 	
 	validateForm();
 }
@@ -44,17 +43,13 @@ function validateForm() {
 
 }
 
-function fileBrowse() {
-	var txtFileName = document.getElementById("txtFileName");
-	txtFileName.value = "";
-
-	this.cancelUpload();
-	this.selectFile();
-}
-
-
 // Called by the submit button to start the upload
 function doSubmit(e) {
+	if (formChecker != null) {
+		clearInterval(formChecker);
+		formChecker = null;
+	}
+	
 	e = e || window.event;
 	if (e.stopPropagation) {
 		e.stopPropagation();
@@ -77,6 +72,14 @@ function uploadDone() {
 		alert("Error submitting form");
 	}
 }
+
+function fileDialogStart() {
+	var txtFileName = document.getElementById("txtFileName");
+	txtFileName.value = "";
+
+	this.cancelUpload();
+}
+
 
 
 function fileQueueError(file, errorCode, message)  {

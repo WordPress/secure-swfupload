@@ -176,6 +176,7 @@ SWFUpload.prototype.appendFlash = function () {
 	container = document.createElement("div");
 	container.style.width = "1px";
 	container.style.height = "1px";
+	container.style.overflow = "hidden";
 
 	targetElement.appendChild(container);
 	container.innerHTML = this.getFlashHTML();	// Using innerHTML is non-standard but the only sensible way to dynamically add Flash in IE (and maybe other browsers)
@@ -190,7 +191,7 @@ SWFUpload.prototype.replaceWithFlash = function () {
 		throw "ID " + this.movieName + " is already in use. The Flash Object could not be added";
 	}
 
-	// Get the body tag where we will be adding the flash movie
+	// Get the element where we will be placing the flash movie
 	targetElement = document.getElementById(this.settings.button_placeholder_id);
 
 	if (targetElement == undefined) {
@@ -215,7 +216,7 @@ SWFUpload.prototype.getFlashHTML = function () {
 	var flash_url = this.settings.flash_url + (this.settings.prevent_swf_caching ? ("?swfuploadrnd=" + Math.random() * 999999999) : "");
 	
 	// Flash Satay object syntax: http://www.alistapart.com/articles/flashsatay
-	return ['<object id="', this.movieName, '" type="application/x-shockwave-flash" data="', flash_url, '" width="', this.settings.button_width, '" height="', this.settings.button_height, ' class="swfupload">',
+	return ['<object id="', this.movieName, '" type="application/x-shockwave-flash" data="', flash_url, '" width="', this.settings.button_width, '" height="', this.settings.button_height, '" class="swfupload">',
 				'<param name="movie" value="', this.settings.flash_url, '" />',
 				'<param name="quality" value="high" />',
 				'<param name="menu" value="false" />',

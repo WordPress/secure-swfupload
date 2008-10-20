@@ -61,6 +61,7 @@ FileProgress.prototype.setProgress = function (percentage) {
 	this.fileProgressElement.childNodes[3].style.width = percentage + "%";
 };
 FileProgress.prototype.setComplete = function () {
+	this.appear();
 	this.fileProgressElement.className = "progressContainer blue";
 	this.fileProgressElement.childNodes[3].className = "progressBarComplete";
 	this.fileProgressElement.childNodes[3].style.width = "";
@@ -71,6 +72,7 @@ FileProgress.prototype.setComplete = function () {
 	}, 10000);
 };
 FileProgress.prototype.setError = function () {
+	this.appear();
 	this.fileProgressElement.className = "progressContainer red";
 	this.fileProgressElement.childNodes[3].className = "progressBarError";
 	this.fileProgressElement.childNodes[3].style.width = "";
@@ -81,6 +83,7 @@ FileProgress.prototype.setError = function () {
 	}, 5000);
 };
 FileProgress.prototype.setCancelled = function () {
+	this.appear();
 	this.fileProgressElement.className = "progressContainer";
 	this.fileProgressElement.childNodes[3].className = "progressBarError";
 	this.fileProgressElement.childNodes[3].style.width = "";
@@ -104,6 +107,26 @@ FileProgress.prototype.toggleCancel = function (show, swfUploadInstance) {
 			return false;
 		};
 	}
+};
+
+// Makes sure the FileProgress box is visible
+FileProgress.prototype.appear = function () {
+		if (this.fileProgressWrapper.filters) {
+			try {
+				this.fileProgressWrapper.filters.item("DXImageTransform.Microsoft.Alpha").opacity = 100;
+			} catch (e) {
+				// If it is not set initially, the browser will throw an error.  This will set it if it is not set yet.
+				this.fileProgressWrapper.style.filter = "progid:DXImageTransform.Microsoft.Alpha(opacity=100)";
+			}
+		} else {
+			this.fileProgressWrapper.style.opacity = 1;
+		}
+		
+		this.fileProgressWrapper.style.height = "";
+		this.height = this.fileProgressWrapper.offsetHeight;
+		this.opacity = 100;
+		this.fileProgressWrapper.style.display = "";
+
 };
 
 // Fades out and clips away the FileProgress box.

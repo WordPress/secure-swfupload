@@ -53,10 +53,10 @@
 	}
 	
 	ul, ol {
-		list-style-position: inside;
+		list-style-position: outside;
 		margin: 0;
 		padding: 0;
-		margin-left: 25px;
+		margin-left: 50px;
 	}
 	li {
 		padding-left: 15px;
@@ -913,13 +913,22 @@ swfu.customSetting["a_dom_setting"].style.visibility = "hidden";</code>
 	<p>
 		Using this plugin can eliminate the flicker seen in the Graceful Degradation plugin and provides events for loading failure.
 	</p>
+	<p><strong>Flash Player 10: </strong> Because Flash Player 10 requires the SWFUpload swf to act is a button the movie must be visible in order
+	for it to load.  If the button_placeholder_id is set to an element that is hidden (visibility set to hidden or display set to none) SWFUpload will
+	fail to load.</p>
 	
 	<h3>Graceful Degradation</h3>
 	
-	<p>This plugin has been superseded by the SWFObject plugin.</p>
+	<p><strong>This plugin has been superseded by the SWFObject plugin.</strong></p>
 	
 	<p>This plugin provides additional settings and logic for automatically hiding and showing page elements based on
 	whether SWFUpload loads.</p>
+	
+	<p><strong>Flash Player 10: </strong> The Graceful Degradation plugin has been updated to support Flash Player 10. However, because the Flash Movie
+	won't execute if it is hidden (inside an element with visibility set to hidden or display set to none) the movie must be loaded in a visible area of the
+	page. This is handled automatically.  However, the side affect is that the movie is executed twice. The plugin handles this but developers should be aware
+	that this is happening.  In most cases this simply means that you will see the SWFUpload initialization (if debug is enable) run twice.  There is still only
+	a single movie per instance and events are not fired twice.</p>
 
 	<h3>SWFUpload v1.0.2 Compatibility</h3>
 	<p>Creates compatibility with v1.0.2.  Using this plugin you should be able to drop SWFUpload v2.0 in to a v1.0.2 page.
@@ -944,13 +953,6 @@ swfu.customSetting["a_dom_setting"].style.visibility = "hidden";</code>
 	
 	<h3>Upload Progress in OS X</h3>
 	<p>There have been some reports that uploadProgress events are not fired in MAC Flash Players. The specifics haven't been pinned down but be aware of the possible issue.</p>
-	
-	<h3>Spaces in Upload URL in OS X</h3>
-	<p>Some users have reported issues if there is a space character in the upload_url for the Mac Flash Player.  Avoid spaces or try replacing them with + or %20.</p>
-
-	<h3>HTTP_HOST server variable from Mac Flash Player</h3>
-	<p>Users have reported that the Flash Player for Mac adds the PORT to the HTTP_HOST server variable (e.g., http://www.example.com:80). If you are
-	checking this variable in your server-side script be aware of the possible issue.</p>
 	
 	<h3>MIME Type</h3>
 	<p>The Flash Player uploads all files with a mime type of <em>application/octet-stream</em> regardless of the file's actual mime type.</p>
@@ -1009,6 +1011,8 @@ swfu.customSetting["a_dom_setting"].style.visibility = "hidden";</code>
 	<p>When the page is reloaded SWFUpload loads and fires the swfupload_loaded event.  However, none of the ExternalInterface callback functions are defined
 	on the movie element.  SWFUpload v2.0.2 has added checks which prevent swfupload_loaded from firing if the callback functions are not detected.</p>
 
+	<p>SWFUpload v2.2.0 added the prevent_swf_caching setting that attempts to work around this issue.</p>
+	
 	<h3>File Dialog &amp; Page Changing</h3>
 	<p>Leaving or reloading the current page while the File Browser Dialog window is open will cause the browser to crash (all browsers, all OSs).  Most commonly this is caused by failing to
 	cancel a click event on an &lt;a&gt; tag where the onclick event calls the selectFile or selectFiles function.</p>
@@ -1032,6 +1036,13 @@ swfu.customSetting["a_dom_setting"].style.visibility = "hidden";</code>
 				The flash documentation states that on OS early than OS X 10.3 the bytes loaded is always reported as -1. SWFUpload converts
 				this to 0 but the total bytes will never be sent and 100% won't be reached.  The UI should be updated to display 100% complete in
 				uploadSuccess or uploadComplete events to maintain a consistent UI.
+		</li>
+		<li>
+			Some users have reported issues if there is a space character in the upload_url for the Mac Flash Player.  Avoid spaces or try replacing them with + or %20.
+		</li>
+		<li>
+			Users have reported that the Flash Player for Mac adds the PORT to the HTTP_HOST server variable (e.g., http://www.example.com:80). If you are
+			checking this variable in your server-side script be aware of the possible issue.
 		</li>
 	</ul>
 	

@@ -73,25 +73,24 @@ SWFUpload.onload = function () {
 		<p> This page demonstrates the SWFObject plugin.  Do each of the following (one at a time) to see the plugin work: </p>
 			<ul>
 				<li>Uninstall your Flash Player or install a version less than 9.0.28</li>
-				<li>Cause the SWF file to fail to load by deleting or renaming swfupload_f9.swf (simulating a very slow or failed download)</li>
+				<li>Cause the SWF file to fail to load by deleting or renaming swfupload.swf (simulating a very slow or failed download)</li>
 				<li>Disable JavaScript</li>
 			</ul>
 		<p>
-			Each of these tests demontrate how these issues can be handled by SWFUpload and the SWFObject libraries. You'll also notice
-			that the page flicker found in the Graceful Degradation plugin has been eliminated.
+			Each of these tests demontrate how these issues can be handled by SWFUpload and the SWFObject libraries.
 		</p>
-		<div id="divSWFUploadUI" style="visibility: hidden;">
+		<div id="divSWFUploadUI">
 			<fieldset class="flash" id="fsUploadProgress">
 			<legend>Upload Queue</legend>
 			</fieldset>
 			<p id="divStatus">0 Files Uploaded</p>
 			<p>
 				<span id="spanButtonPlaceholder"></span>
-				<input id="btnCancel" type="button" value="Cancel All Uploads" disabled="disabled" style="font-size: 8pt;" />
+				<input id="btnCancel" type="button" value="Cancel All Uploads" disabled="disabled" style="margin-left: 2px; height: 22px; font-size: 8pt;" />
 				<br />
 			</p>
 		</div>
-		<noscript style="display: block; background-color: #FFFF66; border-top: solid 4px #FF9966; border-bottom: solid 4px #FF9966; margin: 10px 25px; padding: 10px 15px;">
+		<noscript style="background-color: #FFFF66; border-top: solid 4px #FF9966; border-bottom: solid 4px #FF9966; margin: 10px 25px; padding: 10px 15px;">
 			We're sorry.  SWFUpload could not load.  You must have JavaScript enabled to enjoy SWFUpload.
 		</noscript>
 		<div id="divLoadingContent" class="content" style="background-color: #FFFF66; border-top: solid 4px #FF9966; border-bottom: solid 4px #FF9966; margin: 10px 25px; padding: 10px 15px; display: none;">

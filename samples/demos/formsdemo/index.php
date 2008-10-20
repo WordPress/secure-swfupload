@@ -4,6 +4,7 @@
 <title>SWFUpload Demos - Classic Form Demo</title>
 <link href="../css/default.css" rel="stylesheet" type="text/css" />
 <script type="text/javascript" src="../swfupload/swfupload.js"></script>
+<script type="text/javascript" src="js/swfupload.graceful_degradation.js"></script>
 <script type="text/javascript" src="js/fileprogress.js"></script>
 <script type="text/javascript" src="js/handlers.js"></script>
 <script type="text/javascript">
@@ -25,7 +26,7 @@
 				// Event handler settings
 				swfupload_loaded_handler : swfUploadLoaded,
 				
-				//file_dialog_start_handler : fileDialogStart,		// I don't need to override this handler
+				file_dialog_start_handler: fileDialogStart,
 				file_queued_handler : fileQueued,
 				file_queue_error_handler : fileQueueError,
 				file_dialog_complete_handler : fileDialogComplete,
@@ -45,13 +46,17 @@
 				// Flash Settings
 				flash_url : "../swfupload/swfupload.swf",
 
+				// UI settings
+				swfupload_element_id : "flashUI",		// setting for the graceful degradation plugin
+				degraded_element_id : "degradedUI",
+
 				custom_settings : {
 					progress_target : "fsUploadProgress",
 					upload_successful : false
 				},
 				
 				// Debug settings
-				debug: true
+				debug: false
 			});
 
 		};
@@ -85,9 +90,9 @@
 				<td><textarea name="education"  id="education" cols="0" rows="0" style="width: 400px; height: 100px;"></textarea></td>
 			</tr>
 			<tr>
-				<td><label for="txtFileName">Resume:</label></td>
-				<td>
-					<div>
+				<td><label for="txtFileName">Resume:</label>				</td>
+				<td><div id="flashUI" style="display: none;">
+						<!-- The UI only gets displayed if SWFUpload loads properly -->
 						<div>
 							<input type="text" id="txtFileName" disabled="true" style="border: solid 1px; background-color: #FFFFFF;" />
 							<span id="spanButtonPlaceholder"></span>
@@ -100,7 +105,12 @@
 						<input type="hidden" name="hidFileID" id="hidFileID" value="" />
 						<!-- This is where the file ID is stored after SWFUpload uploads the file and gets the ID back from upload.php -->
 					</div>
-				</td>
+					<div id="degradedUI">
+						<!-- This is the standard UI.  This UI is shown by default but when SWFUpload loads it will be
+								hidden and the "flashUI" will be shown -->
+						<input type="file" name="resume_degraded" id="resume_degraded" />
+						(10 MB max)<br/>
+					</div></td>
 			</tr>
 			<tr>
 				<td><label for="references">References:</label></td>
