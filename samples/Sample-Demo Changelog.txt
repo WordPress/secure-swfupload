@@ -3,6 +3,7 @@
  * --------- Version 2.2.0 -----------
  * + Updated all demos for Flash Player 10
  * + Added new SWFUpload functionality to Features Demo
+ * + Added Overlay demo showing how to do a transparent button overlay
  * - Dropped v1.0.2 Demo
 
  * --------- Version 2.1.0 -----------
