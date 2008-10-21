@@ -105,8 +105,8 @@ SWFUpload.prototype.initSettings = function () {
 
 	// Flash Settings
 	this.ensureDefault("flash_url", "swfupload.swf");
-	this.ensureDefault("prevent_swf_caching", false);
-
+	this.ensureDefault("prevent_swf_caching", true);
+	
 	// Button Settings
 	this.ensureDefault("button_image_url", "");
 	this.ensureDefault("button_width", 1);
@@ -143,6 +143,11 @@ SWFUpload.prototype.initSettings = function () {
 
 	// Other settings
 	this.customSettings = this.settings.custom_settings;
+	
+	// Update the flash url if needed
+	if (this.settings.prevent_swf_caching) {
+		this.settings.flash_url = this.settings.flash_url + "?swfuploadrnd=" + Math.floor(Math.random() * 999999999);
+	}
 	
 	delete this.ensureDefault;
 };
@@ -202,22 +207,16 @@ SWFUpload.prototype.replaceWithFlash = function () {
 	tempParent = document.createElement("div");
 	tempParent.innerHTML = this.getFlashHTML();	// Using innerHTML is non-standard but the only sensible way to dynamically add Flash in IE (and maybe other browsers)
 	targetElement.parentNode.replaceChild(tempParent.firstChild, targetElement);
-	//targetElement.innerHTML = this.getFlashHTML();
-	
-	// Fix IE Flash/Form bug
-	if (window[this.movieName] == undefined) {
-		window[this.movieName] = this.getMovieElement();
-	}
-	
+
 };
 
 // Private: getFlashHTML generates the object tag needed to embed the flash in to the document
 SWFUpload.prototype.getFlashHTML = function () {
-	var flash_url = this.settings.flash_url + (this.settings.prevent_swf_caching ? ("?swfuploadrnd=" + Math.floor(Math.random() * 999999999)) : "");
 	var transparent = this.settings.button_image_url === "" ? true : false;
 	
 	// Flash Satay object syntax: http://www.alistapart.com/articles/flashsatay
-	return ['<object id="', this.movieName, '" type="application/x-shockwave-flash" data="', flash_url, '" width="', this.settings.button_width, '" height="', this.settings.button_height, '" wmode="', transparent ? "transparent" : "opaque" ,'"','" class="swfupload">',
+	return ['<object id="', this.movieName, '" type="application/x-shockwave-flash" data="', this.settings.flash_url, '" width="', this.settings.button_width, '" height="', this.settings.button_height, '" class="swfupload">',
+				'<param name="wmode" value="', transparent ? "transparent" : "window", '" />',
 				'<param name="movie" value="', this.settings.flash_url, '" />',
 				'<param name="quality" value="high" />',
 				'<param name="menu" value="false" />',
@@ -412,36 +411,32 @@ SWFUpload.prototype.getSetting = function (name) {
 SWFUpload.prototype.callFlash = function (functionName, argumentArray) {
 	argumentArray = argumentArray || [];
 	
-	var self = this;
-	var callFunction = function () {
-		var movieElement = self.getMovieElement();
-		var returnValue;
-		if (typeof movieElement[functionName] === "function") {
-			// We have to go through all this if/else stuff because the Flash functions don't have apply() and only accept the exact number of arguments.
-			if (argumentArray.length === 0) {
-				returnValue = movieElement[functionName]();
-			} else if (argumentArray.length === 1) {
-				returnValue = movieElement[functionName](argumentArray[0]);
-			} else if (argumentArray.length === 2) {
-				returnValue = movieElement[functionName](argumentArray[0], argumentArray[1]);
-			} else if (argumentArray.length === 3) {
-				returnValue = movieElement[functionName](argumentArray[0], argumentArray[1], argumentArray[2]);
-			} else {
-				throw "Too many arguments";
-			}
-			
-			// Unescape file post param values
-			if (returnValue != undefined && typeof returnValue.post === "object") {
-				returnValue = self.unescapeFilePostParams(returnValue);
-			}
-			
-			return returnValue;
+	var movieElement = this.getMovieElement();
+	var returnValue;
+
+	if (typeof movieElement[functionName] === "function") {
+		// We have to go through all this if/else stuff because the Flash functions don't have apply() and only accept the exact number of arguments.
+		if (argumentArray.length === 0) {
+			returnValue = movieElement[functionName]();
+		} else if (argumentArray.length === 1) {
+			returnValue = movieElement[functionName](argumentArray[0]);
+		} else if (argumentArray.length === 2) {
+			returnValue = movieElement[functionName](argumentArray[0], argumentArray[1]);
+		} else if (argumentArray.length === 3) {
+			returnValue = movieElement[functionName](argumentArray[0], argumentArray[1], argumentArray[2]);
 		} else {
-			throw "Invalid function name";
+			throw "Too many arguments";
 		}
-	};
-	
-	return callFunction();
+		
+		// Unescape file post param values
+		if (returnValue != undefined && typeof returnValue.post === "object") {
+			returnValue = this.unescapeFilePostParams(returnValue);
+		}
+		
+		return returnValue;
+	} else {
+		throw "Invalid function name: " + functionName;
+	}
 };
 
 
@@ -609,8 +604,6 @@ SWFUpload.prototype.setButtonImageURL = function (buttonImageURL) {
 		buttonImageURL = "";
 	}
 	
-	this.getMovieElement().setAttribute("wmode", buttonImageURL === "" ? "transparent" : "opaque");
-	
 	this.settings.button_image_url = buttonImageURL;
 	this.callFlash("SetButtonImageURL", [buttonImageURL]);
 };
@@ -737,6 +730,11 @@ SWFUpload.prototype.flashReady = function () {
 	var movieElement = this.getMovieElement();
 	if (typeof movieElement.StartUpload !== "function") {
 		throw "ExternalInterface methods failed to initialize.";
+	}
+
+	// Fix IE Flash/Form bug
+	if (window[this.movieName] == undefined) {
+		window[this.movieName] = movieElement;
 	}
 	
 	this.queueEvent("swfupload_loaded_handler");

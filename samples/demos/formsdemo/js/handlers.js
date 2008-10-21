@@ -178,6 +178,12 @@ function uploadComplete(file) {
 
 function uploadError(file, errorCode, message) {
 	try {
+		
+		if (errorCode === SWFUpload.UPLOAD_ERROR.FILE_CANCELLED) {
+			// Don't show cancelled error boxes
+			return;
+		}
+		
 		var txtFileName = document.getElementById("txtFileName");
 		txtFileName.value = "";
 		validateForm();

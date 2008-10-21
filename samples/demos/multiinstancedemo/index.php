@@ -73,7 +73,7 @@
 				file_types : "*.jpg;*.gif;*.png",
 				file_types_description : "Image Files",
 				file_upload_limit : "10",
-				file_queue_limit : "2",
+				file_queue_limit : "5",
 
 				// Event Handler Settings (all my handlers are in the Handler.js file)
 				file_dialog_start_handler : fileDialogStart,

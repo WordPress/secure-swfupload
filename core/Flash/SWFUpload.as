@@ -343,8 +343,8 @@ package {
 			}
 			
 			try {
-				ExternalInterface.addCallback("SelectFile", this.SelectFile);
-				ExternalInterface.addCallback("SelectFiles", this.SelectFiles);
+				//ExternalInterface.addCallback("SelectFile", this.SelectFile);
+				//ExternalInterface.addCallback("SelectFiles", this.SelectFiles);
 				ExternalInterface.addCallback("StartUpload", this.StartUpload);
 				ExternalInterface.addCallback("ReturnUploadStart", this.ReturnUploadStart);
 				ExternalInterface.addCallback("StopUpload", this.StopUpload);
