@@ -70,47 +70,47 @@
 	<form id="form1" action="thanks.php" enctype="multipart/form-data" method="post">
 		<p>This demo shows how SWFUpload might be combined with an HTML form.  It also demonstrates graceful degradation (using the graceful degradation plugin).
 			This demo also demonstrates the use of the server_data parameter.  This demo requires Flash Player 9+</p>
-		<fieldset >
-		<legend>Submit your Application</legend>
-		<table style="vertical-align:top;">
-			<tr>
-				<td><label for="lastname">Last Name:</label></td>
-				<td><input name="lastname" id="lastname" type="text" style="width: 200px" /></td>
-			</tr>
-			<tr>
-				<td><label for="firstname">First Name:</label></td>
-				<td><input name="firstname" id="firstname" type="text" style="width: 200px" /></td>
-			</tr>
-			<tr>
-				<td><label for="education">Education:</label></td>
-				<td><textarea name="education"  id="education" cols="0" rows="0" style="width: 400px; height: 100px;"></textarea></td>
-			</tr>
-			<tr>
-				<td><label for="txtFileName">Resume:</label></td>
-				<td>
-					<div>
+		<div class="fieldset">
+			<span class="legend">Submit your Application</span>
+			<table style="vertical-align:top;">
+				<tr>
+					<td><label for="lastname">Last Name:</label></td>
+					<td><input name="lastname" id="lastname" type="text" style="width: 200px" /></td>
+				</tr>
+				<tr>
+					<td><label for="firstname">First Name:</label></td>
+					<td><input name="firstname" id="firstname" type="text" style="width: 200px" /></td>
+				</tr>
+				<tr>
+					<td><label for="education">Education:</label></td>
+					<td><textarea name="education"  id="education" cols="0" rows="0" style="width: 400px; height: 100px;"></textarea></td>
+				</tr>
+				<tr>
+					<td><label for="txtFileName">Resume:</label></td>
+					<td>
 						<div>
-							<input type="text" id="txtFileName" disabled="true" style="border: solid 1px; background-color: #FFFFFF;" />
-							<span id="spanButtonPlaceholder"></span>
-							(10 MB max)
+							<div>
+								<input type="text" id="txtFileName" disabled="true" style="border: solid 1px; background-color: #FFFFFF;" />
+								<span id="spanButtonPlaceholder"></span>
+								(10 MB max)
+							</div>
+							<div class="flash" id="fsUploadProgress">
+								<!-- This is where the file progress gets shown.  SWFUpload doesn't update the UI directly.
+											The Handlers (in handlers.js) process the upload events and make the UI updates -->
+							</div>
+							<input type="hidden" name="hidFileID" id="hidFileID" value="" />
+							<!-- This is where the file ID is stored after SWFUpload uploads the file and gets the ID back from upload.php -->
 						</div>
-						<div class="flash" id="fsUploadProgress">
-							<!-- This is where the file progress gets shown.  SWFUpload doesn't update the UI directly.
-										The Handlers (in handlers.js) process the upload events and make the UI updates -->
-						</div>
-						<input type="hidden" name="hidFileID" id="hidFileID" value="" />
-						<!-- This is where the file ID is stored after SWFUpload uploads the file and gets the ID back from upload.php -->
-					</div>
-				</td>
-			</tr>
-			<tr>
-				<td><label for="references">References:</label></td>
-				<td><textarea name="references" id="references" cols="0" rows="0" style="width: 400px; height: 100px;"></textarea></td>
-			</tr>
-		</table>
-		<br />
-		<input type="submit" value="Submit Application" id="btnSubmit" />
-		</fieldset>
+					</td>
+				</tr>
+				<tr>
+					<td><label for="references">References:</label></td>
+					<td><textarea name="references" id="references" cols="0" rows="0" style="width: 400px; height: 100px;"></textarea></td>
+				</tr>
+			</table>
+			<br />
+			<input type="submit" value="Submit Application" id="btnSubmit" />
+		</div>
 	</form>
 </div>
 </body>

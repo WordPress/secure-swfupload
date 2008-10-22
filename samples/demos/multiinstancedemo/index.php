@@ -124,9 +124,9 @@
 			<tr valign="top">
 				<td>
 					<div>
-						<fieldset class="flash" id="fsUploadProgress1">
-						<legend>Large File Upload Site</legend>
-						</fieldset>
+						<div class="fieldset flash" id="fsUploadProgress1">
+							<span class="legend">Large File Upload Site</span>
+						</div>
 						<div style="padding-left: 5px;">
 							<span id="spanButtonPlaceholder1"></span>
 							<input id="btnCancel1" type="button" value="Cancel Uploads" onclick="cancelQueue(upload1);" disabled="disabled" style="margin-left: 2px; height: 22px; font-size: 8pt;" />
@@ -136,9 +136,9 @@
 				</td>
 				<td>
 					<div>
-						<fieldset class="flash" id="fsUploadProgress2">
-						<legend>Small File Upload Site</legend>
-						</fieldset>
+						<div class="fieldset flash" id="fsUploadProgress2">
+							<span class="legend">Small File Upload Site</span>
+						</div>
 						<div style="padding-left: 5px;">
 							<span id="spanButtonPlaceholder2"></span>
 							<input id="btnCancel2" type="button" value="Cancel Uploads" onclick="cancelQueue(upload2);" disabled="disabled" style="margin-left: 2px; height: 22px; font-size: 8pt;" />

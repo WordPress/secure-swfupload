@@ -99,7 +99,6 @@ select {
 #divDynamicSettingForm label,
 #fsStaticSettings label {
 	display: block;
-	float: left;
 	font-size: .8em;
 	width: 150px;
 	overflow: hidden;

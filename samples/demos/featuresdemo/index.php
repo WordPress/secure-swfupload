@@ -84,49 +84,50 @@
 		SWFUpload has <span id="spanLoadStatus" style="font-weight: bold;">not loaded</span><br />
 		<table class="layout">
 			<tr>
-				<td style="width: 316px;"><fieldset>
-					<legend>Queue</legend>
-					<div>
-						<select id="selQueue" size="15" style="width: 270px;">
-						</select>
+				<td style="width: 316px;">
+					<div class="fieldset">
+						<span class="legend">Queue</span>
+						<div>
+							<select id="selQueue" size="15" style="width: 270px;">
+							</select>
+						</div>
+						<div>
+							<table class="btn">
+								<tr>
+									<td colspan="3"><span id="spanButtonPlaceholder"></span></td>
+								</tr>
+							</table>
+						</div>
+						<div>
+							<table class="btn">
+								<tr>
+									<td class="btn-left"></td>
+									<td class="btn-center"><button id="btnStartSelectedFile" type="button" class="action">Start Selected File</button></td>
+									<td class="btn-right"></td>
+								</tr>
+							</table>
+						</div>
+						<div>
+							<table class="btn">
+								<tr>
+									<td class="btn-left"></td>
+									<td class="btn-center"><button id="btnStopUpload" type="button" class="action">Stop Upload</button></td>
+									<td class="btn-right"></td>
+								</tr>
+							</table>
+						</div>
+						<div>
+							<table class="btn">
+								<tr>
+									<td class="btn-left"></td>
+									<td class="btn-center"><button id="btnCancelSelectedFile" type="button" class="action">Cancel Selected File</button></td>
+									<td class="btn-right"></td>
+								</tr>
+							</table>
+						</div>
 					</div>
-					<div>
-						<table class="btn">
-							<tr>
-								<td colspan="3"><span id="spanButtonPlaceholder"></span></td>
-							</tr>
-						</table>
-					</div>
-					<div>
-						<table class="btn">
-							<tr>
-								<td class="btn-left"></td>
-								<td class="btn-center"><button id="btnStartSelectedFile" type="button" class="action">Start Selected File</button></td>
-								<td class="btn-right"></td>
-							</tr>
-						</table>
-					</div>
-					<div>
-						<table class="btn">
-							<tr>
-								<td class="btn-left"></td>
-								<td class="btn-center"><button id="btnStopUpload" type="button" class="action">Stop Upload</button></td>
-								<td class="btn-right"></td>
-							</tr>
-						</table>
-					</div>
-					<div>
-						<table class="btn">
-							<tr>
-								<td class="btn-left"></td>
-								<td class="btn-center"><button id="btnCancelSelectedFile" type="button" class="action">Cancel Selected File</button></td>
-								<td class="btn-right"></td>
-							</tr>
-						</table>
-					</div>
-					</fieldset>
-					<fieldset id="fsStaticSettings">
-					<legend>Static Settings</legend>
+					<div class="fieldset" id="fsStaticSettings">
+					<span class="legend">Static Settings</span>
 					<div>
 						<div class="checkbox">
 							<input id="cbPreventSWFCaching" type="checkbox" />
@@ -140,10 +141,11 @@
 							</tr>
 						</table>
 					</div>
-					</fieldset>
+					</div>
 				</td>
-				<td style="width: 316px;"><fieldset>
-					<legend>Post Params</legend>
+				<td style="width: 316px;">
+					<div class="fieldset">
+					<span class="legend">Post Params</span>
 					<div>
 						<label for="txtAddFileParamName"><strong>File Post Param</strong> (Select a file first)</label>
 						<div style="margin-left: 10px; margin-bottom: 10px;">
@@ -195,9 +197,9 @@
 							</tr>
 						</table>
 					</div>
-					</fieldset>
-					<fieldset>
-					<legend>Instance Information</legend>
+					</div>
+					<div class="fieldset">
+					<span class="legend">Instance Information</span>
 					<div>
 						<label for="txtMovieName">movieName</label>
 						<input id="txtMovieName" type="text" class="textbox" />
@@ -206,10 +208,10 @@
 						<label for="txtFlashHTML">Flash HTML</label>
 						<textarea id="txtFlashHTML" wrap="soft" style="height: 100px;"></textarea>
 					</div>
-					</fieldset>
+					</div>
 				</td>
-				<td style="width: 316px;"><fieldset>
-					<legend>Dynamic Settings</legend>
+				<td style="width: 316px;"><div class="fieldset">
+					<span class="legend">Dynamic Settings</span>
 					<div id="divDynamicSettingForm">
 						<table>
 							<tr>
@@ -259,9 +261,9 @@
 									<div class="checkbox">
 										<label>button_action</label>
 										<div style="margin-left: 10px;">
-										<input id="rbButtonActionSelectFile" type="radio" name="button_action" /> Select File<br />
-										<input id="rbButtonActionSelectFiles" type="radio" name="button_action" /> Select Files<br />
-										<input id="rbButtonActionStartUpload" type="radio" name="button_action" /> Start Upload<br />
+										<input id="rbButtonActionSelectFile" type="radio" name="button_action" /> <label for="rbButtonActionSelectFile" style="display: inline;">Select File</label><br />
+										<input id="rbButtonActionSelectFiles" type="radio" name="button_action" /> <label for="rbButtonActionSelectFiles" style="display: inline;">Select Files</label><br />
+										<input id="rbButtonActionStartUpload" type="radio" name="button_action" /> <label for="rbButtonActionStartUpload" style="display: inline;">Start Upload</label><br />
 										</div>
 									</div>
 									<div>
@@ -310,12 +312,12 @@
 							</tr>
 						</table>
 					</div>
-					</fieldset>
+					</div>
 				</td>
 			</tr>
 			<tr>
-				<td colspan="3"><fieldset>
-					<legend>Events</legend>
+				<td colspan="3"><div class="fieldset">
+					<span class="legend">Events</span>
 					<table style="width: 100%;">
 						<tr>
 							<td style="width: 50%"><div>
@@ -330,17 +332,17 @@
 								</div></td>
 						</tr>
 					</table>
-					</fieldset>
-					<fieldset>
-					<legend>Debug</legend>
+					</div>
+					<div class="fieldset">
+					<span class="legend">Debug</span>
 					<div>
 						<textarea id="SWFUpload_Console" wrap="off"></textarea>
 					</div>
-					</fieldset>
-					<fieldset>
-					<legend>Server Data</legend>
+					</div>
+					<div class="fieldset">
+					<span class="legend">Server Data</span>
 					<div id="divServerData"></div>
-					</fieldset></td>
+					</div></td>
 			</tr>
 		</table>
 	</form>

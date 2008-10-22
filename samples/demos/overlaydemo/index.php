@@ -74,9 +74,9 @@ SWFUpload.onload = function () {
 		<p> This page demonstrates placing transparent button over an existing button using a little bit of simple CSS: </p>
 
 		<div id="divSWFUploadUI">
-			<fieldset class="flash" id="fsUploadProgress">
-			<legend>Upload Queue</legend>
-			</fieldset>
+			<div class="fieldset flash" id="fsUploadProgress">
+			<span class="legend">Upload Queue</span>
+			</div>
 			<p id="divStatus">0 Files Uploaded</p>
 			<p>
 				<span id="spanButtonPlaceholder"></span>
