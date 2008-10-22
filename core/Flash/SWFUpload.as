@@ -35,7 +35,7 @@ package {
 			var SWFUpload:SWFUpload = new SWFUpload();
 		}
 		
-		private const build_number:String = "SWFUPLOAD 2.2.0 Alpha 2008-10-17";
+		private const build_number:String = "SWFUPLOAD 2.2.0 2008-10-22";
 		
 		// State tracking variables
 		private var fileBrowserMany:FileReferenceList = new FileReferenceList();
