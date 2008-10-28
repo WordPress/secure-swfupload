@@ -37,6 +37,8 @@ SWFUpload.onload = function () {
 		button_placeholder_id : "spanButtonPlaceholder",
 		button_width: 61,
 		button_height: 22,
+		button_transparent: SWFUpload.WINDOW_MODE.TRANSPARENT,
+		button_cursor: SWFUpload.CURSOR.HAND,
 
 		// The event handler functions are defined in handlers.js
 		swfupload_loaded_handler : swfUploadLoaded,

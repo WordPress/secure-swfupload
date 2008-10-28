@@ -5,6 +5,7 @@
  * + Added new SWFUpload functionality to Features Demo
  * + Added Overlay demo showing how to do a transparent button overlay
  * - Dropped v1.0.2 Demo
+ * = Removed Graceful Degradation plugin
 
  * --------- Version 2.1.0 -----------
  * + Features Demo uses new destroy function

@@ -66,3 +66,10 @@
 <p>"\r\n\u0040\x40\004</p>
 <p>The above line should say: quote backslash r backslash n backslash u 0 0 4 0 backslash x 4 0 backslash 0 0 4</p>
 <p>If you see any @ signs the escaping didn't work right.</p>
+<?php
+	if (isset($_POST["please_return"]) && is_numeric($_POST["please_return"])) {
+		$status_code = $_POST["please_return"];
+		echo "Return HTTP Status Code $status_code as requested";
+		header("HTTP/1.1 $status_code Custom Status Code");
+	}
+?>

@@ -66,6 +66,7 @@ if (typeof(SWFUpload) === "function") {
 			};
 
 			this.ensureDefault("minimum_flash_version", "9.0.28");
+			this.ensureDefault("swfupload_pre_load_handler", null);
 			this.ensureDefault("swfupload_load_failed_handler", null);
 
 			delete this.ensureDefault;
@@ -100,6 +101,7 @@ if (typeof(SWFUpload) === "function") {
 				[
 					"SWFUpload.SWFObject Plugin settings:", "\n",
 					"\t", "minimum_flash_version:                      ", this.settings.minimum_flash_version, "\n",
+					"\t", "swfupload_pre_load_handler assigned:     ", (typeof(this.settings.swfupload_pre_load_handler) === "function").toString(), "\n",
 					"\t", "swfupload_load_failed_handler assigned:     ", (typeof(this.settings.swfupload_load_failed_handler) === "function").toString(), "\n",
 				].join("")
 			);

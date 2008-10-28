@@ -95,6 +95,8 @@
 						<li><a href="#upload_error">UPLOAD_ERROR</a></li>
 						<li><a href="#file_status">FILE_STATUS</a></li>
 						<li><a href="#button_action">BUTTON_ACTION</a></li>
+						<li><a href="#button_cursor">BUTTON_CURSOR</a></li>
+						<li><a href="#button_window_mode">BUTTON_WINDOW_MODE</a></li>
 					</ol>
 				</li>
 				<li><a href="#properties">Properties</a>
@@ -138,6 +140,7 @@
 						<li><a href="#setButtonTextPadding">setButtonTextPadding (added in v2.2.0)</a></li>
 						<li><a href="#setButtonDisabled">setButtonDisabled (added in v2.2.0)</a></li>
 						<li><a href="#setButtonAction">setButtonAction (added in v2.2.0)</a></li>
+						<li><a href="#setButtonCursor">setButtonCursor (added in v2.2.0)</a></li>
 					</ol>
 				</li>
 				<li><a href="#events">Events</a>
@@ -399,6 +402,15 @@ var swfu = new SWFUpload({
 	<h4><a name="button_action"></a>SWFUpload.BUTTON_ACTION</h4>
 	<p>SWFUpload.BUTTON_ACTION is a simple object that contains button action code constants.  It is used with the button_action setting to set the behavior of the Flash based file dialog button.</p>
 	
+	<h4><a name="button_cursor"></a>SWFUpload.CURSOR</h4>
+	<p>SWFUpload.CURSOR is a simple object that contains button cursor code constants.  It is used with the button_cursor setting to set the mouse cursor when hovering over the Flash button.</p>
+	
+	<h4><a name="button_window_mode"></a>SWFUpload.WINDOW_MODE</h4>
+	<p>SWFUpload.WINDOW_MODE is a simple object that contains button movie wmode parameter constants.  It is used to tell the browser how to display the Flash Movie.</p>
+	<p>SWFUpload.WINDOW_MODE.WINDOW is the default mode. The movie is drawn over the top of all other elements on the page.</p>
+	<p>SWFUpload.WINDOW_MODE.OPAQUE causes the movie to be rendered in the page allowing other elements to cover up the button.</p>
+	<p>SWFUpload.WINDOW_MODE.TRANSPARENT the button background is rendered transparent allowing html elements under the button to show through.</p>
+
 	<h3><a name="properties"></a>Properties</h3>
 	<p>
 		The following list of properties is intended for your use as described below. Using other properties or
@@ -571,6 +583,9 @@ swfu.customSettings = {
 	<h4><a name="setButtonAction"></a>void setButtonAction(<span class="parameter">buttonAction</span>)</h4>
 	<p>Sets the action taken when the Flash button is clicked.  Valid action values are taken from the BUTTON_ACTION constants.</p>
 	
+	<h4><a name="setButtonCursor"></a>void setButtonCursor(<span class="parameter">buttonCursor</span>)</h4>
+	<p>Sets the mouse cursor shown when hovering over the Flash button.  Valid cursor values are taken from the BUTTON_CURSOR constants.</p>
+	
 	<h3><a name="events"></a>Events</h3>
 	<p>SWFUpload fires various events during its operation.  These events can be handled by the developer to update the UI, change behavior, or report errors.</p>
 	<p>All SWFUpload events are called in the context of a SWFUpload instance.  This means that the 'this' object refers to the SWFUpload instance that
@@ -597,7 +612,7 @@ swfu.customSettings = {
 	for several reasons such as, the file exceeds the file size, the file is empty or a file or queue limit has been exceeded.</p>
 	<p>The reason for the queue error is specified by the error code parameter.  The error code corresponds to SWFUpload.QUEUE_ERROR constant.</p>
 	
-	<h4><a name="fileDialogComplete"></a><span class="function">fileDialogComplete(<span class="parameter">number of files selected</span>, <span class="parameter">number of files queued</span>)</span></h4>
+	<h4><a name="fileDialogComplete"></a><span class="function">fileDialogComplete(<span class="parameter">number of files selected</span>, <span class="parameter">number of files queued</span>, <span class="parameter">total number of files in the queued</span>)</span></h4>
 	<p>The fileDialogComplete event fires after the File Selection Dialog window has been closed and all the selected files have been processed.  The 'number of files queued' argument indicates the number of files that were queued from the dialog selection (as opposed to the number of files in the queue).</p>
 	<p>If you want file uploading to begin automatically this is a good place to call 'this.startUpload()'</p>
 	
@@ -651,6 +666,7 @@ swfu.customSettings = {
 	},
 	use_query_string : false,
 	requeue_on_error : false,
+	http_success : [201, 202],
 	file_types : "*.jpg;*.gif",
 	file_types_description: "Web Image Files",
 	file_size_limit : "1024",
@@ -671,6 +687,8 @@ swfu.customSettings = {
 	button_text_top_padding : 2,
 	button_action : SWFUpload.BUTTON_ACTION.SELECT_FILES,
 	button_disable : false,
+	button_cursor : SWFUpload.BUTTON_CURSOR.HAND,
+	button_window_mode : SWFUpload.WINDOW_MODE.TRANSPARENT,
 	
 	swfupload_loaded_handler : swfupload_loaded_function,
 	file_dialog_start_handler : file_dialog_start_function,
@@ -727,6 +745,14 @@ swfu.customSettings = {
 	</p>
 	<p>
 		This setting was introduced in SWFUpload v2.1.0.
+	</p>
+
+	<h5>http_success</h5>
+	<p>
+		An array that defines the HTTP Status Codes that will trigger success. 200 is always a success.  Also, only the 200 status code provides the serverData.
+	</p>
+	<p>
+		When returning and accepting an HTTP Status Code other than 200 it is not necessary for the server to return content.
 	</p>
 
 	<h5>file_types</h5>
@@ -836,6 +862,12 @@ swfu.customSettings = {
 	
 	<h5>button_disabled</h5>
 	<p><strong>(Added in v2.2.0)</strong> A boolean value that sets whether the Flash button is in the disabled state.  When in the disabled state the button will not execute any actions.</p>
+	
+	<h5>button_cursor</h5>
+	<p><strong>(Added in v2.2.0)</strong> Used to define what type of mouse cursor is displayed when hovering over the Flash button.</p>
+	
+	<h5>button_window_mode</h5>
+	<p><strong>(Added in v2.2.0)</strong> Sets the WMODE property of the Flash Movie. Valid values are available in the SWFUpload.WINDOW_MODE constants.</p>
 	
 	<h5>custom_settings</h5>
 	<p>

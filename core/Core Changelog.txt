@@ -5,10 +5,14 @@
  *   = Added setting for defining a button image
  *   = Added setting for defining button text
  *   = Added setting for defining button width, height and padding
- *   = Added setting for defining what element the Flash Movie should replace.
+ *   = Added setting for defining what element the Flash Movie should replace
+ *   = Added setting for defining flash wmode
+ *   = Added setting for defining the mouse cursor
  * + Added prevent_swf_caching setting as a work-around for issues in Avant Browser (and other IE based browser)
+ * + Added setting for accepting HTTP Status codes other than 200 as successful
+ * = Fixed small issues in SWFObject plugin
  * = Fixed issue with ExternalInterface string escaping
- * = Update Graceful Degradation Plugin to work with Flash Player 10
+ * - Dropped Graceful Degradation Plugin
  * - Dropped v1.0.2 Plugin
  * - Dropped Flash Player 8 support
 

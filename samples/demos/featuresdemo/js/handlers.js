@@ -103,6 +103,7 @@ var FeaturesDemoHandlers = {
 	},
 
 	uploadError : function (file, errorCode, message) {
+		FeaturesDemo.divServerData.innerHTML = "";
 		try {
 			var errorName = "";
 			switch (errorCode) {

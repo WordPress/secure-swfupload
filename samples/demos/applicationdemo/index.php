@@ -34,14 +34,16 @@
 				upload_complete_handler : uploadComplete,
 
 				// Button Settings
-				button_image_url : "../applicationdemo/images/XPButtonNoText_160x22.png",	// Relative to the SWF file
+				button_image_url : "../applicationdemo/images/SmallSpyGlassWithTransperancy_17x18.png",	// Relative to the SWF file
 				button_placeholder_id : "spanButtonPlaceholder",
-				button_width: 160,
-				button_height: 22,
+				button_width: 180,
+				button_height: 18,
 				button_text : '<span class="button">Select Images <span class="buttonSmall">(2 MB Max)</span></span>',
-				button_text_style : '.button { font-family: Helvetica, Arial, sans-serif; font-size: 14pt; } .buttonSmall { font-size: 10pt; }',
-				button_text_top_padding: 1,
-				button_text_left_padding: 5,
+				button_text_style : '.button { font-family: Helvetica, Arial, sans-serif; font-size: 12pt; } .buttonSmall { font-size: 10pt; }',
+				button_text_top_padding: 0,
+				button_text_left_padding: 18,
+				button_transparent: SWFUpload.WINDOW_MODE.TRANSPARENT,
+				button_cursor: SWFUpload.CURSOR.HAND,
 				
 				// Flash Settings
 				flash_url : "../swfupload/swfupload.swf",
@@ -76,7 +78,9 @@
 	} else {
 	?>
 	<form>
-		<span id="spanButtonPlaceholder"></span>
+		<div style="display: inline; border: solid 1px #7FAAFF; background-color: #C5D9FF; padding: 2px;">
+			<span id="spanButtonPlaceholder"></span>
+		</div>
 	</form>
 	<?php
 	}

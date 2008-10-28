@@ -1,4 +1,5 @@
 package {
+	import flash.display.BlendMode;
 	import flash.display.DisplayObjectContainer;
 	import flash.display.Loader;
 	import flash.display.Stage;
@@ -35,7 +36,7 @@ package {
 			var SWFUpload:SWFUpload = new SWFUpload();
 		}
 		
-		private const build_number:String = "SWFUPLOAD 2.2.0 2008-10-22";
+		private const build_number:String = "SWFUPLOAD 2.2.0 Beta 2 2008-10-28";
 		
 		// State tracking variables
 		private var fileBrowserMany:FileReferenceList = new FileReferenceList();
@@ -82,10 +83,12 @@ package {
 		private var fileQueueLimit:Number = 0;
 		private var useQueryString:Boolean = false;
 		private var requeueOnError:Boolean = false;
+		private var httpSuccess:Array = [];
 		private var debugEnabled:Boolean;
 
 		private var buttonLoader:Loader;
 		private var buttonTextField:TextField;
+		private var buttonCursorSprite:Sprite;
 		private var buttonImageURL:String;
 		private var buttonWidth:Number;
 		private var buttonHeight:Number;
@@ -94,6 +97,7 @@ package {
 		private var buttonTextTopPadding:Number;
 		private var buttonTextLeftPadding:Number;
 		private var buttonAction:Number;
+		private var buttonCursor:Number;
 		private var buttonStateOver:Boolean;
 		private var buttonStateMouseDown:Boolean;
 		private var buttonStateDisabled:Boolean;
@@ -128,6 +132,9 @@ package {
 		private var BUTTON_ACTION_SELECT_FILES:Number               = -110;
 		private var BUTTON_ACTION_START_UPLOAD:Number               = -120;
 		
+		private var BUTTON_CURSOR_ARROW:Number						= -1;
+		private var BUTTON_CURSOR_HAND:Number						= -2;
+		
 		public function SWFUpload() {
 			// Do the feature detection.  Make sure this version of Flash supports the features we need. If not
 			// abort initialization.
@@ -135,7 +142,6 @@ package {
 				return;
 			}
 
-			
 			Security.allowDomain("*");	// Allow uploading to any domain
 			
 			// Keep Flash Player busy so it doesn't show the "flash script is running slowly" error
@@ -203,7 +209,16 @@ package {
 			
 			this.stage.addChild(this.buttonTextField);
 			
-			// FIXME -- figure out about alignment
+			
+			this.buttonCursorSprite = new Sprite();
+			this.buttonCursorSprite.graphics.beginFill(0xFFFFFF, 0);
+			this.buttonCursorSprite.graphics.drawRect(0, 0, 1, 1);
+			this.buttonCursorSprite.graphics.endFill();
+			this.buttonCursorSprite.buttonMode = true;
+			this.buttonCursorSprite.x = 0;
+			this.buttonCursorSprite.y = 0;
+			this.buttonCursorSprite.addEventListener(MouseEvent.CLICK, doNothing);
+			this.stage.addChild(this.buttonCursorSprite);
 			
 			// Get the movie name
 			this.movieName = root.loaderInfo.parameters.movieName;
@@ -295,6 +310,12 @@ package {
 			}
 
 			try {
+				this.SetHTTPSuccess(String(root.loaderInfo.parameters.httpSuccess));
+			} catch (ex:Object) {
+				this.SetHTTPSuccess([]);
+			}
+
+			try {
 				this.SetButtonDimensions(Number(root.loaderInfo.parameters.buttonWidth), Number(root.loaderInfo.parameters.buttonHeight));
 			} catch (ex:Object) {
 				this.SetButtonDimensions(0, 0);
@@ -343,6 +364,12 @@ package {
 			}
 			
 			try {
+				this.SetButtonCursor(Number(root.loaderInfo.parameters.buttonCursor));
+			} catch (ex:Object) {
+				this.SetButtonCursor(this.BUTTON_CURSOR_ARROW);
+			}
+			
+			try {
 				//ExternalInterface.addCallback("SelectFile", this.SelectFile);
 				//ExternalInterface.addCallback("SelectFiles", this.SelectFiles);
 				ExternalInterface.addCallback("StartUpload", this.StartUpload);
@@ -367,6 +394,7 @@ package {
 				ExternalInterface.addCallback("SetFilePostName", this.SetFilePostName);
 				ExternalInterface.addCallback("SetUseQueryString", this.SetUseQueryString);
 				ExternalInterface.addCallback("SetRequeueOnError", this.SetRequeueOnError);
+				ExternalInterface.addCallback("SetHTTPSuccess", this.SetHTTPSuccess);
 				ExternalInterface.addCallback("SetDebugEnabled", this.SetDebugEnabled);
 
 				ExternalInterface.addCallback("SetButtonImageURL", this.SetButtonImageURL);
@@ -376,6 +404,7 @@ package {
 				ExternalInterface.addCallback("SetButtonTextStyle", this.SetButtonTextStyle);
 				ExternalInterface.addCallback("SetButtonAction", this.SetButtonAction);
 				ExternalInterface.addCallback("SetButtonDisabled", this.SetButtonDisabled);
+				ExternalInterface.addCallback("SetButtonCursor", this.SetButtonCursor);
 			} catch (ex:Error) {
 				this.Debug("Callbacks where not set.");
 				return;
@@ -392,7 +421,7 @@ package {
 		* *************************************** */
 		private function DialogCancelled_Handler(event:Event):void {
 			this.Debug("Event: fileDialogComplete: File Dialog window cancelled.");
-			ExternalCall.FileDialogComplete(this.fileDialogComplete_Callback, 0, 0);
+			ExternalCall.FileDialogComplete(this.fileDialogComplete_Callback, 0, 0, this.queued_uploads);
 		}
 
 		private function Open_Handler(event:Event):void {
@@ -422,12 +451,28 @@ package {
 		}
 
 		private function HTTPError_Handler(event:HTTPStatusEvent):void {
-			this.upload_errors++;
-			this.current_file_item.file_status = FileItem.FILE_STATUS_ERROR;
+			var isSuccessStatus:Boolean = false;
+			for (var i:Number = 0; i < this.httpSuccess.length; i++) {
+				if (this.httpSuccess[i] === event.status) {
+					isSuccessStatus = true;
+					break;
+				}
+			}
+			
+			
+			if (isSuccessStatus) {
+				this.Debug("Event: httpError: Translating status code " + event.status + " to uploadSuccess");
 
-			this.Debug("Event: uploadError: HTTP ERROR : File ID: " + this.current_file_item.id + ". HTTP Status: " + event.status + ".");
-			ExternalCall.UploadError(this.uploadError_Callback, this.ERROR_CODE_HTTP_ERROR, this.current_file_item.ToJavaScriptObject(), event.status.toString());
-			this.UploadComplete(true); 	// An IO Error is also called so we don't want to complete the upload yet.
+				var serverDataEvent:DataEvent = new DataEvent(DataEvent.UPLOAD_COMPLETE_DATA, event.bubbles, event.cancelable, "");
+				this.ServerData_Handler(serverDataEvent);
+			} else {
+				this.upload_errors++;
+				this.current_file_item.file_status = FileItem.FILE_STATUS_ERROR;
+
+				this.Debug("Event: uploadError: HTTP ERROR : File ID: " + this.current_file_item.id + ". HTTP Status: " + event.status + ".");
+				ExternalCall.UploadError(this.uploadError_Callback, this.ERROR_CODE_HTTP_ERROR, this.current_file_item.ToJavaScriptObject(), event.status.toString());
+				this.UploadComplete(true); 	// An IO Error is also called so we don't want to complete the upload yet.
+			}
 		}
 		
 		// Note: Flash Player does not support Uploads that require authentication. Attempting this will trigger an
@@ -537,7 +582,7 @@ package {
 			}
 			
 			this.Debug("Event: fileDialogComplete : Finished processing selected files. Files selected: " + file_reference_list.length + ". Files Queued: " + num_files_queued);
-			ExternalCall.FileDialogComplete(this.fileDialogComplete_Callback, file_reference_list.length, num_files_queued);
+			ExternalCall.FileDialogComplete(this.fileDialogComplete_Callback, file_reference_list.length, num_files_queued, this.queued_uploads);
 		}
 
 		
@@ -836,6 +881,34 @@ package {
 			this.requeueOnError = requeue_on_error;
 		}
 		
+		private function SetHTTPSuccess(http_status_codes:*):void {
+			this.httpSuccess = [];
+
+			if (typeof http_status_codes === "string") {
+				var status_code_strings:Array = http_status_codes.replace(" ", "").split(",");
+				for each (var http_status_string:String in status_code_strings) 
+				{
+					try {
+						this.httpSuccess.push(Number(http_status_string));
+					} catch (ex:Object) {
+						// Ignore errors
+						this.Debug("Could not add HTTP Success code: " + http_status_string);
+					}
+				}
+			}
+			else if (typeof http_status_codes === "object" && typeof http_status_codes.length === "number") {
+				for each (var http_status:* in http_status_codes) 
+				{
+					try {
+						this.Debug("adding: " + http_status);
+						this.httpSuccess.push(Number(http_status));
+					} catch (ex:Object) {
+						this.Debug("Could not add HTTP Success code: " + http_status);
+					}
+				}
+			}
+		}
+
 		private function SetDebugEnabled(debug_enabled:Boolean):void {
 			this.debugEnabled = debug_enabled;
 		}
@@ -899,6 +972,8 @@ package {
 			
 			this.buttonTextField.width = this.buttonWidth;
 			this.buttonTextField.height = this.buttonHeight;
+			this.buttonCursorSprite.width = this.buttonWidth;
+			this.buttonCursorSprite.height = this.buttonHeight;
 			
 			this.UpdateButtonState();
 		}
@@ -930,6 +1005,12 @@ package {
 		
 		private function SetButtonAction(button_action:Number):void {
 			this.buttonAction = button_action;
+		}
+		
+		private function SetButtonCursor(button_cursor:Number):void {
+			this.buttonCursor = button_cursor;
+			
+			this.buttonCursorSprite.useHandCursor = (button_cursor === this.BUTTON_CURSOR_HAND);
 		}
 		
 		/* *************************************************************
@@ -1172,6 +1253,7 @@ package {
 			debug_info += "Upload URL:             " + this.uploadURL + "\n";
 			debug_info += "File Types String:      " + this.fileTypes + "\n";
 			debug_info += "Parsed File Types:      " + this.valid_file_extensions.toString() + "\n";
+			debug_info += "HTTP Success:           " + this.httpSuccess.join(", ") + "\n";
 			debug_info += "File Types Description: " + this.fileTypesDescription + "\n";
 			debug_info += "File Size Limit:        " + this.fileSizeLimit + " bytes\n";
 			debug_info += "File Upload Limit:      " + this.fileUploadLimit + "\n";

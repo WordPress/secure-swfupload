@@ -49,7 +49,7 @@ SWFUpload.prototype.initSWFUpload = function (settings) {
 /* *************** */
 SWFUpload.instances = {};
 SWFUpload.movieCount = 0;
-SWFUpload.version = "2.2.0";
+SWFUpload.version = "2.2.0 Beta 2";
 SWFUpload.QUEUE_ERROR = {
 	QUEUE_LIMIT_EXCEEDED	  		: -100,
 	FILE_EXCEEDS_SIZE_LIMIT  		: -110,
@@ -80,6 +80,15 @@ SWFUpload.BUTTON_ACTION = {
 	SELECT_FILES : -110,
 	START_UPLOAD : -120
 };
+SWFUpload.CURSOR = {
+	ARROW : -1,
+	HAND : -2
+};
+SWFUpload.WINDOW_MODE = {
+	WINDOW : "window",
+	TRANSPARENT : "transparent",
+	OPAQUE : "opaque"
+};
 
 /* ******************** */
 /* Instance Members  */
@@ -98,6 +107,7 @@ SWFUpload.prototype.initSettings = function () {
 	this.ensureDefault("post_params", {});
 	this.ensureDefault("use_query_string", false);
 	this.ensureDefault("requeue_on_error", false);
+	this.ensureDefault("http_success", []);
 	
 	// File Settings
 	this.ensureDefault("file_types", "*.*");
@@ -121,6 +131,8 @@ SWFUpload.prototype.initSettings = function () {
 	this.ensureDefault("button_action", SWFUpload.BUTTON_ACTION.SELECT_FILES);
 	this.ensureDefault("button_disabled", false);
 	this.ensureDefault("button_placeholder_id", null);
+	this.ensureDefault("button_cursor", SWFUpload.CURSOR.ARROW);
+	this.ensureDefault("button_window_mode", SWFUpload.WINDOW_MODE.WINDOW);
 	
 	// Debug Settings
 	this.ensureDefault("debug", false);
@@ -215,11 +227,9 @@ SWFUpload.prototype.replaceWithFlash = function () {
 
 // Private: getFlashHTML generates the object tag needed to embed the flash in to the document
 SWFUpload.prototype.getFlashHTML = function () {
-	var transparent = this.settings.button_image_url === "" ? true : false;
-	
 	// Flash Satay object syntax: http://www.alistapart.com/articles/flashsatay
 	return ['<object id="', this.movieName, '" type="application/x-shockwave-flash" data="', this.settings.flash_url, '" width="', this.settings.button_width, '" height="', this.settings.button_height, '" class="swfupload">',
-				'<param name="wmode" value="', transparent ? "transparent" : "window", '" />',
+				'<param name="wmode" value="', this.settings.button_window_mode , '" />',
 				'<param name="movie" value="', this.settings.flash_url, '" />',
 				'<param name="quality" value="high" />',
 				'<param name="menu" value="false" />',
@@ -233,12 +243,14 @@ SWFUpload.prototype.getFlashHTML = function () {
 SWFUpload.prototype.getFlashVars = function () {
 	// Build a string from the post param object
 	var paramString = this.buildParamString();
-
+	var httpSuccessString = this.settings.http_success.join(",");
+	
 	// Build the parameter string
 	return ["movieName=", encodeURIComponent(this.movieName),
 			"&amp;uploadURL=", encodeURIComponent(this.settings.upload_url),
 			"&amp;useQueryString=", encodeURIComponent(this.settings.use_query_string),
 			"&amp;requeueOnError=", encodeURIComponent(this.settings.requeue_on_error),
+			"&amp;httpSuccess=", encodeURIComponent(httpSuccessString),
 			"&amp;params=", encodeURIComponent(paramString),
 			"&amp;filePostName=", encodeURIComponent(this.settings.file_post_name),
 			"&amp;fileTypes=", encodeURIComponent(this.settings.file_types),
@@ -255,7 +267,8 @@ SWFUpload.prototype.getFlashVars = function () {
 			"&amp;buttonTextLeftPadding=", encodeURIComponent(this.settings.button_text_left_padding),
 			"&amp;buttonTextStyle=", encodeURIComponent(this.settings.button_text_style),
 			"&amp;buttonAction=", encodeURIComponent(this.settings.button_action),
-			"&amp;buttonDisabled=", encodeURIComponent(this.settings.button_disabled)
+			"&amp;buttonDisabled=", encodeURIComponent(this.settings.button_disabled),
+			"&amp;buttonCursor=", encodeURIComponent(this.settings.button_cursor)
 		].join("");
 };
 
@@ -347,6 +360,8 @@ SWFUpload.prototype.displayDebugInfo = function () {
 			"\t", "upload_url:               ", this.settings.upload_url, "\n",
 			"\t", "flash_url:                ", this.settings.flash_url, "\n",
 			"\t", "use_query_string:         ", this.settings.use_query_string.toString(), "\n",
+			"\t", "requeue_on_error:         ", this.settings.requeue_on_error.toString(), "\n",
+			"\t", "http_success:             ", this.settings.http_success.join(", "), "\n",
 			"\t", "file_post_name:           ", this.settings.file_post_name, "\n",
 			"\t", "post_params:              ", this.settings.post_params.toString(), "\n",
 			"\t", "file_types:               ", this.settings.file_types, "\n",
@@ -595,6 +610,17 @@ SWFUpload.prototype.setRequeueOnError = function (requeueOnError) {
 	this.callFlash("SetRequeueOnError", [requeueOnError]);
 };
 
+// Public: setHTTPSuccess changes the http_success setting
+SWFUpload.prototype.setHTTPSuccess = function (http_status_codes) {
+	if (typeof http_status_codes === "string") {
+		http_status_codes = http_status_codes.replace(" ", "").split(",");
+	}
+	
+	this.settings.http_success = http_status_codes;
+	this.callFlash("SetHTTPSuccess", [http_status_codes]);
+};
+
+
 // Public: setDebugEnabled changes the debug_enabled setting
 SWFUpload.prototype.setDebugEnabled = function (debugEnabled) {
 	this.settings.debug_enabled = debugEnabled;
@@ -650,6 +676,12 @@ SWFUpload.prototype.setButtonDisabled = function (isDisabled) {
 SWFUpload.prototype.setButtonAction = function (buttonAction) {
 	this.settings.button_action = buttonAction;
 	this.callFlash("SetButtonAction", [buttonAction]);
+};
+
+// Public: setButtonCursor changes the mouse cursor displayed when hovering over the button
+SWFUpload.prototype.setButtonCursor = function (cursor) {
+	this.settings.button_cursor = cursor;
+	this.callFlash("SetButtonCursor", [cursor]);
 };
 
 /* *******************************
