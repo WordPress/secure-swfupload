@@ -663,7 +663,7 @@ package {
 		 * event gets called.
 		 * If the file is not currently uploading then only the uploadCancelled event is fired.
 		 * */
-		private function CancelUpload(file_id:String):void {
+		private function CancelUpload(file_id:String, triggerErrorEvent:Boolean = true):void {
 			var file_item:FileItem = null;
 			
 			// Check the current file item
@@ -672,9 +672,12 @@ package {
 					this.current_file_item.file_status = FileItem.FILE_STATUS_CANCELLED;
 					this.upload_cancelled++;
 					
-					this.Debug("Event: uploadError: File ID: " + this.current_file_item.id + ". Cancelled current upload");
-					ExternalCall.UploadError(this.uploadError_Callback, this.ERROR_CODE_FILE_CANCELLED, this.current_file_item.ToJavaScriptObject(), "File Upload Cancelled.");
-
+					if (triggerErrorEvent) {
+						this.Debug("Event: uploadError: File ID: " + this.current_file_item.id + ". Cancelled current upload");
+						ExternalCall.UploadError(this.uploadError_Callback, this.ERROR_CODE_FILE_CANCELLED, this.current_file_item.ToJavaScriptObject(), "File Upload Cancelled.");
+					} else {
+						this.Debug("Event: cancelUpload: File ID: " + this.current_file_item.id + ". Cancelled current upload. Suppressed uploadError event.");
+					}
 					this.UploadComplete(false);
 			} else if (file_id) {
 					// Find the file in the queue
@@ -692,8 +695,12 @@ package {
 						this.removeFileReferenceEventListeners(file_item);
 						file_item.file_reference = null;
 						
-						this.Debug("Event: uploadError : " + file_item.id + ". Cancelled queued upload");
-						ExternalCall.UploadError(this.uploadError_Callback, this.ERROR_CODE_FILE_CANCELLED, file_item.ToJavaScriptObject(), "File Cancelled");
+						if (triggerErrorEvent) {
+							this.Debug("Event: uploadError : " + file_item.id + ". Cancelled queued upload");
+							ExternalCall.UploadError(this.uploadError_Callback, this.ERROR_CODE_FILE_CANCELLED, file_item.ToJavaScriptObject(), "File Cancelled");
+						} else {
+							this.Debug("Event: cancelUpload: File ID: " + file_item.id + ". Cancelled current upload. Suppressed uploadError event.");
+						}
 
 						// Get rid of the file object
 						file_item = null;
@@ -720,8 +727,12 @@ package {
 					this.removeFileReferenceEventListeners(file_item);
 					file_item.file_reference = null;
 
-					this.Debug("Event: uploadError : " + file_item.id + ". Cancelled queued upload");
-					ExternalCall.UploadError(this.uploadError_Callback, this.ERROR_CODE_FILE_CANCELLED, file_item.ToJavaScriptObject(), "File Cancelled");
+					if (triggerErrorEvent) {
+						this.Debug("Event: uploadError : " + file_item.id + ". Cancelled queued upload");
+						ExternalCall.UploadError(this.uploadError_Callback, this.ERROR_CODE_FILE_CANCELLED, file_item.ToJavaScriptObject(), "File Cancelled");
+					} else {
+						this.Debug("Event: cancelUpload: File ID: " + file_item.id + ". Cancelled current upload. Suppressed uploadError event.");
+					}
 
 					// Get rid of the file object
 					file_item = null;

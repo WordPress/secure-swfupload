@@ -488,11 +488,11 @@ swfu.customSettings = {
 	
 	<p>Calling startUpload begins the Upload Event Chain.</p>
 	
-	<h4><a name="cancelUpload"></a>void cancelUpload(<span class="parameter">file_id</span>)</h4>
+	<h4><a name="cancelUpload"></a>void cancelUpload(<span class="parameter">file_id</span>, <span class="parameter">trigger_error_event</span>)</h4>
 	
 	<p>cancelUpload cancels the file specified by the file_id parameter.  The file is then removed from the queue.</p>
 	<p>If the file_id parameter is omitted or undefined then the first file in the queue is cancelled.</p>
-	<p>If the file cancelled is currently being uploaded then the uploadError event is fired.</p>
+	<p>The trigger_error_event is optional. If set to false the uploadError event is suppressed.</p>
 	
 	<h4><a name="stopUpload"></a>void stopUpload()</h4>
 

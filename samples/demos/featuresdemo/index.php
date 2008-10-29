@@ -126,6 +126,15 @@
 								</tr>
 							</table>
 						</div>
+						<div>
+							<table class="btn">
+								<tr>
+									<td class="btn-left"></td>
+									<td class="btn-center"><button id="btnCancelSelectedFileNoEvent" type="button" class="action">Cancel Selected File (no event)</button></td>
+									<td class="btn-right"></td>
+								</tr>
+							</table>
+						</div>
 					</div>
 					<div class="fieldset" id="fsStaticSettings">
 					<span class="legend">Static Settings</span>

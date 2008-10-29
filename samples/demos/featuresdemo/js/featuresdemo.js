@@ -22,7 +22,14 @@ var FeaturesDemo = {
 		};
 		FeaturesDemo.btnCancelSelectedFile.onclick = function () {
 			try {
-				FeaturesDemo.cancelSelectedFile();
+				FeaturesDemo.cancelSelectedFile(true);
+			} catch (ex) {
+			}
+			return false;
+		};
+		FeaturesDemo.btnCancelSelectedFileNoEvent.onclick = function () {
+			try {
+				FeaturesDemo.cancelSelectedFile(false);
 			} catch (ex) {
 			}
 			return false;
@@ -81,6 +88,7 @@ var FeaturesDemo = {
 		FeaturesDemo.btnStartSelectedFile = document.getElementById("btnStartSelectedFile");
 		FeaturesDemo.btnStopUpload = document.getElementById("btnStopUpload");
 		FeaturesDemo.btnCancelSelectedFile = document.getElementById("btnCancelSelectedFile");
+		FeaturesDemo.btnCancelSelectedFileNoEvent = document.getElementById("btnCancelSelectedFileNoEvent");
 		FeaturesDemo.txtAddFileParamName = document.getElementById("txtAddFileParamName");
 		FeaturesDemo.txtAddFileParamValue = document.getElementById("txtAddFileParamValue");
 		FeaturesDemo.btnAddFileParam = document.getElementById("btnAddFileParam");
@@ -229,7 +237,7 @@ var FeaturesDemo = {
 	stopUpload: function () {
 		FeaturesDemo.SU.stopUpload();
 	},
-	cancelSelectedFile: function () {
+	cancelSelectedFile: function (triggerEvent) {
 		if (FeaturesDemo.selQueue.options.length === 0) {
 			alert("You must queue a file first");
 			return;
@@ -240,7 +248,7 @@ var FeaturesDemo = {
 		}
 
 		var file_id = FeaturesDemo.selQueue.value;
-		FeaturesDemo.SU.cancelUpload(file_id);
+		FeaturesDemo.SU.cancelUpload(file_id, triggerEvent);
 	},
 	addFileParam: function () {
 		if (FeaturesDemo.selQueue.selectedIndex === -1) {
