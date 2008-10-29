@@ -42,7 +42,7 @@
 				button_text_style : '.button { font-family: Helvetica, Arial, sans-serif; font-size: 12pt; } .buttonSmall { font-size: 10pt; }',
 				button_text_top_padding: 0,
 				button_text_left_padding: 18,
-				button_transparent: SWFUpload.WINDOW_MODE.TRANSPARENT,
+				button_window_mode: SWFUpload.WINDOW_MODE.TRANSPARENT,
 				button_cursor: SWFUpload.CURSOR.HAND,
 				
 				// Flash Settings
