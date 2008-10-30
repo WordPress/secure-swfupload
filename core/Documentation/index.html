@@ -1011,6 +1011,8 @@ swfu.customSetting["a_dom_setting"].style.visibility = "hidden";</code>
 	<p>There have been some reports that the Flash Player cannot upload through SSL.
 	The issue has not been pinned down but uploading over SSL may be unreliable. There especially seems to be an issue with
 	using self-signed certificates.</p>
+	<p>Also, SSL tickets from untrusted Certificate Authorities (CA) do not work as Flash does not provide a method for accepting the certificate.  It has been noted that, like the cookie bug,
+	that Flash Player on Windows obtains its trusted CA list from Internet Explorer regardless of the browser in use.</p>
 	
 	<h3>Authentication</h3>
 	<p>HTTP Authentication is not well supported by the Flash Player.  Later versions of Flash Player behave better.  Old version of Flash Player would crash the browser.</p>
