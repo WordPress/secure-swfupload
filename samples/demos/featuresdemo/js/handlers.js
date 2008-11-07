@@ -96,7 +96,7 @@ var FeaturesDemoHandlers = {
 
 			FeaturesDemo.selEventsFile.options[FeaturesDemo.selEventsFile.options.length] = new Option("Upload Success: " + file.id, "");
 
-			FeaturesDemo.divServerData.innerHTML = typeof(serverData) === "undefined" ? "" : serverData;
+			FeaturesDemo.divServerData.innerHTML = typeof(serverData) === "undefined" ? "" : serverData.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/\t/g, "    ").replace(/  /g, " &nbsp;");
 		} catch (ex) {
 			this.debug(ex);
 		}
