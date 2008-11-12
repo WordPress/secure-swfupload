@@ -25,7 +25,9 @@ if (typeof(SWFUpload) === "function") {
 			this.customSettings.queue_upload_count = 0;
 			
 			this.settings.user_upload_complete_handler = this.settings.upload_complete_handler;
+			this.settings.user_upload_start_handler = this.settings.upload_complete_handler;
 			this.settings.upload_complete_handler = SWFUpload.queue.uploadCompleteHandler;
+			this.settings.upload_complete_handler = SWFUpload.queue.uploadStartHandler;
 			
 			this.settings.queue_complete_handler = this.settings.queue_complete_handler || null;
 		};
@@ -45,6 +47,17 @@ if (typeof(SWFUpload) === "function") {
 			this.cancelUpload();
 			stats = this.getStats();
 		}
+	};
+	
+	SWFUpload.queue.uploadStartHandler = function (file) {
+		var returnValue;
+		if (typeof(this.customSettings.user_upload_start_handler) === "function") {
+			returnValue = (this.customSettings.user_upload_start_handler.call(this, file) === false) ? false : true;
+		}
+		
+		this.customSettings.queue_cancelled_flag = !returnValue;
+
+		return returnValue;
 	};
 	
 	SWFUpload.queue.uploadCompleteHandler = function (file) {
