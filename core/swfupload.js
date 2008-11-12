@@ -200,6 +200,13 @@ SWFUpload.prototype.appendFlash = function () {
 
 	targetElement.appendChild(container);
 	container.innerHTML = this.getFlashHTML();	// Using innerHTML is non-standard but the only sensible way to dynamically add Flash in IE (and maybe other browsers)
+
+	// Fix IE Flash/Form bug
+	if (window[this.movieName] == undefined) {
+		window[this.movieName] = this.getMovieElement();
+	}
+	
+	
 };
 
 // Private: replaceWithFlash replaces the button_placeholder element with the flash movie.
@@ -223,6 +230,11 @@ SWFUpload.prototype.replaceWithFlash = function () {
 	tempParent.innerHTML = this.getFlashHTML();	// Using innerHTML is non-standard but the only sensible way to dynamically add Flash in IE (and maybe other browsers)
 	targetElement.parentNode.replaceChild(tempParent.firstChild, targetElement);
 
+	// Fix IE Flash/Form bug
+	if (window[this.movieName] == undefined) {
+		window[this.movieName] = this.getMovieElement();
+	}
+	
 };
 
 // Private: getFlashHTML generates the object tag needed to embed the flash in to the document
@@ -770,11 +782,6 @@ SWFUpload.prototype.flashReady = function () {
 		throw "ExternalInterface methods failed to initialize.";
 	}
 
-	// Fix IE Flash/Form bug
-	if (window[this.movieName] == undefined) {
-		window[this.movieName] = movieElement;
-	}
-	
 	this.queueEvent("swfupload_loaded_handler");
 };
 
