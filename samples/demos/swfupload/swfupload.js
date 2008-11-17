@@ -30,7 +30,6 @@ SWFUpload.prototype.initSWFUpload = function (settings) {
 		this.eventQueue = [];
 		this.movieName = "SWFUpload_" + SWFUpload.movieCount++;
 		this.movieElement = null;
-		this.flashCallFunction = null;
 
 
 		// Setup global control tracking
@@ -333,9 +332,11 @@ SWFUpload.prototype.destroy = function () {
 		if (movieElement) {
 			// Loop through all the movie's properties and remove all function references (DOM/JS IE 6/7 memory leak workaround)
 			for (var i in movieElement) {
-				if (typeof(movieElement[i]) === "function") {
-					movieElement[i] = null;
-				}
+				try {
+					if (typeof(movieElement[i]) === "function") {
+						movieElement[i] = null;
+					}
+				} catch (ex1) {}
 			}
 
 			// Remove the Movie Element from the page
@@ -357,7 +358,6 @@ SWFUpload.prototype.destroy = function () {
 		this.customSettings = null;
 		this.eventQueue = null;
 		this.movieName = null;
-		this.flashCallFunction = null;
 		
 		
 		return true;
@@ -454,8 +454,7 @@ SWFUpload.prototype.callFlash = function (functionName, argumentArray) {
 
 	// Flash's method if calling ExternalInterface methods (code adapted from MooTools).
 	try {
-		//returnString = movieElement.CallFunction('<invoke name="' + functionName + '" returntype="javascript">' + __flash__argumentsToXML(argumentArray, 0) + '</invoke>');
-		returnString = this.flashCallFunction.call(movieElement, '<invoke name="' + functionName + '" returntype="javascript">' + __flash__argumentsToXML(argumentArray, 0) + '</invoke>');
+		returnString = movieElement.CallFunction('<invoke name="' + functionName + '" returntype="javascript">' + __flash__argumentsToXML(argumentArray, 0) + '</invoke>');
 		returnValue = eval(returnString);
 	} catch (ex) {
 		throw "Call to " + functionName + " failed";
@@ -782,14 +781,15 @@ SWFUpload.prototype.flashReady = function () {
 	var movieElement = this.getMovieElement();
 
 	// Pro-actively unhook all the Flash functions
-	this.flashCallFunction = movieElement.CallFunction;
-	
-	for (var key in movieElement) {
-		try {
-			if (typeof(movieElement[key]) === "function") {
-				movieElement[key] = null;
+	if (typeof(movieElement.CallFunction) === "unknown") { // We only want to do this in IE
+		this.debug("Removing Flash functions hooks (this should only run in IE and should prevent memory leaks)");
+		for (var key in movieElement) {
+			try {
+				if (typeof(movieElement[key]) === "function") {
+					movieElement[key] = null;
+				}
+			} catch (ex) {
 			}
-		} catch (ex) {
 		}
 	}
 	
