@@ -49,7 +49,7 @@ SWFUpload.prototype.initSWFUpload = function (settings) {
 /* *************** */
 SWFUpload.instances = {};
 SWFUpload.movieCount = 0;
-SWFUpload.version = "2.2.0 Beta 2";
+SWFUpload.version = "2.2.0 Beta 3";
 SWFUpload.QUEUE_ERROR = {
 	QUEUE_LIMIT_EXCEEDED	  		: -100,
 	FILE_EXCEEDS_SIZE_LIMIT  		: -110,
@@ -318,39 +318,46 @@ SWFUpload.prototype.buildParamString = function () {
 // Public: Used to remove a SWFUpload instance from the page. This method strives to remove
 // all references to the SWF, and other objects so memory is properly freed.
 // Returns true if everything was destroyed. Returns a false if a failure occurs leaving SWFUpload in an inconsistant state.
+// Credits: Major improvements provided by steffen
 SWFUpload.prototype.destroy = function () {
 	try {
 		// Make sure Flash is done before we try to remove it
-		this.stopUpload();
+		this.cancelUpload(null, false);
 		
 		// Remove the SWFUpload DOM nodes
 		var movieElement = null;
-		try {
-			movieElement = this.getMovieElement();
-		} catch (ex) {
-		}
+		movieElement = this.getMovieElement();
 		
-		if (movieElement != undefined && movieElement.parentNode != undefined && typeof movieElement.parentNode.removeChild === "function") {
-			var container = movieElement.parentNode;
-			if (container != undefined) {
-				container.removeChild(movieElement);
-				if (container.parentNode != undefined && typeof container.parentNode.removeChild === "function") {
-					container.parentNode.removeChild(container);
+		if (movieElement) {
+			// Loop through all the movie's properties and remove all function references (DOM/JS IE 6/7 memory leak workaround)
+			for (var i in movieElement) {
+				if (movieElement.hasOwnProperty(i)) {
+					if (typeof(movieElement[i]) === "function") {
+						movieElement[i] = null;
+					}
 				}
 			}
+
+			// Remove the Movie Element from the page
+			try {
+				movieElement.parentNode.removeChild(movieElement);
+			} catch {}
 		}
 		
-		// Destroy references
+		
+		// Remove IE form fix reference
+		window[this.movieName] = null;
+
+		// Destroy other references
 		SWFUpload.instances[this.movieName] = null;
 		delete SWFUpload.instances[this.movieName];
 
-		delete this.movieElement;
-		delete this.settings;
-		delete this.customSettings;
-		delete this.eventQueue;
-		delete this.movieName;
+		this.movieElement = null;
+		this.settings = null;
+		this.customSettings = null;
+		this.eventQueue = null;
+		this.movieName = null;
 		
-		delete window[this.movieName];
 		
 		return true;
 	} catch (ex1) {
@@ -444,29 +451,20 @@ SWFUpload.prototype.callFlash = function (functionName, argumentArray) {
 	var movieElement = this.getMovieElement();
 	var returnValue;
 
-	if (typeof movieElement[functionName] === "function") {
-		// We have to go through all this if/else stuff because the Flash functions don't have apply() and only accept the exact number of arguments.
-		if (argumentArray.length === 0) {
-			returnValue = movieElement[functionName]();
-		} else if (argumentArray.length === 1) {
-			returnValue = movieElement[functionName](argumentArray[0]);
-		} else if (argumentArray.length === 2) {
-			returnValue = movieElement[functionName](argumentArray[0], argumentArray[1]);
-		} else if (argumentArray.length === 3) {
-			returnValue = movieElement[functionName](argumentArray[0], argumentArray[1], argumentArray[2]);
-		} else {
-			throw "Too many arguments";
-		}
-		
-		// Unescape file post param values
-		if (returnValue != undefined && typeof returnValue.post === "object") {
-			returnValue = this.unescapeFilePostParams(returnValue);
-		}
-		
-		return returnValue;
-	} else {
-		throw "Invalid function name: " + functionName;
+	// Flash's method if calling ExternalInterface methods (code adapted from MooTools).
+	try {
+		var returnString = movieElement.CallFunction('<invoke name="' + fn + '"returntype="javascript">' + __flash__argumentsToXML(argumentArray, 0) + '</invoke>');
+		returnValue = eval(rs);
+	} catch (ex) {
+		throw "Call to " + functionName + " failed";
 	}
+	
+	// Unescape file post param values
+	if (returnValue != undefined && typeof returnValue.post === "object") {
+		returnValue = this.unescapeFilePostParams(returnValue);
+	}
+
+	return returnValue;
 };
 
 
