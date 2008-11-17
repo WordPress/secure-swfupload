@@ -785,8 +785,11 @@ SWFUpload.prototype.flashReady = function () {
 	this.flashCallFunction = movieElement.CallFunction;
 	
 	for (var key in movieElement) {
-		if (typeof(movieElement[key]) === "function") {
-			movieElement[key] = null;
+		try {
+			if (typeof(movieElement[key]) === "function") {
+				movieElement[key] = null;
+			}
+		} catch (ex) {
 		}
 	}
 	
