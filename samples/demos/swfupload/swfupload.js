@@ -30,6 +30,8 @@ SWFUpload.prototype.initSWFUpload = function (settings) {
 		this.eventQueue = [];
 		this.movieName = "SWFUpload_" + SWFUpload.movieCount++;
 		this.movieElement = null;
+		this.flashCallFunction = null;
+
 
 		// Setup global control tracking
 		SWFUpload.instances[this.movieName] = this;
@@ -331,17 +333,15 @@ SWFUpload.prototype.destroy = function () {
 		if (movieElement) {
 			// Loop through all the movie's properties and remove all function references (DOM/JS IE 6/7 memory leak workaround)
 			for (var i in movieElement) {
-				if (movieElement.hasOwnProperty(i)) {
-					if (typeof(movieElement[i]) === "function") {
-						movieElement[i] = null;
-					}
+				if (typeof(movieElement[i]) === "function") {
+					movieElement[i] = null;
 				}
 			}
 
 			// Remove the Movie Element from the page
 			try {
 				movieElement.parentNode.removeChild(movieElement);
-			} catch {}
+			} catch (ex) {}
 		}
 		
 		
@@ -357,6 +357,7 @@ SWFUpload.prototype.destroy = function () {
 		this.customSettings = null;
 		this.eventQueue = null;
 		this.movieName = null;
+		this.flashCallFunction = null;
 		
 		
 		return true;
@@ -449,12 +450,13 @@ SWFUpload.prototype.callFlash = function (functionName, argumentArray) {
 	argumentArray = argumentArray || [];
 	
 	var movieElement = this.getMovieElement();
-	var returnValue;
+	var returnValue, returnString;
 
 	// Flash's method if calling ExternalInterface methods (code adapted from MooTools).
 	try {
-		var returnString = movieElement.CallFunction('<invoke name="' + fn + '"returntype="javascript">' + __flash__argumentsToXML(argumentArray, 0) + '</invoke>');
-		returnValue = eval(rs);
+		//returnString = movieElement.CallFunction('<invoke name="' + functionName + '" returntype="javascript">' + __flash__argumentsToXML(argumentArray, 0) + '</invoke>');
+		returnString = this.flashCallFunction.call(movieElement, '<invoke name="' + functionName + '" returntype="javascript">' + __flash__argumentsToXML(argumentArray, 0) + '</invoke>');
+		returnValue = eval(returnString);
 	} catch (ex) {
 		throw "Call to " + functionName + " failed";
 	}
@@ -474,17 +476,19 @@ SWFUpload.prototype.callFlash = function (functionName, argumentArray) {
 	to operate SWFUpload
    ***************************** */
 
+// WARNING: this function does not work in Flash Player 10
 // Public: selectFile causes a File Selection Dialog window to appear.  This
-// dialog only allows 1 file to be selected. WARNING: this function does not work in Flash Player 10
+// dialog only allows 1 file to be selected.
 SWFUpload.prototype.selectFile = function () {
 	this.callFlash("SelectFile");
 };
 
+// WARNING: this function does not work in Flash Player 10
 // Public: selectFiles causes a File Selection Dialog window to appear/ This
 // dialog allows the user to select any number of files
 // Flash Bug Warning: Flash limits the number of selectable files based on the combined length of the file names.
 // If the selection name length is too long the dialog will fail in an unpredictable manner.  There is no work-around
-// for this bug.  WARNING: this function does not work in Flash Player 10
+// for this bug.
 SWFUpload.prototype.selectFiles = function () {
 	this.callFlash("SelectFiles");
 };
@@ -776,10 +780,16 @@ SWFUpload.prototype.unescapeFilePostParams = function (file) {
 SWFUpload.prototype.flashReady = function () {
 	// Check that the movie element is loaded correctly with its ExternalInterface methods defined
 	var movieElement = this.getMovieElement();
-	if (typeof movieElement.StartUpload !== "function") {
-		throw "ExternalInterface methods failed to initialize.";
-	}
 
+	// Pro-actively unhook all the Flash functions
+	this.flashCallFunction = movieElement.CallFunction;
+	
+	for (var key in movieElement) {
+		if (typeof(movieElement[key]) === "function") {
+			movieElement[key] = null;
+		}
+	}
+	
 	this.queueEvent("swfupload_loaded_handler");
 };
 
