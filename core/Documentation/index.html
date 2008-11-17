@@ -191,15 +191,14 @@
 	</p>
 	<p>
 		SWFUpload is different from other Flash based upload tools because of the philosophy
-		behind its design.  SWFUpload gives developers control by leaving the UI in the browser.
+		behind its design.  SWFUpload gives developers control by leaving the UI in the browser (as much as possible).
 		Developers can use XHTML, CSS, and JavaScript to tailor the upload UI to the needs and
 		style of their site.  Upload status updates are made through a set of simple JavaScript events.
 		The developer uses these events to update the webpage as the file upload progresses.
 	</p>
 	<p>
-		Unfortunately Flash Player 10 has forced us to place one piece of the UI in a flash movie.  SWFUpload
-		allows the developer to use a custom button sprite and overlay text to continue to provide the most
-		flexibility possible when it comes to UI display.
+		Unfortunately Flash Player 10 has forced us have one button in a flash movie in order to trigger the file browser dialog window.  SWFUpload
+		still empowers the devloper by provding the ability the button and overlay text from JavaScript.
 	</p>
 	
 	<h2><a name="v2"></a>SWFUpload v2</h2>
@@ -212,20 +211,17 @@
 			<li>Flash Player 10 security compatibility.</li>
 			<li>The ability to send additional POST values with the uploads.</li>
 			<li>Sending per file POST values.</li>
-			<li>More intuitive events.</li>
-			<li>Settings dynamically updateable.</li>
+			<li>Complete set of events.</li>
+			<li>All settings dynamically updateable.</li>
 			<li>Retrieve result data from the server.</li>
 			<li>Stop an upload without cancelling.</li>
-			<li>Upload files out of order.</li>
+			<li>Upload files in any order.</li>
 			<li>Multi- &amp; Single-file selection dialogs.</li>
 			<li>Queue size, files uploaded and file size limits.</li>
-			<li>Properly handles zero-byte files.</li>
+			<li>Properly handling of zero-byte files.</li>
 			<li>Pre-upload validation event.</li>
-			<li>Work-arounds for bugs in Flash.</li>
+			<li>Work-arounds for bugs in Flash and Browser.</li>
 		</ul>
-	</p>
-	<p>
-		SWFUpload v2 continues the SWFUpload design goal of leaving the UI in the hands of developers and extends it even further.
 	</p>
 	
 	<h2><a name="overview"></a>Overview</h2>
@@ -247,8 +243,8 @@
 		The file types can be restricted so users only select the appropriate files (e.g., *.jpg;*.gif).
 	</p>
 	<p>
-		Once files are selected each is processed and validated.  As the file is processed and upload by Flash
-		JavaScript events are fired which the developer handlers in order to update the page UI. Providing
+		Once selected each file is validated and queued.  As the file is uploaded by Flash
+		several JavaScript events are fired which the developer handles in order to update the page's UI allowing you to provide
 		upload status and error messages in real-time.
 	</p>
 	<p>
@@ -270,11 +266,11 @@
 		<li>The Event Handlers (JavaScript)</li>
 	</ol>
 	
-	<p>Most problems implementing SWFUpload are caused by incorrect settings or poorly built event handlers.</p>
+	<p>Most problems implementing SWFUpload are caused by incorrect settings, poorly built event handlers, Flash/Browser Bugs, or server configuration.</p>
 	
 	<h3>Initialization and Settings</h3>
-	<p>SWFUpload must be initialized on the page.  This is commonly done in the window.onload event.  The SWFUpload constructor requires a settings object.
-	The settings object is often passed directly to the constructor as an object literal.</p>
+	<p>SWFUpload must be initialized on the page.  This is commonly done in the window.onload event.  The SWFUpload constructor takes a settings object.
+	The settings object can be passed directly to the constructor as an object literal.</p>
 	<p>A reference to the initialized SWFUpload object should be kept as it is needed to start uploads and to control other aspects of SWFUpload.</p>
 	
 	<p><strong>Example:</strong> Initializing SWFUpload with an object literal</p>
@@ -333,12 +329,13 @@ window.onload = function () {
 	
 	<p>Developers must create a set of JavaScript functions that handle SWFUpload events.  These functions are called as different important events occur.</p>
 	
-	<p>By handling the SWFUpload events developers can provide feedback regarding the upload progress, error messages, and upload completion.</p>
+	<p>By handling the SWFUpload events developers can provide feedback regarding the upload progress, error messages, and upload completion.  Developers should not
+	overwrite functions stored in SWFUpload.prototype. Instead create your own set of functions and pass references to them in the settings object.</p>
 	
 	<p><strong>Example:</strong> SWFUpload event handlers and initialization.</p>
 	
 	<code>// The uploadStart event handler.  This function variable is assigned to upload_start_handler in the settings object
-var uploadStartEventHandler = function (file) {
+var myCustomUploadStartEventHandler = function (file) {
 	var continue_with_upload;
 	
 	if (file.name === "the sky is blue") {
@@ -351,7 +348,7 @@ var uploadStartEventHandler = function (file) {
 };
 
 // The uploadSuccess event handler.  This function variable is assigned to upload_success_handler in the settings object
-var uploadSuccessEventHandler = function (file, server_data) {
+var myCustomUploadSuccessEventHandler = function (file, server_data) {
 	alert("The file " + file.name + " has been delivered to the server. The server responded with " + server_data);
 };
 
@@ -361,8 +358,8 @@ var swfu = new SWFUpload({
 	flash_url : "http://www.swfupload.org/swfupload.swf",
 	file_size_limit : "200 MB",
 	
-	upload_start_handler : uploadStartEventHandler,
-	upload_success_handler : uploadSuccessEventHandler
+	upload_start_handler : myCustomUploadStartEventHandler,
+	upload_success_handler : myCustomUploadSuccessEventHandler
 });</code>
 
 
@@ -380,9 +377,8 @@ var swfu = new SWFUpload({
 		advanced SWFUpload applications and for handling errors.  These are considered read-only.
 	</p>
 	<h4><a name="instances"></a>SWFUpload.instances</h4>
-	<p>SWFUpload.instances is an array containing a reference to each SWFUpload instance loaded on a page. The Flash Player
-	relies on this array in order to call the correct event handlers.  SWFUpload.instances is indexed by the movieName property.</p>
-	<p><em>Note:</em> SWFUpload.instances is not a true JavaScript array.  It is actually a simple object.</p>
+	<p>SWFUpload.instances is an object containing a reference to each SWFUpload instance loaded on a page. The Flash Player
+	relies on this object in order to call the correct event handlers.  SWFUpload.instances indexes by the movieName property.</p>
 
 	<h4><a name="movieCount"></a>SWFUpload.movieCount</h4>
 	<p>SWFUpload.movieCount is a global that tracks the number on SWFUpload instances that have been created and helps to ensure each movie is
@@ -392,25 +388,69 @@ var swfu = new SWFUpload({
 	<p>SWFUpload.QUEUE_ERROR is a simple object that contains Queue Error code constants.  It is generally used to determine which error code was sent
 	in the fileQueueError event.</p>
 	
+	<ul style="padding-left: 15px;">
+		<li>QUEUE_LIMIT_EXCEEDED - indicates that the user has attempted to queue more files that is allowed by the settings.  Once files have been updated and removed from the queue the user is again allowed to queue additional files.</li>
+		<li>FILE_EXCEEDS_SIZE_LIMIT - indicates the selected file is larger than is allwed by the file_size_limit.</li>
+		<li>ZERO_BYTE_FILE - indicates that the selected file is empty. The Flash Player cannot handle empty files and the file is rejected. Windows Shortcut files may also trigger this error.</li>
+		<li>INVALID_FILETYPE - The selected file's extension does not match a valid extension from the file_types setting.  User's can circumvent the file_types restriction by manually entering a file name.</li>
+	</ul>
+	
 	<h4><a name="upload_error"></a>SWFUpload.UPLOAD_ERROR</h4>
 	<p>SWFUpload.UPLOAD_ERROR is a simple object that contains Upload Error code constants.  It is generally used to determine which error code was sent
 	in the uploadError event.</p>
 
+	<ul style="padding-left: 15px;">
+		<li>HTTP_ERROR - The file upload was attempted but the server did not return a 200 status code.</li>
+		<li>MISSING_UPLOAD_URL - The upload_url setting was not set.</li>
+		<li>IO_ERROR - Some kind of error occurred while reading or transmitting the file.  This most commonly occurs when the server unexpectedly terminates the connection.</li>
+		<li>SECURITY_ERROR - The upload violates a security restriction. This error is rare.</li>
+		<li>UPLOAD_LIMIT_EXCEEDED - The user has attempted to upload more files than is allowed by the file_upload_limit setting.</li>
+		<li>UPLOAD_FAILED - The attempt to initiate the upload caused an error. This error is rare.</li>
+		<li>SPECIFIED_FILE_ID_NOT_FOUND - A file ID was passed to startUpload but that file ID could not be found.</li>
+		<li>FILE_VALIDATION_FAILED - False was returned from the uploadStart event</li>
+		<li>FILE_CANCELLED - cancelUpload was called</li>
+		<li>UPLOAD_STOPPED - stopUpload was called.</li>
+	</ul>	
+	
 	<h4><a name="file_status"></a>SWFUpload.FILE_STATUS</h4>
 	<p>SWFUpload.FILE_STATUS is a simple object that contains File Status code constants.  It can be used to check the file status property on the File object.</p>
 
+	<ul style="padding-left: 15px;">
+		<li>QUEUED - indicates the this file is waiting in the queue.</li>
+		<li>IN_PROGRESS - indicates that this file is currently being uploaded.</li>
+		<li>ERROR - indicates that this file caused a queue or upload error.</li>
+		<li>COMPLETE - indicates that this file was successfully transmitted to the server.</li>
+		<li>CANCELLED - indicates that this file was cancelled by a call to cancelUpload.</li>
+	</ul>
+
+	
 	<h4><a name="button_action"></a>SWFUpload.BUTTON_ACTION</h4>
 	<p>SWFUpload.BUTTON_ACTION is a simple object that contains button action code constants.  It is used with the button_action setting to set the behavior of the Flash based file dialog button.</p>
 	
+	<ul style="padding-left: 15px;">
+		<li>SELECT_FILE - when the Flash button is clicked the file dialog will only allow a single file to be selected.</li>
+		<li>SELECT_FILES - when the Flash button is clicked the file dialog allows multiple files to be selected.</li>
+		<li>START_UPLOAD - while the Flash button is clicked the first queued file will be uploaded.</li>
+	</ul>
+
 	<h4><a name="button_cursor"></a>SWFUpload.CURSOR</h4>
 	<p>SWFUpload.CURSOR is a simple object that contains button cursor code constants.  It is used with the button_cursor setting to set the mouse cursor when hovering over the Flash button.</p>
 	
+	<ul style="padding-left: 15px;">
+		<li>ARROW - the cursor will display as an arrow pointer</li>
+		<li>HAND - the cursor will display has a finger/hand pointer</li>
+	</ul>
+		
 	<h4><a name="button_window_mode"></a>SWFUpload.WINDOW_MODE</h4>
 	<p>SWFUpload.WINDOW_MODE is a simple object that contains button movie wmode parameter constants.  It is used to tell the browser how to display the Flash Movie.</p>
-	<p>SWFUpload.WINDOW_MODE.WINDOW is the default mode. The movie is drawn over the top of all other elements on the page.</p>
-	<p>SWFUpload.WINDOW_MODE.OPAQUE causes the movie to be rendered in the page allowing other elements to cover up the button.</p>
-	<p>SWFUpload.WINDOW_MODE.TRANSPARENT the button background is rendered transparent allowing html elements under the button to show through.</p>
+	<p>The some WINDOW_MODE/WMODE settings can cause problems in some browsers.  See the <a href="#knownissues">Known Issues</a>.</p>
 
+	<ul style="padding-left: 15px;">
+		<li>WINDOW is the default mode. The movie is drawn over the top of all other elements on the page.</li>
+		<li>OPAQUE causes the movie to be rendered in the page allowing other elements to cover up the button.</li>
+		<li>TRANSPARENT the button background is rendered transparent allowing html elements under the button to show through.</li>
+	</ul>
+	
 	<h3><a name="properties"></a>Properties</h3>
 	<p>
 		The following list of properties is intended for your use as described below. Using other properties or
@@ -466,9 +506,8 @@ swfu.customSettings = {
 	
 	<h4><a name="destroy"></a>bool destroy()</h4>
 	<p><strong>Added in v2.1.0</strong></p>
-	<p>Removes the SWF DOM elements and then destroys SWFUpload internal references. Used for removing a SWFUpload instance from a page.</p>
+	<p>Removes the SWF DOM elements and then destroys SWFUpload internal references. Used for removing a SWFUpload instance from a page. It also attempts to prevent memory leaks in IE.</p>
 	<p>Returns true if the elements were removed successfully. Returns false if any error occurs leaving the SWFUpload instance in an inconsistent state.</p>
-	<p><em>This has not been tested against the SWFUpload plugins and may not be compatible (especially the SWFObject plugin).</em></p>
 	
 	<h4><a name="displayDebugInfo"></a>void displayDebugInfo()</h4>
 	<p>The displayDebugInfo outputs SWFUpload settings using the debug event.  This function is automatically called after initialization if the debug setting is 'true'</p>
@@ -586,19 +625,31 @@ swfu.customSettings = {
 	<h4><a name="setButtonCursor"></a>void setButtonCursor(<span class="parameter">buttonCursor</span>)</h4>
 	<p>Sets the mouse cursor shown when hovering over the Flash button.  Valid cursor values are taken from the CURSOR constants.</p>
 	
+	
+	
 	<h3><a name="events"></a>Events</h3>
 	<p>SWFUpload fires various events during its operation.  These events can be handled by the developer to update the UI, change behavior, or report errors.</p>
 	<p>All SWFUpload events are called in the context of a SWFUpload instance.  This means that the 'this' object refers to the SWFUpload instance that
 	fired the event.</p>
 	
-	<p>SWFUpload events should be overridden only by assigning the overriding function in the settings object during object initialization.</p>
+	<p>SWFUpload events should be set only by assigning the event handler function in the settings object during object initialization. You should not override the
+	internal functions belonging to the SWFUpload.prototype object.</p>
+	
+	<p>During a file upload events are usually called in this order (the Upload Event Chain):</p>
+	<ul>
+		<li>uploadStart</li>		
+		<li>uploadProgress (called over and over again as the file uploads)</li>		
+		<li>uploadError (called if some kind of error occurs, the file is canceled or stopped)</li>		
+		<li>uploadSuccess (the upload finished and the server returned some data)</li>
+		<li>uploadComplete (the upload is complete and SWFUpload is ready to start the next file)</li>
+	</ul>
 	
 	<h4><a name="flashReady"></a><span class="function">flashReady()</span></h4>
 	<p>flashReady is an internal event that should not be overwritten.  It is called by the Flash Control to notify SWFUpload that the Flash
 	movie has loaded and is ready to accept commands.</p>
 	
 	<h4><a name="swfUploadLoaded"></a><span class="function">swfUploadLoaded()</span></h4>
-	<p>The swfUploadLoaded event is fired by flashReady.  It is overridable.  When swfUploadLoaded is called it is safe to call SWFUpload methods.</p>
+	<p>The swfUploadLoaded event is fired by flashReady.  It is settable.  swfUploadLoaded is called to let you know that it is safe to call SWFUpload methods.</p>
 	
 	<h4><a name="fileDialogStart"></a><span class="function">fileDialogStart(<span class="parameter"></span>)</span></h4>
 	<p>fileDialogStart is fired after selectFile for selectFiles is called. This event is fired immediately before the File Selection Dialog
@@ -610,7 +661,7 @@ swfu.customSettings = {
 	<h4><a name="fileQueueError"></a><span class="function">fileQueueError(<span class="parameter">file object</span>, <span class="parameter">error code</span>, <span class="parameter">message</span>)</span></h4>
 	<p>The fileQueueError event is fired for each file that was not queued after the File Selection Dialog window is closed.  A file may not be queued
 	for several reasons such as, the file exceeds the file size, the file is empty or a file or queue limit has been exceeded.</p>
-	<p>The reason for the queue error is specified by the error code parameter.  The error code corresponds to SWFUpload.QUEUE_ERROR constant.</p>
+	<p>The reason for the queue error is specified by the error code parameter.  The error code corresponds to a SWFUpload.QUEUE_ERROR constant.</p>
 	
 	<h4><a name="fileDialogComplete"></a><span class="function">fileDialogComplete(<span class="parameter">number of files selected</span>, <span class="parameter">number of files queued</span>, <span class="parameter">total number of files in the queued</span>)</span></h4>
 	<p>The fileDialogComplete event fires after the File Selection Dialog window has been closed and all the selected files have been processed.  The 'number of files queued' argument indicates the number of files that were queued from the dialog selection (as opposed to the number of files in the queue).</p>
@@ -902,7 +953,8 @@ swfu.customSetting["a_dom_setting"].style.visibility = "hidden";</code>
 	
 	
 	<h4><a name="fileobject"></a>File Object</h4>
-	<p>The file object is passed to several event handlers.  It contains information about the file.</p>
+	<p>The file object is passed to several event handlers.  It contains information about the file.  Some operating systems do not fill in all the values (this
+	is especially true for the createdate and modificationdate values).</p>
 	<code>{
 	id : string,			// SWFUpload file id, used for starting or cancelling and upload
 	index : number,			// The index of this file for use in getFile(i)
@@ -940,48 +992,37 @@ swfu.customSetting["a_dom_setting"].style.visibility = "hidden";</code>
 	</p>
 	<p>
 		This plugin also provides support for Document Ready loading and Flash Version Detection.  Usage details are documented
-		in the plugin file itself.
+		in the plugin file itself.  You should not use the SWFObject's Document Ready loading mixed with another libraries DOMReady.  Use
+		one or the other but not both.
 	</p>
-	<p>
-		Using this plugin can eliminate the flicker seen in the Graceful Degradation plugin and provides events for loading failure.
-	</p>
+	
 	<p><strong>Flash Player 10: </strong> Because Flash Player 10 requires the SWFUpload swf to act is a button the movie must be visible in order
 	for it to load.  If the button_placeholder_id is set to an element that is hidden (visibility set to hidden or display set to none) SWFUpload will
 	fail to load.</p>
-	
-	<h3>Graceful Degradation</h3>
-	
-	<p><strong>This plugin has been superseded by the SWFObject plugin.</strong></p>
-	
-	<p>This plugin provides additional settings and logic for automatically hiding and showing page elements based on
-	whether SWFUpload loads.</p>
-	
-	<p><strong>Flash Player 10: </strong> The Graceful Degradation plugin has been updated to support Flash Player 10. However, because the Flash Movie
-	won't execute if it is hidden (inside an element with visibility set to hidden or display set to none) the movie must be loaded in a visible area of the
-	page. This is handled automatically.  However, the side affect is that the movie is executed twice. The plugin handles this but developers should be aware
-	that this is happening.  In most cases this simply means that you will see the SWFUpload initialization (if debug is enable) run twice.  There is still only
-	a single movie per instance and events are not fired twice.</p>
-
-	<h3>SWFUpload v1.0.2 Compatibility</h3>
-	<p>Creates compatibility with v1.0.2.  Using this plugin you should be able to drop SWFUpload v2.0 in to a v1.0.2 page.
-	This plugin is not supported and is only intended for users of SWFUpload v1.0.2 who wish to upgrade to v2 without recoding their pages.</p>
 	
 	<h3>Cookies</h3>
 	<p>In response to the Flash Cookie Bug the Cookies Plugin automatically retrieves your browser's cookies and sends them
 	with the upload.  The are sent as POST or GET variables to the upload url.</p>
 	
+	<p>Note that this plugin sends the cookies name/values in the POST or GET.  On the server side they will not be accessible as cookies.  Some frameworks that
+	automatically check cookies for session or authentication values still will not be able to find the values.</p>
+	
 	<h3>Queue Handling</h3>
 	<p>This plugin provides Queue Handling features such as entire queue uploading, entire queue cancelling and automatic starting of uploads after being queued.</p>
 
+	
+	
+	
 	<h2><a name="knownissues"></a>Known Issues</h2>
 	<p>The Flash Player and many Browsers have bugs that have a direct impact on the performance of SWFUpload.  While we have worked
-	hard to get around many issues there are some things that cannot be fix.</p>
+	hard to get around many issues but there are some things that we cannot fix.</p>
 	
 	<h3>Cancelling in Linux</h3>
 	<p>Older Flash 9 Players for Linux cause the browser to crash if an upload is cancelled.  Newer Flash 9 Players behave better.</p>
 	
 	<h3>Upload Progress in Linux</h3>
 	<p>The Flash Player in Linux sends a single uploadProgress event after the file has finished uploading.</p>
+	<p>In some distributions the entire browser locks up while the upload is in progress.</p>
 	
 	<h3>Upload Progress in OS X</h3>
 	<p>There have been some reports that uploadProgress events are not fired in MAC Flash Players. The specifics haven't been pinned down but be aware of the possible issue.</p>
@@ -1021,13 +1062,13 @@ swfu.customSetting["a_dom_setting"].style.visibility = "hidden";</code>
 	<p>Prematurely ending the response (such as a Response.end() in ASP.Net) can sometimes cause successful uploads to be reported as failed.</p>
 	
 	<h3>Filedata in Linux</h3>
-	<p>Changing the Filedata value (file_post_name setting) is ignored in Linux Flash Player.</p>
+	<p>Changing the Filedata value (file_post_name setting) is ignored in Linux Flash Players.</p>
 	
 	<h3>uploadSuccess &amp; Server Data</h3>
 	<p>The uploadSuccess will not fire if no data is returned from the server.  This is especially problematic on the Mac version of the Flash Player.</p>
 	
 	<h3>Cookie issue</h3>
-	<p>On Windows the Non-IE Flash Player plugin (FireFox, Opera, Safari, etc) sends the IE cookies regardless of the browser used.  This breaks authentication and sessions for many server-side scripting technologies.</p>
+	<p>On Windows the Non-IE Flash Player plugin (FireFox, Opera, Safari, etc) will send the IE cookies regardless of the browser used.  This breaks authentication and sessions for many server-side scripting technologies.</p>
 	<p>Developers should manually pass Session and Authentication cookie information and manually restore Sessions on the Server Side if they wish to use Sessions</p>
 	<p>The SWFUpload package contains work-around sample code for PHP and ASP.Net</p>
 	
@@ -1045,7 +1086,7 @@ swfu.customSetting["a_dom_setting"].style.visibility = "hidden";</code>
 	<p>When the page is reloaded SWFUpload loads and fires the swfupload_loaded event.  However, none of the ExternalInterface callback functions are defined
 	on the movie element.  SWFUpload v2.0.2 has added checks which prevent swfupload_loaded from firing if the callback functions are not detected.</p>
 
-	<p>SWFUpload v2.2.0 added the prevent_swf_caching setting that attempts to work around this issue.</p>
+	<p><strong>SWFUpload v2.2.0 added the prevent_swf_caching setting that attempts to work around this issue.</strong></p>
 	
 	<h3>File Dialog &amp; Page Changing</h3>
 	<p>Leaving or reloading the current page while the File Browser Dialog window is open will cause the browser to crash (all browsers, all OSs).  Most commonly this is caused by failing to
@@ -1057,6 +1098,23 @@ swfu.customSetting["a_dom_setting"].style.visibility = "hidden";</code>
 	the script runs (if possible).  For PHP, the script continues to run and complete successfully even though Flash has terminated the connection.  Any data returned
 	by the script after Flash has disconnected is lost.</p>
 
+	<h3>WMODE / BUTTON_WINDOW_MODE</h3>
+	
+	<p>In some browsers the selected WMODE (which is set using the BUTTON_WINDOW_MODE) can prevent the Flash Control from loading
+	if the control is not on screen.  The control will finally load once the user scrolls the page so the control becomes visible.</p>
+	
+	<p>This behavior can adversely affect the SWFObject plugin.  No SWFUpload events will be fire and the button image will not be
+	loaded until the control becomes visible.</p>
+
+	<h3>Memory Leaks</h3>
+	<p>Some browsers (especially IE) cannot recover memory used by the Flash Player when JavaScript communication via the ExternalInterface classes is used (like in SWFUpload). 
+	Creating many SWFUpload instances and/or reloading the page several times will cause the browser to consume more and more memory until it crashes or otherwise harms the
+	system.</p>
+	
+	<p>In v2.2.0 SWFUpload we gave implemented some preventative measures.  Some of these measures are pro-active but it is still recommended that you
+	call the destroy method when the page unloads.  If you are using hundreds of SWFUpload instances on a page you should use caution and test
+	carefully for memory leaks.</p>
+	
 	<h3>Other Mac Issues</h3>
 	<ul>
 		<li>
