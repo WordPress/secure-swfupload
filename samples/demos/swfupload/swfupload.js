@@ -131,7 +131,7 @@ SWFUpload.prototype.initSettings = function () {
 	this.ensureDefault("button_text_left_padding", 0);
 	this.ensureDefault("button_action", SWFUpload.BUTTON_ACTION.SELECT_FILES);
 	this.ensureDefault("button_disabled", false);
-	this.ensureDefault("button_placeholder_id", null);
+	this.ensureDefault("button_placeholder_id", "");
 	this.ensureDefault("button_cursor", SWFUpload.CURSOR.ARROW);
 	this.ensureDefault("button_window_mode", SWFUpload.WINDOW_MODE.WINDOW);
 	
@@ -162,7 +162,7 @@ SWFUpload.prototype.initSettings = function () {
 	
 	// Update the flash url if needed
 	if (this.settings.prevent_swf_caching) {
-		this.settings.flash_url = this.settings.flash_url + "?swfuploadrnd=" + Math.floor(Math.random() * 999999999);
+		this.settings.flash_url = this.settings.flash_url + (this.settings.flash_url.indexOf("?") < 0 ? : "?" : "&") + new Date().getTime();
 	}
 	
 	delete this.ensureDefault;
@@ -223,7 +223,7 @@ SWFUpload.prototype.replaceWithFlash = function () {
 	targetElement = document.getElementById(this.settings.button_placeholder_id);
 
 	if (targetElement == undefined) {
-		throw "Could not find the placeholder element.";
+		throw "Could not find the placeholder element: " + this.settings.button_placeholder_id;
 	}
 
 	// Append the container and load the flash
@@ -780,17 +780,26 @@ SWFUpload.prototype.flashReady = function () {
 	// Check that the movie element is loaded correctly with its ExternalInterface methods defined
 	var movieElement = this.getMovieElement();
 
+	if (!movieElement) {
+		this.debug("Flash called back ready but the flash movie can't be found.");
+		return;
+	}
+
 	// Pro-actively unhook all the Flash functions
-	if (typeof(movieElement.CallFunction) === "unknown") { // We only want to do this in IE
-		this.debug("Removing Flash functions hooks (this should only run in IE and should prevent memory leaks)");
-		for (var key in movieElement) {
-			try {
-				if (typeof(movieElement[key]) === "function") {
-					movieElement[key] = null;
+	try {
+		if (movieElement && typeof(movieElement.CallFunction) === "unknown") { // We only want to do this in IE
+			this.debug("Removing Flash functions hooks (this should only run in IE and should prevent memory leaks)");
+			for (var key in movieElement) {
+				try {
+					if (typeof(movieElement[key]) === "function") {
+						movieElement[key] = null;
+					}
+				} catch (ex) {
 				}
-			} catch (ex) {
 			}
 		}
+	} catch (ex1) {
+	
 	}
 	
 	this.queueEvent("swfupload_loaded_handler");

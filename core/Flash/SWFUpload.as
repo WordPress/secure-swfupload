@@ -25,6 +25,7 @@ package {
 	import flash.text.TextFieldAutoSize;
 	import flash.text.TextFormat;
 	import flash.ui.Mouse;
+	import flash.utils.Timer;
 
 	import FileItem;
 	import ExternalCall;
@@ -36,7 +37,7 @@ package {
 			var SWFUpload:SWFUpload = new SWFUpload();
 		}
 		
-		private const build_number:String = "SWFUPLOAD 2.2.0 Beta 3 2008-11-16";
+		private const build_number:String = "SWFUPLOAD 2.2.0 Beta 3 2008-12-05";
 		
 		// State tracking variables
 		private var fileBrowserMany:FileReferenceList = new FileReferenceList();
@@ -54,6 +55,8 @@ package {
 		private var queued_uploads:Number = 0;			// Tracks the FileItems that are waiting to be uploaded.
 		
 		private var valid_file_extensions:Array = new Array();// Holds the parsed valid extensions.
+		
+		private var restoreExtIntTimer:Timer;
 		
 		// Callbacks
 		private var flashReady_Callback:String;
@@ -346,12 +349,6 @@ package {
 			}
 
 			try {
-				this.SetButtonTextStyle(String(root.loaderInfo.parameters.buttonTextStyle));
-			} catch (ex:Object) {
-				this.SetButtonTextStyle("");
-			}
-
-			try {
 				this.SetButtonAction(Number(root.loaderInfo.parameters.buttonAction));
 			} catch (ex:Object) {
 				this.SetButtonAction(this.BUTTON_ACTION_SELECT_FILES);
@@ -369,6 +366,19 @@ package {
 				this.SetButtonCursor(this.BUTTON_CURSOR_ARROW);
 			}
 			
+			this.SetupExternalInterface();
+			
+			this.Debug("SWFUpload Init Complete");
+			this.PrintDebugInfo();
+
+			ExternalCall.Simple(this.flashReady_Callback);
+			
+			this.restoreExtIntTimer = new Timer(1000, 0);
+			this.restoreExtIntTimer.addEventListener(TimerEvent.TIMER, this.SetupExternalInterface);
+			this.restoreExtIntTimer.start();
+		}
+
+		private function SetupExternalInterface():void {
 			try {
 				//ExternalInterface.addCallback("SelectFile", this.SelectFile);
 				//ExternalInterface.addCallback("SelectFiles", this.SelectFiles);
@@ -409,13 +419,8 @@ package {
 				this.Debug("Callbacks where not set.");
 				return;
 			}
-
-			this.Debug("SWFUpload Init Complete");
-			this.PrintDebugInfo();
-
-			ExternalCall.Simple(this.flashReady_Callback);
 		}
-
+		
 		/* *****************************************
 		* FileReference Event Handlers
 		* *************************************** */
