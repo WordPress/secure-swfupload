@@ -162,7 +162,7 @@ SWFUpload.prototype.initSettings = function () {
 	
 	// Update the flash url if needed
 	if (this.settings.prevent_swf_caching) {
-		this.settings.flash_url = this.settings.flash_url + (this.settings.flash_url.indexOf("?") < 0 ? : "?" : "&") + new Date().getTime();
+		this.settings.flash_url = this.settings.flash_url + (this.settings.flash_url.indexOf("?") < 0 ? "?" : "&") + new Date().getTime();
 	}
 	
 	delete this.ensureDefault;
