@@ -57,6 +57,7 @@ package {
 		private var valid_file_extensions:Array = new Array();// Holds the parsed valid extensions.
 		
 		private var restoreExtIntTimer:Timer;
+		private var hasCalledFlashReady:Boolean = false;
 		
 		// Callbacks
 		private var flashReady_Callback:String;
@@ -73,6 +74,8 @@ package {
 		private var uploadComplete_Callback:String;
 		
 		private var debug_Callback:String;
+		private var testExternalInterface_Callback:String;
+		private var cleanUp_Callback:String;
 		
 		// Values passed in from the HTML
 		private var movieName:String;
@@ -247,6 +250,8 @@ package {
 
 			this.debug_Callback              = "SWFUpload.instances[\"" + this.movieName + "\"].debug";
 
+			this.testExternalInterface_Callback = "SWFUpload.instances[\"" + this.movieName + "\"].testExternalInterface";
+			this.cleanUp_Callback              = "SWFUpload.instances[\"" + this.movieName + "\"].cleanUp";
 			
 			// Get the Flash Vars
 			this.uploadURL = root.loaderInfo.parameters.uploadURL;
@@ -371,17 +376,39 @@ package {
 			this.Debug("SWFUpload Init Complete");
 			this.PrintDebugInfo();
 
-			ExternalCall.Simple(this.flashReady_Callback);
+			if (ExternalCall.Bool(this.testExternalInterface_Callback)) {
+				ExternalCall.Simple(this.flashReady_Callback);
+				this.hasCalledFlashReady = true;
+			}
 			
+			// Start periodically checking the external interface
+			var oSelf:SWFUpload = this;
 			this.restoreExtIntTimer = new Timer(1000, 0);
-			this.restoreExtIntTimer.addEventListener(TimerEvent.TIMER, this.SetupExternalInterface);
+			this.restoreExtIntTimer.addEventListener(TimerEvent.TIMER, function ():void { oSelf.CheckExternalInterface();} );
 			this.restoreExtIntTimer.start();
 		}
 
+		// Used to periodically check that the External Interface functions are still working
+		private function CheckExternalInterface():void {
+			if (!ExternalCall.Bool(this.testExternalInterface_Callback)) {
+				this.SetupExternalInterface();
+				this.Debug("ExternalInterface reinitialized");
+				if (!this.hasCalledFlashReady) {
+					ExternalCall.Simple(this.flashReady_Callback);
+					this.hasCalledFlashReady = true;
+				}
+			}
+		}
+		
+		// Called by JS to see if it can access the external interface
+		private function TestExternalInterface():Boolean {
+			return true;
+		}
+		
 		private function SetupExternalInterface():void {
 			try {
-				//ExternalInterface.addCallback("SelectFile", this.SelectFile);
-				//ExternalInterface.addCallback("SelectFiles", this.SelectFiles);
+				ExternalInterface.addCallback("SelectFile", this.SelectFile);
+				ExternalInterface.addCallback("SelectFiles", this.SelectFiles);
 				ExternalInterface.addCallback("StartUpload", this.StartUpload);
 				ExternalInterface.addCallback("ReturnUploadStart", this.ReturnUploadStart);
 				ExternalInterface.addCallback("StopUpload", this.StopUpload);
@@ -415,10 +442,15 @@ package {
 				ExternalInterface.addCallback("SetButtonAction", this.SetButtonAction);
 				ExternalInterface.addCallback("SetButtonDisabled", this.SetButtonDisabled);
 				ExternalInterface.addCallback("SetButtonCursor", this.SetButtonCursor);
+
+				ExternalInterface.addCallback("TestExternalInterface", this.TestExternalInterface);
+				
 			} catch (ex:Error) {
-				this.Debug("Callbacks where not set.");
+				this.Debug("Callbacks where not set: " + ex.message);
 				return;
 			}
+			
+			ExternalCall.Simple(this.cleanUp_Callback);
 		}
 		
 		/* *****************************************

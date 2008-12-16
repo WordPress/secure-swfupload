@@ -162,7 +162,7 @@ SWFUpload.prototype.initSettings = function () {
 	
 	// Update the flash url if needed
 	if (this.settings.prevent_swf_caching) {
-		this.settings.flash_url = this.settings.flash_url + (this.settings.flash_url.indexOf("?") < 0 ? "?" : "&") + new Date().getTime();
+		this.settings.flash_url = this.settings.flash_url;// + (this.settings.flash_url.indexOf("?") < 0 ? "?" : "&") + new Date().getTime();
 	}
 	
 	delete this.ensureDefault;
@@ -325,6 +325,7 @@ SWFUpload.prototype.destroy = function () {
 		// Make sure Flash is done before we try to remove it
 		this.cancelUpload(null, false);
 		
+
 		// Remove the SWFUpload DOM nodes
 		var movieElement = null;
 		movieElement = this.getMovieElement();
@@ -345,7 +346,6 @@ SWFUpload.prototype.destroy = function () {
 			} catch (ex) {}
 		}
 		
-		
 		// Remove IE form fix reference
 		window[this.movieName] = null;
 
@@ -365,6 +365,7 @@ SWFUpload.prototype.destroy = function () {
 		return false;
 	}
 };
+
 
 // Public: displayDebugInfo prints out settings and configuration
 // information about this SWFUpload instance.
@@ -776,6 +777,17 @@ SWFUpload.prototype.unescapeFilePostParams = function (file) {
 	return file;
 };
 
+// Private: Called by Flash to see if JS can call in to Flash (test if External Interface is working)
+SWFUpload.prototype.testExternalInterface = function () {
+	try {
+		return this.callFlash("TestExternalInterface");
+	} catch (ex) {
+		return false;
+	}
+};
+
+// Private: This event is called by Flash when it has finished loading. Don't modify this.
+// Use the swfupload_loaded_handler event setting to execute custom code when SWFUpload has loaded.
 SWFUpload.prototype.flashReady = function () {
 	// Check that the movie element is loaded correctly with its ExternalInterface methods defined
 	var movieElement = this.getMovieElement();
@@ -785,6 +797,14 @@ SWFUpload.prototype.flashReady = function () {
 		return;
 	}
 
+	this.cleanUp();
+	
+	this.queueEvent("swfupload_loaded_handler");
+};
+
+// Private: removes Flash added fuctions to the DOM node to prevent memory leaks in IE.
+// This function is called by Flash each time the ExternalInterface functions are created.
+SWFUpload.prototype.cleanUp = function () {
 	// Pro-actively unhook all the Flash functions
 	try {
 		if (movieElement && typeof(movieElement.CallFunction) === "unknown") { // We only want to do this in IE
@@ -801,8 +821,7 @@ SWFUpload.prototype.flashReady = function () {
 	} catch (ex1) {
 	
 	}
-	
-	this.queueEvent("swfupload_loaded_handler");
+
 };
 
 

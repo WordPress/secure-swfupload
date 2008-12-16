@@ -54,8 +54,12 @@ package {
 		public static function Debug(callback:String, message:String):void {
 			
 			ExternalInterface.call(callback, EscapeMessage(message));
-			
 		}
+		
+		public static function Bool(callback:String):Boolean {
+			return ExternalInterface.call(callback);
+		}
+		
 		
 		/* Escapes all the backslashes which are not translated correctly in the Flash -> JavaScript Interface
 		 * 

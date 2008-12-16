@@ -73,6 +73,9 @@ if (typeof(SWFUpload) === "function") {
 
 		if (typeof(user_upload_complete_handler) === "function") {
 			continueUpload = (user_upload_complete_handler.call(this, file) === false) ? false : true;
+		} else if (file.filestatus === SWFUpload.FILE_STATUS.QUEUED) {
+			// If the file was stopped and re-queued don't restart the upload
+			continueUpload = false;
 		} else {
 			continueUpload = true;
 		}
