@@ -1,6 +1,7 @@
  * SWFUpload Demos, May 2008, www.swfupload.org, swfupload.googlecode.com
 
  * --------- Version 2.2.0 Beta 4 -----------
+ * + Added External Interface Demo (for testing what will break the EI)
  * = Fixed FileProgress to re-display if hidden when modified
 
  * --------- Version 2.2.0 -----------
