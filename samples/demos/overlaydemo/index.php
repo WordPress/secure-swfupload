@@ -85,7 +85,7 @@ SWFUpload.onload = function () {
 				<input id="btnUpload" type="button" value="Select Files" style="width: 61px; height: 22px; font-size: 8pt;" />
 				<input id="btnCancel" type="button" value="Cancel All Uploads" disabled="disabled" style="margin-left: 2px; height: 22px; font-size: 8pt;" />
 			</p>
-			<br style="clear: bloth;" />
+			<br style="clear: both;" />
 		</div>
 		<noscript style="background-color: #FFFF66; border-top: solid 4px #FF9966; border-bottom: solid 4px #FF9966; margin: 10px 25px; padding: 10px 15px;">
 			We're sorry.  SWFUpload could not load.  You must have JavaScript enabled to enjoy SWFUpload.

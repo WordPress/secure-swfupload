@@ -24,8 +24,8 @@ if (typeof(SWFUpload) === "function") {
 			this.customSettings.queue_cancelled_flag = false;
 			this.customSettings.queue_upload_count = 0;
 			
-			this.settings.user_upload_complete_handler = this.settings.upload_complete_handler;
-			this.settings.user_upload_start_handler = this.settings.upload_start_handler;
+			this.customSettings.user_upload_complete_handler = this.settings.upload_complete_handler;
+			this.customSettings.user_upload_start_handler = this.settings.upload_start_handler;
 			this.settings.upload_complete_handler = SWFUpload.queue.uploadCompleteHandler;
 			this.settings.upload_start_handler = SWFUpload.queue.uploadStartHandler;
 			
@@ -64,7 +64,7 @@ if (typeof(SWFUpload) === "function") {
 	};
 	
 	SWFUpload.queue.uploadCompleteHandler = function (file) {
-		var user_upload_complete_handler = this.settings.user_upload_complete_handler;
+		var user_upload_complete_handler = this.customSettings.user_upload_complete_handler;
 		var continueUpload;
 		
 		if (file.filestatus === SWFUpload.FILE_STATUS.COMPLETE) {
