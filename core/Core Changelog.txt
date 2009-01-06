@@ -5,6 +5,8 @@
  * Fixed issues with Queue Plugin
  * Added periodic checks of the ExternalInterface
  * Improved IE memory leak prevention code
+ * Added Speed Plugin
+ * Updated Queue Plugin for better multi-plugin compatibility
 
  * --------- Version 2.2.0 Beta 1-----------
  * + Added Flash Player 10 Support

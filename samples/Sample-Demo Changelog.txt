@@ -1,5 +1,8 @@
  * SWFUpload Demos, May 2008, www.swfupload.org, swfupload.googlecode.com
 
+ * --------- Version 2.2.0 -----------
+ * + Added Speed Demo
+
  * --------- Version 2.2.0 Beta 4.1 -----------
  * + Applied the fixed Queue Plugin to all the correct demos
 

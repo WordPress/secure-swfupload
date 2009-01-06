@@ -10,11 +10,6 @@
 			- timeElapsed -- Number of seconds passed for this upload
 			- percentUploaded -- Percentage of the file uploaded
 			- sizeUploaded -- Formatted size uploaded so far
-		*Adds some properties to the stats object (from getStats): overall speed, overall time left, total upload time
-			- averageSpeed
-			- timeLeft
-			- totalTime
-			- totalBytesUploaded
 		
 		*Adds setting 'moving_average_history_size' for defining the window size used to calculate the moving average speed.
 	*/
@@ -37,14 +32,6 @@ if (typeof(SWFUpload) === "function") {
 			this.fileSpeedStats = {};
 			this.speedSettings = {};
 
-			// Public list of speed/time statistics
-			this.speed = {
-				averageSpeed : 0,
-				timeLeft : 0,
-				totalTime : 0,
-				totalBytesUploaded : 0
-			};
-			
 			this.ensureDefault("moving_average_history_size", "10");
 			
 			this.speedSettings.user_file_queued_handler = this.settings.file_queued_handler;
