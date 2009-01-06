@@ -21,11 +21,13 @@ if (typeof(SWFUpload) === "function") {
 				oldInitSettings.call(this);
 			}
 			
-			this.customSettings.queue_cancelled_flag = false;
-			this.customSettings.queue_upload_count = 0;
+			this.queueSettings = {};
 			
-			this.customSettings.user_upload_complete_handler = this.settings.upload_complete_handler;
-			this.customSettings.user_upload_start_handler = this.settings.upload_start_handler;
+			this.queueSettings.queue_cancelled_flag = false;
+			this.queueSettings.queue_upload_count = 0;
+			
+			this.queueSettings.user_upload_complete_handler = this.settings.upload_complete_handler;
+			this.queueSettings.user_upload_start_handler = this.settings.upload_start_handler;
 			this.settings.upload_complete_handler = SWFUpload.queue.uploadCompleteHandler;
 			this.settings.upload_start_handler = SWFUpload.queue.uploadStartHandler;
 			
@@ -34,12 +36,12 @@ if (typeof(SWFUpload) === "function") {
 	})(SWFUpload.prototype.initSettings);
 
 	SWFUpload.prototype.startUpload = function (fileID) {
-		this.customSettings.queue_cancelled_flag = false;
+		this.queueSettings.queue_cancelled_flag = false;
 		this.callFlash("StartUpload", [fileID]);
 	};
 
 	SWFUpload.prototype.cancelQueue = function () {
-		this.customSettings.queue_cancelled_flag = true;
+		this.queueSettings.queue_cancelled_flag = true;
 		this.stopUpload();
 		
 		var stats = this.getStats();
@@ -51,24 +53,24 @@ if (typeof(SWFUpload) === "function") {
 	
 	SWFUpload.queue.uploadStartHandler = function (file) {
 		var returnValue;
-		if (typeof(this.customSettings.user_upload_start_handler) === "function") {
-			returnValue = this.customSettings.user_upload_start_handler.call(this, file);
+		if (typeof(this.queueSettings.user_upload_start_handler) === "function") {
+			returnValue = this.queueSettings.user_upload_start_handler.call(this, file);
 		}
 		
 		// To prevent upload a real "FALSE" value must be returned, otherwise default to a real "TRUE" value.
 		returnValue = (returnValue === false) ? false : true;
 		
-		this.customSettings.queue_cancelled_flag = !returnValue;
+		this.queueSettings.queue_cancelled_flag = !returnValue;
 
 		return returnValue;
 	};
 	
 	SWFUpload.queue.uploadCompleteHandler = function (file) {
-		var user_upload_complete_handler = this.customSettings.user_upload_complete_handler;
+		var user_upload_complete_handler = this.queueSettings.user_upload_complete_handler;
 		var continueUpload;
 		
 		if (file.filestatus === SWFUpload.FILE_STATUS.COMPLETE) {
-			this.customSettings.queue_upload_count++;
+			this.queueSettings.queue_upload_count++;
 		}
 
 		if (typeof(user_upload_complete_handler) === "function") {
@@ -82,14 +84,14 @@ if (typeof(SWFUpload) === "function") {
 		
 		if (continueUpload) {
 			var stats = this.getStats();
-			if (stats.files_queued > 0 && this.customSettings.queue_cancelled_flag === false) {
+			if (stats.files_queued > 0 && this.queueSettings.queue_cancelled_flag === false) {
 				this.startUpload();
-			} else if (this.customSettings.queue_cancelled_flag === false) {
-				this.queueEvent("queue_complete_handler", [this.customSettings.queue_upload_count]);
-				this.customSettings.queue_upload_count = 0;
+			} else if (this.queueSettings.queue_cancelled_flag === false) {
+				this.queueEvent("queue_complete_handler", [this.queueSettings.queue_upload_count]);
+				this.queueSettings.queue_upload_count = 0;
 			} else {
-				this.customSettings.queue_cancelled_flag = false;
-				this.customSettings.queue_upload_count = 0;
+				this.queueSettings.queue_cancelled_flag = false;
+				this.queueSettings.queue_upload_count = 0;
 			}
 		}
 	};
