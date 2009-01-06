@@ -33,13 +33,13 @@
 			var settings = {
 				flash_url : "../swfupload/swfupload.swf",
 				upload_url: "../speeddemo/upload.php",	// Relative to the SWF file
-				file_size_limit : "100 GB",
+				file_size_limit : "100 MB",
 				file_types : "*.*",
 				file_types_description : "All Files",
 				file_upload_limit : 100,
 				file_queue_limit : 0,
 
-				debug: true,
+				debug: false,
 
 				// Button settings
 				button_image_url: "../speeddemo/images/XPButtonUploadText_61x22.png",	// Relative to the Flash file
