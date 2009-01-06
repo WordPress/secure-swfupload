@@ -67,11 +67,7 @@
 					tdTimeRemaining : document.getElementById("tdTimeRemaining"),
 					tdTimeElapsed : document.getElementById("tdTimeElapsed"),
 					tdPercentUploaded : document.getElementById("tdPercentUploaded"),
-					tdSizeUploaded : document.getElementById("tdSizeUploaded"),
-					tdOverallAverageSpeed : document.getElementById("tdOverallAverageSpeed"),
-					tdOverallTimeRemaining : document.getElementById("tdOverallTimeRemaining"),
-					tdOverallTimeElapsed : document.getElementById("tdOverallTimeElapsed"),
-					tdOverallSizeUploaded : document.getElementById("tdOverallSizeUploaded")				
+					tdSizeUploaded : document.getElementById("tdSizeUploaded")
 				}
 			};
 
@@ -141,26 +137,6 @@
 						<tr>
 							<td>Size Uploaded</td>
 							<td id="tdSizeUploaded"></td>
-						</tr>			
-					</table>
-				</td>
-				<td>
-					<table cellspacing="0">
-						<tr>
-							<td>Overall Average Speed:</td>
-							<td id="tdOverallAverageSpeed"></td>
-						</tr>			
-						<tr>
-							<td>Est. Overall Time Remaining:</td>
-							<td id="tdOverallTimeRemaining"></td>
-						</tr>			
-						<tr>
-							<td>Overall Total Time:</td>
-							<td id="tdOverallTimeElapsed"></td>
-						</tr>			
-						<tr>
-							<td>Overall Total Size Uploaded</td>
-							<td id="tdOverallSizeUploaded"></td>
 						</tr>			
 					</table>
 				</td>
