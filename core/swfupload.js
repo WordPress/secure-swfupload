@@ -822,6 +822,18 @@ SWFUpload.prototype.cleanUp = function (movieElement) {
 	
 	}
 
+	// Fix Flashes own cleanup code so if the SWFMovie was removed from the page
+	// it doesn't display errors.
+	window["__flash__removeCallback"] = function (instance, name) {
+		try {
+			if (instance) {
+				instance[name] = null;
+			}
+		} catch (flashEx) {
+		
+		}
+	};
+
 };
 
 
