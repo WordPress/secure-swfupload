@@ -26,13 +26,7 @@ function fileDialogComplete() {
 
 function uploadStart(file) {
 	try {
-		this.customSettings.tdCurrentSpeed.innerHTML = file.currentSpeed;
-		this.customSettings.tdAverageSpeed.innerHTML = file.averageSpeed;
-		this.customSettings.tdMovingAverageSpeed.innerHTML = file.movingAverageSpeed;
-		this.customSettings.tdTimeRemaining.innerHTML = file.timeRemaining;
-		this.customSettings.tdTimeElapsed.innerHTML = file.timeElapsed;
-		this.customSettings.tdPercentUploaded.innerHTML = file.percentUploaded;
-		this.customSettings.tdSizeUploaded.innerHTML = file.sizeUploaded;
+		updateDisplay.call(this, file);
 	}
 	catch (ex) {
 		this.debug(ex);
@@ -42,27 +36,16 @@ function uploadStart(file) {
 
 function uploadProgress(file, bytesLoaded, bytesTotal) {
 	try {
-		this.customSettings.tdCurrentSpeed.innerHTML = file.currentSpeed;
-		this.customSettings.tdAverageSpeed.innerHTML = file.averageSpeed;
-		this.customSettings.tdMovingAverageSpeed.innerHTML = file.movingAverageSpeed;
-		this.customSettings.tdTimeRemaining.innerHTML = file.timeRemaining;
-		this.customSettings.tdTimeElapsed.innerHTML = file.timeElapsed;
-		this.customSettings.tdPercentUploaded.innerHTML = file.percentUploaded;
-		this.customSettings.tdSizeUploaded.innerHTML = file.sizeUploaded;
+		updateDisplay.call(this, file);
 	} catch (ex) {
 		this.debug(ex);
 	}
+	
 }
 
 function uploadSuccess(file, serverData) {
 	try {
-		this.customSettings.tdCurrentSpeed.innerHTML = file.currentSpeed;
-		this.customSettings.tdAverageSpeed.innerHTML = file.averageSpeed;
-		this.customSettings.tdMovingAverageSpeed.innerHTML = file.movingAverageSpeed;
-		this.customSettings.tdTimeRemaining.innerHTML = file.timeRemaining;
-		this.customSettings.tdTimeElapsed.innerHTML = file.timeElapsed;
-		this.customSettings.tdPercentUploaded.innerHTML = file.percentUploaded;
-		this.customSettings.tdSizeUploaded.innerHTML = file.sizeUploaded;
+		updateDisplay.call(this, file);
 	} catch (ex) {
 		this.debug(ex);
 	}
@@ -72,4 +55,15 @@ function uploadComplete(file) {
 	this.customSettings.tdFilesQueued.innerHTML = this.getStats().files_queued;
 	this.customSettings.tdFilesUploaded.innerHTML = this.getStats().successful_uploads;
 	this.customSettings.tdErrors.innerHTML = this.getStats().upload_errors;
+
+}
+
+function updateDisplay(file) {
+	this.customSettings.tdCurrentSpeed.innerHTML = SWFUpload.speed.formatBPS(file.currentSpeed);
+	this.customSettings.tdAverageSpeed.innerHTML = SWFUpload.speed.formatBPS(file.averageSpeed);
+	this.customSettings.tdMovingAverageSpeed.innerHTML = SWFUpload.speed.formatBPS(file.movingAverageSpeed);
+	this.customSettings.tdTimeRemaining.innerHTML = SWFUpload.speed.formatTime(file.timeRemaining);
+	this.customSettings.tdTimeElapsed.innerHTML = SWFUpload.speed.formatTime(file.timeElapsed);
+	this.customSettings.tdPercentUploaded.innerHTML = SWFUpload.speed.formatPercent(file.percentUploaded);
+	this.customSettings.tdSizeUploaded.innerHTML =SWFUpload.speed.formatBytes(file.sizeUploaded);
 }
