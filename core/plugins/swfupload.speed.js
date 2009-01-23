@@ -3,15 +3,25 @@
 	
 	Features:
 		*Adds several properties to the 'file' object indicated upload speed, time left, upload time, etc.
-			- currentSpeed -- String indicating the upload speed, formatted using the best units per second
-			- averageSpeed -- Overall average upload speed
-			- movingAverageSpeed -- Speed over averaged over the last several measurements
+			- currentSpeed -- String indicating the upload speed, bytes per second
+			- averageSpeed -- Overall average upload speed, bytes per second
+			- movingAverageSpeed -- Speed over averaged over the last several measurements, bytes per second
 			- timeRemaining -- Estimated remaining upload time in seconds
 			- timeElapsed -- Number of seconds passed for this upload
-			- percentUploaded -- Percentage of the file uploaded
-			- sizeUploaded -- Formatted size uploaded so far
+			- percentUploaded -- Percentage of the file uploaded (0 to 100)
+			- sizeUploaded -- Formatted size uploaded so far, bytes
 		
 		*Adds setting 'moving_average_history_size' for defining the window size used to calculate the moving average speed.
+		
+		*Adds several Formatting functions for formatting that values provided on the file object.
+			- SWFUpload.speed.formatBPS(bps) -- outputs string formatted in the best units (Gbps, Mbps, Kbps, bps)
+			- SWFUpload.speed.formatTime(seconds) -- outputs string formatted in the best units (x Hr y M z S)
+			- SWFUpload.speed.formatSize(bytes) -- outputs string formatted in the best units (w GB x MB y KB z B )
+			- SWFUpload.speed.formatPercent(percent) -- outputs string formatted with a percent sign (x.xx %)
+			- SWFUpload.speed.formatUnits(baseNumber, divisionArray, unitLabelArray, fractionalBoolean)
+				- Formats a number using the division array to determine how to apply the labels in the Label Array
+				- factionalBoolean indicates whether the number should be returned as a single fractional number with a unit (speed)
+				    or as several numbers labeled with units (time)
 	*/
 
 var SWFUpload;
@@ -113,31 +123,28 @@ if (typeof(SWFUpload) === "function") {
 	// Private: extends the file object with the speed plugin values
 	SWFUpload.speed.extendFile = function (file, trackingList) {
 		var tracking;
-		var bpsUnits = [1073741824, 1048576, 1024, 1], bpsUnitLabels = ["Gbps", "Mbps", "Kbps", "bps"];
-		var sizeUnits = [1073741824, 1048576, 1024, 1], sizeUnitLabels = ["GB", "MB", "KB", "bytes"];
-		var timeUnits = [86400, 3600, 60, 1], timeUnitLabels = ["d", "h", "m", "s"];
 		
 		if (trackingList) {
 			tracking = trackingList[file.id];
 		}
 		
 		if (tracking) {
-			file.currentSpeed = SWFUpload.speed.FormatUnits(tracking.currentSpeed, bpsUnits, bpsUnitLabels, true);
-			file.averageSpeed = SWFUpload.speed.FormatUnits(tracking.averageSpeed, bpsUnits, bpsUnitLabels, true);
-			file.movingAverageSpeed = SWFUpload.speed.FormatUnits(tracking.movingAverageSpeed, bpsUnits, bpsUnitLabels, true);
-			file.timeRemaining = SWFUpload.speed.FormatUnits(tracking.timeRemaining, timeUnits, timeUnitLabels, false);
-			file.timeElapsed = SWFUpload.speed.FormatUnits(tracking.timeElapsed, timeUnits, timeUnitLabels, false);
-			file.percentUploaded = tracking.percentUploaded.toFixed(2) + " %";
-			file.sizeUploaded = SWFUpload.speed.FormatUnits(tracking.bytesUploaded, sizeUnits, sizeUnitLabels, true);
+			file.currentSpeed = tracking.currentSpeed;
+			file.averageSpeed = tracking.averageSpeed;
+			file.movingAverageSpeed = tracking.movingAverageSpeed;
+			file.timeRemaining = tracking.timeRemaining;
+			file.timeElapsed = tracking.timeElapsed;
+			file.percentUploaded = tracking.percentUploaded;
+			file.sizeUploaded = tracking.bytesUploaded;
 
 		} else {
-			file.currentSpeed = "0 bps";
-			file.averageSpeed = "0 bps";
-			file.movingAverageSpeed = "0 bps";
-			file.timeRemaining = "NA";
-			file.timeElapsed = "0";
-			file.percentUploaded = "0 %";
-			file.sizeUploaded = "0 bytes";
+			file.currentSpeed = 0;
+			file.averageSpeed = 0;
+			file.movingAverageSpeed = 0;
+			file.timeRemaining = 0;
+			file.timeElapsed = 0;
+			file.percentUploaded = 0;
+			file.sizeUploaded = 0;
 		}
 		
 		return file;
@@ -218,7 +225,7 @@ if (typeof(SWFUpload) === "function") {
 		}
 	};
 	
-	SWFUpload.speed.FormatUnits = function (baseNumber, unitDivisors, unitLabels, singleFractional) {
+	SWFUpload.speed.formatUnits = function (baseNumber, unitDivisors, unitLabels, singleFractional) {
 		var i, unit, unitDivisor, unitLabel;
 
 		if (baseNumber === 0) {
@@ -260,6 +267,25 @@ if (typeof(SWFUpload) === "function") {
 			
 			return formattedStrings.join(" ");
 		}
+	};
+	
+	SWFUpload.speed.formatBPS = function (baseNumber) {
+		var bpsUnits = [1073741824, 1048576, 1024, 1], bpsUnitLabels = ["Gbps", "Mbps", "Kbps", "bps"];
+		return SWFUpload.speed.formatUnits(baseNumber, bpsUnits, bpsUnitLabels, true);
+	
+	};
+	SWFUpload.speed.formatTime = function (baseNumber) {
+		var timeUnits = [86400, 3600, 60, 1], timeUnitLabels = ["d", "h", "m", "s"];
+		return SWFUpload.speed.formatUnits(baseNumber, timeUnits, timeUnitLabels, false);
+	
+	};
+	SWFUpload.speed.formatBytes = function (baseNumber) {
+		var sizeUnits = [1073741824, 1048576, 1024, 1], sizeUnitLabels = ["GB", "MB", "KB", "bytes"];
+		return SWFUpload.speed.formatUnits(baseNumber, sizeUnits, sizeUnitLabels, true);
+	
+	};
+	SWFUpload.speed.formatPercent = function (baseNumber) {
+		return baseNumber.toFixed(2) + " %";
 	};
 	
 	SWFUpload.speed.calculateMovingAverage = function (history) {
