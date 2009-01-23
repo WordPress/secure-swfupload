@@ -50,7 +50,7 @@ SWFUpload.prototype.initSWFUpload = function (settings) {
 /* *************** */
 SWFUpload.instances = {};
 SWFUpload.movieCount = 0;
-SWFUpload.version = "2.2.0 Beta 3";
+SWFUpload.version = "2.2.0 Beta 4";
 SWFUpload.QUEUE_ERROR = {
 	QUEUE_LIMIT_EXCEEDED	  		: -100,
 	FILE_EXCEEDS_SIZE_LIMIT  		: -110,
@@ -161,8 +161,8 @@ SWFUpload.prototype.initSettings = function () {
 	this.customSettings = this.settings.custom_settings;
 	
 	// Update the flash url if needed
-	if (this.settings.prevent_swf_caching) {
-		this.settings.flash_url = this.settings.flash_url;// + (this.settings.flash_url.indexOf("?") < 0 ? "?" : "&") + new Date().getTime();
+	if (!!this.settings.prevent_swf_caching) {
+		this.settings.flash_url = this.settings.flash_url + (this.settings.flash_url.indexOf("?") < 0 ? "?" : "&") + "preventswfcaching=" + new Date().getTime();
 	}
 	
 	delete this.ensureDefault;
@@ -821,6 +821,18 @@ SWFUpload.prototype.cleanUp = function (movieElement) {
 	} catch (ex1) {
 	
 	}
+
+	// Fix Flashes own cleanup code so if the SWFMovie was removed from the page
+	// it doesn't display errors.
+	window["__flash__removeCallback"] = function (instance, name) {
+		try {
+			if (instance) {
+				instance[name] = null;
+			}
+		} catch (flashEx) {
+		
+		}
+	};
 
 };
 
