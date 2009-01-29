@@ -50,7 +50,7 @@ SWFUpload.prototype.initSWFUpload = function (settings) {
 /* *************** */
 SWFUpload.instances = {};
 SWFUpload.movieCount = 0;
-SWFUpload.version = "2.2.0 Beta 4";
+SWFUpload.version = "2.2.0 Beta 5 2008-01-29";
 SWFUpload.QUEUE_ERROR = {
 	QUEUE_LIMIT_EXCEEDED	  		: -100,
 	FILE_EXCEEDS_SIZE_LIMIT  		: -110,
@@ -168,50 +168,8 @@ SWFUpload.prototype.initSettings = function () {
 	delete this.ensureDefault;
 };
 
+// Private: loadFlash replaces the button_placeholder element with the flash movie.
 SWFUpload.prototype.loadFlash = function () {
-	if (this.settings.button_placeholder_id !== "") {
-		this.replaceWithFlash();
-	} else {
-		this.appendFlash();
-	}
-};
-
-// Private: appendFlash gets the HTML tag for the Flash
-// It then appends the flash to the body
-SWFUpload.prototype.appendFlash = function () {
-	var targetElement, container;
-
-	// Make sure an element with the ID we are going to use doesn't already exist
-	if (document.getElementById(this.movieName) !== null) {
-		throw "ID " + this.movieName + " is already in use. The Flash Object could not be added";
-	}
-
-	// Get the body tag where we will be adding the flash movie
-	targetElement = document.getElementsByTagName("body")[0];
-
-	if (targetElement == undefined) {
-		throw "Could not find the 'body' element.";
-	}
-
-	// Append the container and load the flash
-	container = document.createElement("div");
-	container.style.width = "1px";
-	container.style.height = "1px";
-	container.style.overflow = "hidden";
-
-	targetElement.appendChild(container);
-	container.innerHTML = this.getFlashHTML();	// Using innerHTML is non-standard but the only sensible way to dynamically add Flash in IE (and maybe other browsers)
-
-	// Fix IE Flash/Form bug
-	if (window[this.movieName] == undefined) {
-		window[this.movieName] = this.getMovieElement();
-	}
-	
-	
-};
-
-// Private: replaceWithFlash replaces the button_placeholder element with the flash movie.
-SWFUpload.prototype.replaceWithFlash = function () {
 	var targetElement, tempParent;
 
 	// Make sure an element with the ID we are going to use doesn't already exist

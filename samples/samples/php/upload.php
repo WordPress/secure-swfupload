@@ -52,7 +52,7 @@ Notes:
 	$multiplier = ($unit == 'M' ? 1048576 : ($unit == 'K' ? 1024 : ($unit == 'G' ? 1073741824 : 1)));
 
 	if ((int)$_SERVER['CONTENT_LENGTH'] > $multiplier*(int)$POST_MAX_SIZE && $POST_MAX_SIZE) {
-		header("HTTP/1.1 500 Internal Server Error");
+		header("HTTP/1.1 500 Internal Server Error"); // This will trigger an uploadError event in SWFUpload
 		echo "POST exceeded maximum allowed size.";
 		exit(0);
 	}
@@ -161,18 +161,12 @@ Notes:
 		exit(0);
 	}
 
-// Return output to the browser (only supported by SWFUpload for Flash Player 9)
-
-	echo "File Received";
 	exit(0);
 
 
-/* Handles the error output.  This function was written for SWFUpload for Flash Player 8 which
-cannot return data to the server, so it just returns a 500 error. For Flash Player 9 you will
-want to change this to return the server data you want to indicate an error and then use SWFUpload's
-uploadSuccess to check the server_data for your error indicator. */
+/* Handles the error output. This error message will be sent to the uploadSuccess event handler.  The event handler
+will have to check for any error messages and react as needed. */
 function HandleError($message) {
-	header("HTTP/1.1 500 Internal Server Error");
 	echo $message;
 }
 ?>

@@ -1,16 +1,12 @@
- * SWFUpload Demos, May 2008, www.swfupload.org, swfupload.googlecode.com
+ * SWFUpload Demos, January 2009, www.swfupload.org, swfupload.googlecode.com
 
- * --------- Version 2.2.0 -----------
+
+ * --------- Version 2.2.0 Beta 1 ~ 5 -----------
  * + Added Speed Demo
-
- * --------- Version 2.2.0 Beta 4.1 -----------
+ * = Updated Demos for fixed uploadSuccess event
  * + Applied the fixed Queue Plugin to all the correct demos
-
- * --------- Version 2.2.0 Beta 4 -----------
  * + Added External Interface Demo (for testing what will break the EI)
  * = Fixed FileProgress to re-display if hidden when modified
-
- * --------- Version 2.2.0 -----------
  * + Updated all demos for Flash Player 10
  * + Added new SWFUpload functionality to Features Demo
  * + Added Overlay demo showing how to do a transparent button overlay

@@ -640,7 +640,7 @@ swfu.customSettings = {
 		<li>uploadStart</li>		
 		<li>uploadProgress (called over and over again as the file uploads)</li>		
 		<li>uploadError (called if some kind of error occurs, the file is canceled or stopped)</li>		
-		<li>uploadSuccess (the upload finished and the server returned some data)</li>
+		<li>uploadSuccess (the upload finished successfully, data returned from the server is available)</li>
 		<li>uploadComplete (the upload is complete and SWFUpload is ready to start the next file)</li>
 	</ul>
 	
@@ -687,7 +687,7 @@ swfu.customSettings = {
 	
 	<h4><a name="uploadSuccess"></a><span class="function">uploadSuccess(<span class="parameter">file object</span>, <span class="parameter">server data</span>)</span></h4>
 	<p>uploadSuccess is fired when an upload completes and the server returns a HTTP 200 status code.  Any data outputted by the server is available
-	in the server data parameter (Flash Player 9 version only).</p>
+	in the server data parameter.</p>
 	<p>At this point the upload is not yet complete.  Another upload cannot be started from uploadSuccess.</p>
 	
 	<h4><a name="uploadComplete"></a><span class="function">uploadComplete(<span class="parameter">file object</span>)</span></h4>
@@ -1065,9 +1065,6 @@ swfu.customSetting["a_dom_setting"].style.visibility = "hidden";</code>
 	
 	<h3>Filedata in Linux</h3>
 	<p>Changing the Filedata value (file_post_name setting) is ignored in Linux Flash Players.</p>
-	
-	<h3>uploadSuccess &amp; Server Data</h3>
-	<p>The uploadSuccess will not fire if no data is returned from the server.  This is especially problematic on the Mac version of the Flash Player.</p>
 	
 	<h3>Cookie issue</h3>
 	<p>On Windows the Non-IE Flash Player plugin (FireFox, Opera, Safari, etc) will send the IE cookies regardless of the browser used.  This breaks authentication and sessions for many server-side scripting technologies.</p>

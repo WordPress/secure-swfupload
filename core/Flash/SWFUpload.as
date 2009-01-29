@@ -37,7 +37,7 @@ package {
 			var SWFUpload:SWFUpload = new SWFUpload();
 		}
 		
-		private const build_number:String = "SWFUPLOAD 2.2.0";
+		private const build_number:String = "SWFUPLOAD 2.2.0 Beta 5 2009-01-29";
 		
 		// State tracking variables
 		private var fileBrowserMany:FileReferenceList = new FileReferenceList();
@@ -55,6 +55,8 @@ package {
 		private var queued_uploads:Number = 0;			// Tracks the FileItems that are waiting to be uploaded.
 		
 		private var valid_file_extensions:Array = new Array();// Holds the parsed valid extensions.
+		
+		private var serverDataTimer:Timer = null;
 		
 		private var restoreExtIntTimer:Timer;
 		private var hasCalledFlashReady:Boolean = false;
@@ -476,12 +478,48 @@ package {
 			ExternalCall.UploadProgress(this.uploadProgress_Callback, this.current_file_item.ToJavaScriptObject(), bytesLoaded, bytesTotal);
 		}
 
+		private function Complete_Handler(event:Event):void {
+			/* Because we can't do COMPLETE or DATA events (we have to do both) we can't
+			 * just call uploadSuccess from the complete handler, we have to wait for
+			 * the Data event which may never come. However, testing shows it always comes
+			 * within a couple milliseconds if it is going to come so the solution is:
+			 * 
+			 * Set a timer in the COMPLETE event (which always fires) and if DATA is fired
+			 * it will stop the timer and call uploadComplete
+			 * 
+			 * If the timer expires then DATA won't be fired and we call uploadComplete
+			 * */
+			
+			// Set the timer
+			if (serverDataTimer != null) {
+				this.serverDataTimer.stop();
+				this.serverDataTimer = null;
+			}
+			
+			this.serverDataTimer = new Timer(100, 1);
+			//var self:SWFUpload = this;
+			this.serverDataTimer.addEventListener(TimerEvent.TIMER, this.ServerDataTimer_Handler);
+			this.serverDataTimer.start();
+		}
+		private function ServerDataTimer_Handler(event:TimerEvent):void {
+			this.UploadSuccess(this.current_file_item, "");
+		}
+		
 		private function ServerData_Handler(event:DataEvent):void {
-			this.successful_uploads++;
-			this.current_file_item.file_status = FileItem.FILE_STATUS_SUCCESS;
+			this.UploadSuccess(this.current_file_item, event.data);
+		}
+		
+		private function UploadSuccess(file:FileItem, serverData:String):void {
+			if (serverDataTimer != null) {
+				this.serverDataTimer.stop();
+				this.serverDataTimer = null;
+			}
 
-			this.Debug("Event: uploadSuccess: File ID: " + this.current_file_item.id + " Data: " + event.data);
-			ExternalCall.UploadSuccess(this.uploadSuccess_Callback, this.current_file_item.ToJavaScriptObject(), event.data);
+			this.successful_uploads++;
+			file.file_status = FileItem.FILE_STATUS_SUCCESS;
+
+			this.Debug("Event: uploadSuccess: File ID: " + file.id + " Data: " + serverData);
+			ExternalCall.UploadSuccess(this.uploadSuccess_Callback, file.ToJavaScriptObject(), serverData);
 
 			this.UploadComplete(false);
 			
@@ -1129,6 +1167,7 @@ package {
 					this.current_file_item.file_reference.addEventListener(IOErrorEvent.IO_ERROR, this.IOError_Handler);
 					this.current_file_item.file_reference.addEventListener(SecurityErrorEvent.SECURITY_ERROR, this.SecurityError_Handler);
 					this.current_file_item.file_reference.addEventListener(HTTPStatusEvent.HTTP_STATUS, this.HTTPError_Handler);
+					this.current_file_item.file_reference.addEventListener(Event.COMPLETE, this.Complete_Handler);
 					this.current_file_item.file_reference.addEventListener(DataEvent.UPLOAD_COMPLETE_DATA, this.ServerData_Handler);
 					
 					// Get the request (post values, etc)

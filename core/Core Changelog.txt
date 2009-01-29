@@ -1,12 +1,13 @@
- * SWFUpload Core, May 2008, www.swfupload.org, swfupload.googlecode.com
+ * SWFUpload Core, January 2009, www.swfupload.org, swfupload.googlecode.com
 
- * --------- Version 2.2.0 Beta 2 ~ 4-----------
- * Fixed issues in Destroy
- * Fixed issues with Queue Plugin
- * Added periodic checks of the ExternalInterface
- * Improved IE memory leak prevention code
- * Added Speed Plugin
- * Updated Queue Plugin for better multi-plugin compatibility
+ * --------- Version 2.2.0 Beta 2 ~ 5-----------
+ * + Improved internal event handling code so uploadSuccess fires even when not content is returned from the server (*woot*)
+ * = Fixed issues in Destroy
+ * = Fixed issues with Queue Plugin
+ * + Added periodic checks of the ExternalInterface
+ * + Improved IE memory leak prevention code
+ * + Added Speed Plugin
+ * = Updated Queue Plugin for better multi-plugin compatibility
 
  * --------- Version 2.2.0 Beta 1-----------
  * + Added Flash Player 10 Support
