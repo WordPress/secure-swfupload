@@ -1,6 +1,7 @@
  * SWFUpload Core, January 2009, www.swfupload.org, swfupload.googlecode.com
 
  * --------- Version 2.2.0 Beta 2 ~ 5-----------
+ * = Fixed a Queue Limit bug
  * + Improved internal event handling code so uploadSuccess fires even when not content is returned from the server (*woot*)
  * = Fixed issues in Destroy
  * = Fixed issues with Queue Plugin

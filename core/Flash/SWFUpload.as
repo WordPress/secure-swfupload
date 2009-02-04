@@ -37,7 +37,7 @@ package {
 			var SWFUpload:SWFUpload = new SWFUpload();
 		}
 		
-		private const build_number:String = "SWFUPLOAD 2.2.0 Beta 5 2009-01-29";
+		private const build_number:String = "SWFUPLOAD 2.2.0";
 		
 		// State tracking variables
 		private var fileBrowserMany:FileReferenceList = new FileReferenceList();
@@ -599,9 +599,11 @@ package {
 				if (this.fileQueueLimit == 0 || this.fileQueueLimit >= remaining_uploads) {
 					queue_slots_remaining = remaining_uploads;
 				} else if (this.fileQueueLimit < remaining_uploads) {
-					queue_slots_remaining = this.fileQueueLimit;
+					queue_slots_remaining = this.fileQueueLimit - this.queued_uploads;
 				}
 			}
+			
+			if (queue_slots_remaining < 0) queue_slots_remaining = 0;
 			
 			// Check if the number of files selected is greater than the number allowed to queue up.
 			if (queue_slots_remaining < file_reference_list.length) {

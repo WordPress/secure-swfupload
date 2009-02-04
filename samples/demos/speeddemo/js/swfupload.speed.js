@@ -73,11 +73,11 @@ if (typeof(SWFUpload) === "function") {
 		}
 	};
 	
-	SWFUpload.speed.fileQueueErrorHandler = function (file) {
+	SWFUpload.speed.fileQueueErrorHandler = function (file, errorCode, message) {
 		if (typeof this.speedSettings.user_file_queue_error_handler === "function") {
 			file = SWFUpload.speed.extendFile(file);
 			
-			return this.speedSettings.user_file_queue_error_handler.call(this, file);
+			return this.speedSettings.user_file_queue_error_handler.call(this, file, errorCode, message);
 		}
 	};
 
