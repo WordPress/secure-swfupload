@@ -13,7 +13,7 @@
 		window.onload = function () {
 			swfu = new SWFUpload({
 				// Backend settings
-				upload_url: "../formsdemo/upload.php",	// Relative to the SWF file, you can use an absolute URL as well.
+				upload_url: "upload.php",
 				file_post_name: "resume_file",
 
 				// Flash file settings
@@ -38,7 +38,7 @@
 				upload_complete_handler : uploadComplete,
 
 				// Button Settings
-				button_image_url : "../formsdemo/XPButtonUploadText_61x22.png",	// Relative to the SWF file
+				button_image_url : "XPButtonUploadText_61x22.png",
 				button_placeholder_id : "spanButtonPlaceholder",
 				button_width: 61,
 				button_height: 22,

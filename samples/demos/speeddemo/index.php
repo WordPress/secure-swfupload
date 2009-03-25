@@ -32,7 +32,7 @@
 		window.onload = function() {
 			var settings = {
 				flash_url : "../swfupload/swfupload.swf",
-				upload_url: "../speeddemo/upload.php",	// Relative to the SWF file
+				upload_url: "upload.php",
 				file_size_limit : "100 MB",
 				file_types : "*.*",
 				file_types_description : "All Files",
@@ -42,7 +42,7 @@
 				debug: false,
 
 				// Button settings
-				button_image_url: "../speeddemo/images/XPButtonUploadText_61x22.png",	// Relative to the Flash file
+				button_image_url: "images/XPButtonUploadText_61x22.png",
 				button_width: "61",
 				button_height: "22",
 				button_placeholder_id: "spanButtonPlaceHolder",
@@ -137,6 +137,10 @@
 						<tr>
 							<td>Size Uploaded</td>
 							<td id="tdSizeUploaded"></td>
+						</tr>			
+						<tr>
+							<td>Progress Event Count</td>
+							<td id="tdProgress Event Count"></td>
 						</tr>			
 					</table>
 				</td>

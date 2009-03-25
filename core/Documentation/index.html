@@ -77,7 +77,7 @@
 </style>
 
 <body>
-	<h1>SWFUpload v2 Documentation</h1>
+	<h1>SWFUpload v2.2.0 Documentation</h1>
 	<h2>TOC</h2>
 	<ol>
 		<li><a href="#swfupload">SWFUpload</a></li>
@@ -117,6 +117,7 @@
 						<li><a href="#startUpload">startUpload</a></li>
 						<li><a href="#cancelUpload">cancelUpload</a></li>
 						<li><a href="#stopUpload">stopUpload</a></li>
+						<li><a href="#requeueUpload">requeueUpload</a></li>
 						<li><a href="#getStats">getStats</a></li>
 						<li><a href="#setStats">setStats</a></li>
 						<li><a href="#getFile">getFile</a></li>
@@ -461,8 +462,7 @@ var swfu = new SWFUpload({
 		The customSettings property is an empty JavaScript object that can be used to store data associated with
 		an instance of SWFUpload.  The customSettings object contents can be initialized using the custom_settings setting.
 	</p>
-	<p><strong>Note:</strong> Some plug-ins use the customSettings object for their internal operation.  Use caution when over-writing
-	the entire customSettings object.</p>
+
 	<p><strong>Example:</strong></p>
 	<code>// Initialize SWFUpload with some custom settings
 var swfu = new SWFUpload({
@@ -483,6 +483,16 @@ swfu.customSettings = {
 };
 	</code>
 
+	<p>The values stored in the customSettings object can then be easily accessed in the event handlers: </p>
+	
+	<code>
+function uploadSuccess(file, serverData) {
+	if (this.customSettings.custom_setting_A === true) {
+		alert("Checked the custom setting!");
+	}
+}
+	</code>
+	
 	<h4><a name="movieName"></a>movieName</h4>
 	<p>Contains the  unique movie name of the SWFUpload instance.  This value is passed to Flash and is used to facilitate Flash-to-JavaScript communication.
 	This value is used to index the instance in the SWFUpload.instances array. You should not change the movieName value.</p>
@@ -537,6 +547,11 @@ swfu.customSettings = {
 
 	<p>stopUpload stops and re-queues the file currently being uploaded.</p>
 	<p>After the uploading file is stopped the uploadError event is fired. If no file is being uploaded then nothing happens and no event is fired.</p>
+	
+	<h4><a name="requeueUpload"></a>bool requeueUpload(<span class="parameter">file_id or index</span>)</h4>
+
+	<p>requeueUpload requeues any previously queued file.</p>
+	<p>If the file cannot be found or is currently uploading false is returned.</p>
 	
 	<h4><a name="getStats"></a>object getStats()</h4>
 	<p>Retrieves the stats object.</p>
@@ -727,6 +742,7 @@ swfu.customSettings = {
 	debug : false,
 	
 	prevent_swf_caching : false,
+	preserve_relative_urls : false,
 	
 	button_placeholder_id : "element_id",
 	button_image_url : "http://www.swfupload.org/button_sprite.png",
@@ -762,8 +778,8 @@ swfu.customSettings = {
 	<h4><a name="settingsdescription"></a>Settings Description</h4>
 
 	<h5>upload_url</h5>
-	<p>The upload_url setting accepts a full, absolute, or relative target URL for the uploaded file.  Full or absolute URLs are recommended because
-	some browsers/Flash Players use different base directories.  The upload_url should be in the same domain as the Flash Control.</p>
+	<p>The upload_url setting accepts a full, absolute, or relative target URL for the uploaded file. Relative URLs should be relative to document.  The upload_url should be in the same domain as the Flash Control for best compatibility.</p>
+	<p>If the preserve_relative_urls setting is false SWFUpload will convert the relative URL to an absolute URL to avoid the URL being interpreted differently by the Flash Player on different platforms.  If you disable SWFUploads conversion of the URL relative URLs should be relative to the swfupload.swf file.</p>
 
 	<h5>file_post_name</h5>
 	<p>The file_post_name allows you to set the value name used to post the file.  This is not related to the file name.
@@ -780,6 +796,9 @@ swfu.customSettings = {
 	<p>
 		The use_query_string setting may be true or false.  This value indicates whether SWFUpload should send the post_params and file params on the query string or the post. This setting was introduced in SWFUpload v2.1.0.
 	</p>
+	
+	<h5>preserve_relative_urls</h5>
+	<p>A boolean value that indicates whether SWFUpload should attempt to convert relative URLs used by the Flash Player to absolute URLs. If set to true SWFUpload will not modify any URLs. The default value is false.</p>
 
 	<h5>requeue_on_error</h5>
 	<p>
@@ -878,11 +897,14 @@ swfu.customSettings = {
 	<p>A boolean value that defines whether the debug event handler should be fired.</p>
 	
 	<h5>button_placeholder_id</h5>
-	<p><strong>(Added in v2.2.0)</strong> This required setting sets the ID of DOM element that will be <em>replaced</em> by the Flash Button.  The Flash button can be styled using the CSS class 'swfupload'.</p>
+	<p><strong>(Added in v2.2.0)</strong> This required setting sets the ID of DOM element that will be <em>replaced</em> by the Flash Button.  This setting overrides the button_placeholder setting.  The Flash button can be styled using the CSS class 'swfupload'.</p>
+
+	<h5>button_placeholder</h5>
+	<p><strong>(Added in v2.2.0)</strong> This required setting sets the DOM element that will be <em>replaced</em> by the Flash Button. This setting is only applied if the button_placeholder_id is not set.  The Flash button can be styled using the CSS class 'swfupload'.</p>
 	
 	<h5>button_image_url</h5>
-	<p><strong>(Added in v2.2.0)</strong> Fully qualified, absolute or relative URL to the image file to be used as the Flash button.  If relative the URL should be
-	relative to the swfupload.swf file.  Any Flash supported image file format can be used (another SWF file or gif, jpg, or png).</p>
+	<p><strong>(Added in v2.2.0)</strong> Fully qualified, absolute or relative URL to the image file to be used as the Flash button. Any Flash supported image file format can be used (another SWF file or gif, jpg, or png).</p>
+	<p>This URL is affected by the preserve_relative_urls setting and should follow the same rules as the upload_url setting.</p>
 	
 	<p>The button image is treated as a sprite.  There are 4 button states that must be represented by the button image. Each button state image
 	should be stacked above the other in this order: normal, hover, down/click, disabled.</p>

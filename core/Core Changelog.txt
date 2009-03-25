@@ -1,8 +1,15 @@
  * SWFUpload Core, January 2009, www.swfupload.org, swfupload.googlecode.com
 
+ * --------- Version 2.2.0-----------
+ * + Added button_placeholder setting that accepts
+ * + Added ability to requeue any file (including some improvement to internal queue state tracking)
+ * + UploadErrors caused by a missing upload_url now causes the file to be requeued automatically
+ * + Added preserve_relative_urls setting
+ * + SWFUpload now converts relative URLs to absolute URLs to avoid issues with Flash Player interpreting it differently on some clients
+ 
  * --------- Version 2.2.0 Beta 2 ~ 5-----------
  * = Fixed a Queue Limit bug
- * + Improved internal event handling code so uploadSuccess fires even when not content is returned from the server (*woot*)
+ * + Improved internal event handling code so uploadSuccess fires even when not content is returned from the server (*woot*, except for Macs)
  * = Fixed issues in Destroy
  * = Fixed issues with Queue Plugin
  * + Added periodic checks of the ExternalInterface

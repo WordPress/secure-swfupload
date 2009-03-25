@@ -14,7 +14,7 @@
 		window.onload = function () {
 			swfu = new SWFUpload({
 				// Backend Settings
-				upload_url: "../applicationdemo/upload.php",	// Relative to the SWF file or absolute
+				upload_url: "upload.php",
 				post_params: {"PHPSESSID": "<?php echo session_id(); ?>"},
 
 				// File Upload Settings
@@ -34,7 +34,7 @@
 				upload_complete_handler : uploadComplete,
 
 				// Button Settings
-				button_image_url : "../applicationdemo/images/SmallSpyGlassWithTransperancy_17x18.png",	// Relative to the SWF file
+				button_image_url : "images/SmallSpyGlassWithTransperancy_17x18.png",
 				button_placeholder_id : "spanButtonPlaceholder",
 				button_width: 180,
 				button_height: 18,

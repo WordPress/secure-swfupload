@@ -26,6 +26,7 @@ function fileDialogComplete() {
 
 function uploadStart(file) {
 	try {
+		this.customSettings.progressCount = 0;
 		updateDisplay.call(this, file);
 	}
 	catch (ex) {
@@ -36,6 +37,7 @@ function uploadStart(file) {
 
 function uploadProgress(file, bytesLoaded, bytesTotal) {
 	try {
+		this.customSettings.progressCount++;
 		updateDisplay.call(this, file);
 	} catch (ex) {
 		this.debug(ex);

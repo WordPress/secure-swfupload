@@ -23,7 +23,7 @@
 		window.onload = function() {
 			upload1 = new SWFUpload({
 				// Backend Settings
-				upload_url: "../multiinstancedemo/upload.php",	// Relative to the SWF file (or you can use absolute paths)
+				upload_url: "upload.php",
 				post_params: {"PHPSESSID" : "<?php echo session_id(); ?>"},
 
 				// File Upload Settings
@@ -45,7 +45,7 @@
 				upload_complete_handler : uploadComplete,
 
 				// Button Settings
-				button_image_url : "../multiinstancedemo/XPButtonUploadText_61x22.png",	// Relative to the SWF file
+				button_image_url : "XPButtonUploadText_61x22.png",
 				button_placeholder_id : "spanButtonPlaceholder1",
 				button_width: 61,
 				button_height: 22,
@@ -65,7 +65,7 @@
 
 			upload2 = new SWFUpload({
 				// Backend Settings
-				upload_url: "../multiinstancedemo/upload.php",	// Relative to the SWF file (or you can use absolute paths)
+				upload_url: "upload.php",
 				post_params: {"PHPSESSID" : "<?php echo session_id(); ?>"},
 
 				// File Upload Settings
@@ -87,7 +87,7 @@
 				upload_complete_handler : uploadComplete,
 
 				// Button Settings
-				button_image_url : "../multiinstancedemo/XPButtonUploadText_61x22.png",	// Relative to the SWF file
+				button_image_url : "XPButtonUploadText_61x22.png",
 				button_placeholder_id : "spanButtonPlaceholder2",
 				button_width: 61,
 				button_height: 22,

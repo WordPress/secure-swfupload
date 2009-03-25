@@ -12,7 +12,7 @@
 		window.onload = function () {
 			swfu = new SWFUpload({
 				// Backend Settings
-				upload_url: "../applicationdemo.vb.net/upload.aspx",	// Relative to the SWF file
+				upload_url: "upload.aspx",
                 post_params : {
                     "ASPSESSID" : "<%=Session.SessionID %>",
                     "AUTHID" : "<%=AuthCookie %>"
@@ -35,7 +35,7 @@
 				upload_complete_handler : uploadComplete,
 
 				// Button settings
-				button_image_url : "../applicationdemo.vb.net/images/XPButtonNoText_160x22.png",	// Relative to the SWF file
+				button_image_url : "images/XPButtonNoText_160x22.png",
 				button_placeholder_id : "spanButtonPlaceholder",
 				button_width: 160,
 				button_height: 22,

@@ -21,7 +21,7 @@ var swfu;
 SWFUpload.onload = function () {
 	var settings = {
 		flash_url : "../swfupload/swfupload.swf",
-		upload_url: "../simpledemo/upload.php",	// Relative to the SWF file
+		upload_url: "upload.php",
 		file_size_limit : "100 MB",
 		file_types : "*.*",
 		file_types_description : "All Files",

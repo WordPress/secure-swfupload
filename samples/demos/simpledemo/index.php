@@ -13,7 +13,7 @@
 		window.onload = function() {
 			var settings = {
 				flash_url : "../swfupload/swfupload.swf",
-				upload_url: "../simpledemo/upload.php",	// Relative to the SWF file
+				upload_url: "upload.php",
 				post_params: {"PHPSESSID" : "<?php echo session_id(); ?>"},
 				file_size_limit : "100 MB",
 				file_types : "*.*",
@@ -27,7 +27,7 @@
 				debug: false,
 
 				// Button settings
-				button_image_url: "../simpledemo/images/TestImageNoText_65x29.png",	// Relative to the Flash file
+				button_image_url: "images/TestImageNoText_65x29.png",
 				button_width: "65",
 				button_height: "29",
 				button_placeholder_id: "spanButtonPlaceHolder",
