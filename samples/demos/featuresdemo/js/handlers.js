@@ -88,7 +88,7 @@ var FeaturesDemoHandlers = {
 		}
 	},
 
-	uploadSuccess : function (file, serverData) {
+	uploadSuccess : function (file, serverData, receivedResponse) {
 		try {
 			var queueString = file.id + ":Done:" + file.name;
 			FeaturesDemo.selQueue.value = file.id;
@@ -96,7 +96,11 @@ var FeaturesDemoHandlers = {
 
 			FeaturesDemo.selEventsFile.options[FeaturesDemo.selEventsFile.options.length] = new Option("Upload Success: " + file.id, "");
 
-			FeaturesDemo.divServerData.innerHTML = typeof(serverData) === "undefined" ? "" : serverData.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/\t/g, "    ").replace(/  /g, " &nbsp;");
+			if (receivedResponse) {
+				FeaturesDemo.divServerData.innerHTML = typeof(serverData) === "undefined" ? "" : serverData; //.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/\t/g, "    ").replace(/  /g, " &nbsp;");
+			} else {
+				FeaturesDemo.divServerData.innerHTML = "assume_success_timeout setting timed out before a response was received from the server";
+			}
 		} catch (ex) {
 			this.debug(ex);
 		}

@@ -67,5 +67,7 @@ function updateDisplay(file) {
 	this.customSettings.tdTimeRemaining.innerHTML = SWFUpload.speed.formatTime(file.timeRemaining);
 	this.customSettings.tdTimeElapsed.innerHTML = SWFUpload.speed.formatTime(file.timeElapsed);
 	this.customSettings.tdPercentUploaded.innerHTML = SWFUpload.speed.formatPercent(file.percentUploaded);
-	this.customSettings.tdSizeUploaded.innerHTML =SWFUpload.speed.formatBytes(file.sizeUploaded);
+	this.customSettings.tdSizeUploaded.innerHTML = SWFUpload.speed.formatBytes(file.sizeUploaded);
+	this.customSettings.tdProgressEventCount.innerHTML = this.customSettings.progressCount;
+
 }

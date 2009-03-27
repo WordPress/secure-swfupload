@@ -1,6 +1,8 @@
 ﻿<?php
 	session_start();
 	
+	sleep(5);
+	
 	$upload_good = false;
 	if (!isset($_FILES["Filedata"])) {
 		$upload_good = "Not recieved, probably exceeded POST_MAX_SIZE";
@@ -15,6 +17,8 @@
 	}
 ?>
 <p>Upload Page</p>
+
+<p>The server slept for 5 seconds so you can test the assume_success_timeout setting.</p>
 
 <p>Here is the list of cookies that the agent sent:</p>
 <ul>

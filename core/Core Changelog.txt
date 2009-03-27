@@ -1,7 +1,7 @@
  * SWFUpload Core, January 2009, www.swfupload.org, swfupload.googlecode.com
 
  * --------- Version 2.2.0-----------
- * + Added button_placeholder setting that accepts
+ * + Added button_placeholder setting that accepts a DOM element.
  * + Added ability to requeue any file (including some improvement to internal queue state tracking)
  * + UploadErrors caused by a missing upload_url now causes the file to be requeued automatically
  * + Added preserve_relative_urls setting

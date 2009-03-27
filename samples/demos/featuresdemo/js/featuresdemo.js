@@ -101,6 +101,7 @@ var FeaturesDemo = {
 		FeaturesDemo.btnAddParam = document.getElementById("btnAddParam");
 		FeaturesDemo.txtUploadTarget = document.getElementById("txtUploadTarget");
 		FeaturesDemo.txtHTTPSuccess = document.getElementById("txtHTTPSuccess");
+		FeaturesDemo.txtAssumeSuccessTimeout = document.getElementById("txtAssumeSuccessTimeout");
 		FeaturesDemo.btnUpdateDynamicSettings = document.getElementById("btnUpdateDynamicSettings");
 		FeaturesDemo.txtFlashHTML = document.getElementById("txtFlashHTML");
 		FeaturesDemo.txtMovieName = document.getElementById("txtMovieName");
@@ -146,6 +147,7 @@ var FeaturesDemo = {
 		FeaturesDemo.txtFlashHTML.value = "";
 		FeaturesDemo.txtMovieName.value = "";
 		FeaturesDemo.txtHTTPSuccess.value = "";
+		FeaturesDemo.txtAssumeSuccessTimeout.value = "";
 		FeaturesDemo.txtFilePostName.value = "";
 		FeaturesDemo.txtFileTypes.value = "";
 		FeaturesDemo.txtFileTypesDescription.value = "";
@@ -200,6 +202,7 @@ var FeaturesDemo = {
 		FeaturesDemo.txtFlashHTML.value = FeaturesDemo.SU.getFlashHTML();
 		FeaturesDemo.txtMovieName.value = FeaturesDemo.SU.movieName;
 		FeaturesDemo.txtHTTPSuccess.value = FeaturesDemo.SU.settings.http_success.join(", ");
+		FeaturesDemo.txtAssumeSuccessTimeout.value = FeaturesDemo.SU.settings.assume_success_timeout;
 		FeaturesDemo.txtFilePostName.value = FeaturesDemo.SU.settings.file_post_name;
 		FeaturesDemo.txtFileTypes.value = FeaturesDemo.SU.settings.file_types;
 		FeaturesDemo.txtFileTypesDescription.value = FeaturesDemo.SU.settings.file_types_description;
@@ -318,6 +321,7 @@ var FeaturesDemo = {
 		var params = FeaturesDemo.getParamsObject();
 		FeaturesDemo.SU.setPostParams(params);
 		FeaturesDemo.SU.setHTTPSuccess(FeaturesDemo.txtHTTPSuccess.value);
+		FeaturesDemo.SU.setAssumeSuccessTimeout(FeaturesDemo.txtAssumeSuccessTimeout.value);
 		FeaturesDemo.SU.setFileTypes(FeaturesDemo.txtFileTypes.value, FeaturesDemo.txtFileTypesDescription.value);
 		FeaturesDemo.SU.setFileSizeLimit(FeaturesDemo.txtFileSizeLimit.value);
 		FeaturesDemo.SU.setFileUploadLimit(FeaturesDemo.txtFileUploadLimit.value);

@@ -67,7 +67,8 @@
 					tdTimeRemaining : document.getElementById("tdTimeRemaining"),
 					tdTimeElapsed : document.getElementById("tdTimeElapsed"),
 					tdPercentUploaded : document.getElementById("tdPercentUploaded"),
-					tdSizeUploaded : document.getElementById("tdSizeUploaded")
+					tdSizeUploaded : document.getElementById("tdSizeUploaded"),
+					tdProgressEventCount : document.getElementById("tdProgressEventCount")
 				}
 			};
 
@@ -140,7 +141,7 @@
 						</tr>			
 						<tr>
 							<td>Progress Event Count</td>
-							<td id="tdProgress Event Count"></td>
+							<td id="tdProgressEventCount"></td>
 						</tr>			
 					</table>
 				</td>
