@@ -6,6 +6,8 @@
  * + UploadErrors caused by a missing upload_url now causes the file to be requeued automatically
  * + Added preserve_relative_urls setting
  * + SWFUpload now converts relative URLs to absolute URLs to avoid issues with Flash Player interpreting it differently on some clients
+ * + Added assume_success_timeout setting which allows uploadSuccess to be called after a timeout if, for some reason Flash ignores the server's response
+ *   An additional parameter has been added to the uploadSuccess event to indicate whether a response was received or success was assumed.
  
  * --------- Version 2.2.0 Beta 2 ~ 5-----------
  * = Fixed a Queue Limit bug

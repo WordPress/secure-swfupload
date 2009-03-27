@@ -36,9 +36,9 @@ package {
 			ExternalInterface.call(callback, EscapeMessage(file_object), EscapeMessage(bytes_loaded), EscapeMessage(bytes_total));
 			
 		}
-		public static function UploadSuccess(callback:String, file_object:Object, server_data:String):void {
+		public static function UploadSuccess(callback:String, file_object:Object, server_data:String, responseReceived:Boolean):void {
 			
-			ExternalInterface.call(callback, EscapeMessage(file_object), EscapeMessage(server_data));
+			ExternalInterface.call(callback, EscapeMessage(file_object), EscapeMessage(server_data), EscapeMessage(responseReceived));
 			
 		}
 		public static function UploadError(callback:String, error_code:Number, file_object:Object, message:String):void {

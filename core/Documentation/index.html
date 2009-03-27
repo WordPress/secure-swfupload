@@ -349,7 +349,7 @@ var myCustomUploadStartEventHandler = function (file) {
 };
 
 // The uploadSuccess event handler.  This function variable is assigned to upload_success_handler in the settings object
-var myCustomUploadSuccessEventHandler = function (file, server_data) {
+var myCustomUploadSuccessEventHandler = function (file, server_data, receivedResponse) {
 	alert("The file " + file.name + " has been delivered to the server. The server responded with " + server_data);
 };
 
@@ -486,7 +486,7 @@ swfu.customSettings = {
 	<p>The values stored in the customSettings object can then be easily accessed in the event handlers: </p>
 	
 	<code>
-function uploadSuccess(file, serverData) {
+function uploadSuccess(file, serverData, receivedResponse) {
 	if (this.customSettings.custom_setting_A === true) {
 		alert("Checked the custom setting!");
 	}
@@ -700,9 +700,19 @@ function uploadSuccess(file, serverData) {
 	<p>Stopping, Cancelling or returning 'false' from uploadStart will cause uploadError to fire.  Upload error will not fire for files that are cancelled
 	but still waiting in the queue.</p>
 	
-	<h4><a name="uploadSuccess"></a><span class="function">uploadSuccess(<span class="parameter">file object</span>, <span class="parameter">server data</span>)</span></h4>
-	<p>uploadSuccess is fired when an upload completes and the server returns a HTTP 200 status code.  Any data outputted by the server is available
+	<h4><a name="uploadSuccess"></a><span class="function">uploadSuccess(<span class="parameter">file object</span>, <span class="parameter">server data</span>, <span class="parameter">received response</span>)</span></h4>
+	<p>uploadSuccess is fired when the entire upload has been transmitted and the server returns a HTTP 200 status code.  Any data outputted by the server is available
 	in the server data parameter.</p>
+	
+	<p>
+		Due to some bugs in the Flash Player the server response may not be acknowledged and no uploadSuccess event is fired by Flash.  In this case the
+		assume_success_timeout setting is checked to see if enough time has passed to fire uploadSuccess anyway.  In this case the received response parameter will be false.
+	</p>
+	
+	<p>
+		The http_success setting allows uploadSuccess to be fired for HTTP status codes other than 200. In this case no server data is available from the Flash Player.		
+	</p>
+	
 	<p>At this point the upload is not yet complete.  Another upload cannot be started from uploadSuccess.</p>
 	
 	<h4><a name="uploadComplete"></a><span class="function">uploadComplete(<span class="parameter">file object</span>)</span></h4>
@@ -733,6 +743,7 @@ function uploadSuccess(file, serverData) {
 	use_query_string : false,
 	requeue_on_error : false,
 	http_success : [201, 202],
+	assume_success_timeout : 0,
 	file_types : "*.jpg;*.gif",
 	file_types_description: "Web Image Files",
 	file_size_limit : "1024",
@@ -823,6 +834,19 @@ function uploadSuccess(file, serverData) {
 	</p>
 	<p>
 		When returning and accepting an HTTP Status Code other than 200 it is not necessary for the server to return content.
+	</p>
+
+	<h5>assume_success_timeout</h5>
+	<p>
+		The number of seconds SWFUpload should wait for Flash to detect the server's response after the file has finished uploading.  This setting allows you to
+		work around the Flash Player bugs where long running server side scripts causes Flash to ignore the server response or the Mac Flash Player bug that ignores
+		server responses with no content.
+	</p>
+	<p>
+		Testing has shown that Flash will ignore server responses that take longer than 30 seconds after the last uploadProgress event.		
+	</p>
+	<p>
+		A timeout of zero (0) seconds disables this feature and is the default value.  SWFUpload will wait indefinitely for the Flash Player to trigger the uploadSuccess event.
 	</p>
 
 	<h5>file_types</h5>

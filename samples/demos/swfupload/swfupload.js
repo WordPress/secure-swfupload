@@ -131,6 +131,7 @@ SWFUpload.prototype.initSettings = function () {
 	this.ensureDefault("use_query_string", false);
 	this.ensureDefault("requeue_on_error", false);
 	this.ensureDefault("http_success", []);
+	this.ensureDefault("assume_success_timeout", 0);
 	
 	// File Settings
 	this.ensureDefault("file_types", "*.*");
@@ -251,6 +252,7 @@ SWFUpload.prototype.getFlashVars = function () {
 			"&amp;useQueryString=", encodeURIComponent(this.settings.use_query_string),
 			"&amp;requeueOnError=", encodeURIComponent(this.settings.requeue_on_error),
 			"&amp;httpSuccess=", encodeURIComponent(httpSuccessString),
+			"&amp;assumeSuccessTimeout=", encodeURIComponent(this.settings.assume_success_timeout),
 			"&amp;params=", encodeURIComponent(paramString),
 			"&amp;filePostName=", encodeURIComponent(this.settings.file_post_name),
 			"&amp;fileTypes=", encodeURIComponent(this.settings.file_types),
@@ -370,6 +372,7 @@ SWFUpload.prototype.displayDebugInfo = function () {
 			"\t", "use_query_string:         ", this.settings.use_query_string.toString(), "\n",
 			"\t", "requeue_on_error:         ", this.settings.requeue_on_error.toString(), "\n",
 			"\t", "http_success:             ", this.settings.http_success.join(", "), "\n",
+			"\t", "assume_success_timeout:   ", this.settings.assume_success_timeout, "\n",
 			"\t", "file_post_name:           ", this.settings.file_post_name, "\n",
 			"\t", "post_params:              ", this.settings.post_params.toString(), "\n",
 			"\t", "file_types:               ", this.settings.file_types, "\n",
@@ -631,6 +634,11 @@ SWFUpload.prototype.setHTTPSuccess = function (http_status_codes) {
 	this.callFlash("SetHTTPSuccess", [http_status_codes]);
 };
 
+// Public: setHTTPSuccess changes the http_success setting
+SWFUpload.prototype.setAssumeSuccessTimeout = function (timeout_seconds) {
+	this.settings.assume_success_timeout = timeout_seconds;
+	this.callFlash("SetAssumeSuccessTimeout", [timeout_seconds]);
+};
 
 // Public: setDebugEnabled changes the debug_enabled setting
 SWFUpload.prototype.setDebugEnabled = function (debugEnabled) {
@@ -893,9 +901,9 @@ SWFUpload.prototype.uploadError = function (file, errorCode, message) {
 	this.queueEvent("upload_error_handler", [file, errorCode, message]);
 };
 
-SWFUpload.prototype.uploadSuccess = function (file, serverData) {
+SWFUpload.prototype.uploadSuccess = function (file, serverData, responseReceived) {
 	file = this.unescapeFilePostParams(file);
-	this.queueEvent("upload_success_handler", [file, serverData]);
+	this.queueEvent("upload_success_handler", [file, serverData, responseReceived]);
 };
 
 SWFUpload.prototype.uploadComplete = function (file) {
