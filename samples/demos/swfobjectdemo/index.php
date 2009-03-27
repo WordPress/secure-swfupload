@@ -12,10 +12,6 @@
 var swfu;
 
 SWFUpload.onload = function () {
-	try {
-		document.getElementById("noscript").style.display = "none";
-	} catch (ex) { }
-	
 	var settings = {
 		flash_url : "../swfupload/swfupload.swf",
 		upload_url: "upload.php",
@@ -94,8 +90,10 @@ SWFUpload.onload = function () {
 				<br />
 			</p>
 		</div>
-		<noscript id="noscript" style="background-color: #FFFF66; border-top: solid 4px #FF9966; border-bottom: solid 4px #FF9966; margin: 10px 25px; padding: 10px 15px;">
-			We're sorry.  SWFUpload could not load.  You must have JavaScript enabled to enjoy SWFUpload.
+		<noscript>
+			<div style="background-color: #FFFF66; border-top: solid 4px #FF9966; border-bottom: solid 4px #FF9966; margin: 10px 25px; padding: 10px 15px;">
+				We're sorry.  SWFUpload could not load.  You must have JavaScript enabled to enjoy SWFUpload.
+			</div>
 		</noscript>
 		<div id="divLoadingContent" class="content" style="background-color: #FFFF66; border-top: solid 4px #FF9966; border-bottom: solid 4px #FF9966; margin: 10px 25px; padding: 10px 15px; display: none;">
 			SWFUpload is loading. Please wait a moment...
