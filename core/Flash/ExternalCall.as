@@ -99,7 +99,7 @@ package {
 		}
 		
 		private static function EscapeString(message:String):String {
-			var replacePattern:RegExp = /\\/g; //new RegExp("/\\/", "g");
+			var replacePattern:RegExp = /\\/g;
 			return message.replace(replacePattern, "\\\\");
 		}
 		private static function EscapeArray(message_array:Array):Array {
