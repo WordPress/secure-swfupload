@@ -232,6 +232,7 @@ package {
 			
 			// Get the movie name
 			this.movieName = root.loaderInfo.parameters.movieName;
+			this.movieName = this.movieName.replace(/[^a-zA-Z0-9\_\.\-]/g, "");
 
 			// **Configure the callbacks**
 			// The JavaScript tracks all the instances of SWFUpload on a page.  We can access the instance
