@@ -506,13 +506,6 @@ SWFUpload.prototype.stopUpload = function () {
 	this.callFlash("StopUpload");
 };
 
-// Public: requeueUpload requeues any file. If the file is requeued or already queued true is returned.
-// If the file is not found or is currently uploading false is returned
-SWFUpload.prototype.stopUpload = function (indexOrFileID) {
-	return this.callFlash("RequeueUpload", [indexOrFileID]);
-};
-
-
 /* ************************
  * Settings methods
  *   These methods change the SWFUpload settings.

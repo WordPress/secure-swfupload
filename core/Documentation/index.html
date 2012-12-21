@@ -77,7 +77,7 @@
 </style>
 
 <body>
-	<h1>SWFUpload v2.2.0 Documentation</h1>
+	<h1>SWFUpload v2.2.0.1 Documentation</h1>
 	<h2>TOC</h2>
 	<ol>
 		<li><a href="#swfupload">SWFUpload</a></li>
@@ -117,7 +117,6 @@
 						<li><a href="#startUpload">startUpload</a></li>
 						<li><a href="#cancelUpload">cancelUpload</a></li>
 						<li><a href="#stopUpload">stopUpload</a></li>
-						<li><a href="#requeueUpload">requeueUpload</a></li>
 						<li><a href="#getStats">getStats</a></li>
 						<li><a href="#setStats">setStats</a></li>
 						<li><a href="#getFile">getFile</a></li>
@@ -547,11 +546,6 @@ function uploadSuccess(file, serverData, receivedResponse) {
 
 	<p>stopUpload stops and re-queues the file currently being uploaded.</p>
 	<p>After the uploading file is stopped the uploadError event is fired. If no file is being uploaded then nothing happens and no event is fired.</p>
-	
-	<h4><a name="requeueUpload"></a>bool requeueUpload(<span class="parameter">file_id or index</span>)</h4>
-
-	<p>requeueUpload requeues any previously queued file.</p>
-	<p>If the file cannot be found or is currently uploading false is returned.</p>
 	
 	<h4><a name="getStats"></a>object getStats()</h4>
 	<p>Retrieves the stats object.</p>
