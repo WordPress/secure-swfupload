@@ -231,7 +231,7 @@ package {
 			this.stage.addChild(this.buttonCursorSprite);
 			
 			// Get the movie name
-			this.movieName = root.loaderInfo.parameters.movieName;
+			this.movieName = root.loaderInfo.parameters.movieName || '';
 			this.movieName = this.movieName.replace(/[^a-zA-Z0-9\_\.\-]/g, "");
 
 			// **Configure the callbacks**
