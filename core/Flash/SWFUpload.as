@@ -26,6 +26,8 @@ package {
 	import flash.text.TextFormat;
 	import flash.ui.Mouse;
 	import flash.utils.Timer;
+	import flash.xml.XMLNode;
+	import flash.xml.XMLNodeType;
 
 	import FileItem;
 	import ExternalCall;
@@ -348,7 +350,8 @@ package {
 			}
 			
 			try {
-				this.SetButtonText(String(root.loaderInfo.parameters.buttonText));
+				// HTML-escape strings that come from the user, preventing XSS.
+				this.SetButtonText(htmlEscape(String(root.loaderInfo.parameters.buttonText)));
 			} catch (ex:Object) {
 				this.SetButtonText("");
 			}
@@ -1147,7 +1150,7 @@ package {
 			var style:StyleSheet = new StyleSheet();
 			style.parseCSS(this.buttonTextStyle);
 			this.buttonTextField.styleSheet = style;
-			this.buttonTextField.htmlText = this.buttonText;
+			this.buttonTextField.htmlText = '<span class="button-text">' + this.buttonText + '</span>';
 		}
 
 		private function SetButtonTextPadding(left:Number, top:Number):void {
@@ -1514,6 +1517,10 @@ package {
 				file_item.file_reference.removeEventListener(HTTPStatusEvent.HTTP_STATUS, this.HTTPError_Handler);
 				file_item.file_reference.removeEventListener(DataEvent.UPLOAD_COMPLETE_DATA, this.ServerData_Handler);
 			}
+		}
+
+		public function htmlEscape(str:String):String {
+			return XML( new XMLNode( XMLNodeType.TEXT_NODE, str ) ).toXMLString();
 		}
 
 	}
