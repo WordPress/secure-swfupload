@@ -154,8 +154,6 @@ package {
 				return;
 			}
 
-			Security.allowDomain("*");	// Allow uploading to any domain
-			
 			// Keep Flash Player busy so it doesn't show the "flash script is running slowly" error
 			var counter:Number = 0;
 			root.addEventListener(Event.ENTER_FRAME, function ():void { if (++counter > 100) counter = 0; });
