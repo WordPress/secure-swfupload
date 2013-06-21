@@ -17,9 +17,9 @@ If you think you have found a vulnerability in this fork of SWFUpload, we apprec
 Fixed Vulnerabilities
 ---------------------
 
- * CVE-2013-2205, in c6165608855eeab00f8fea92606ed5be418124a4. Reported to WordPress by [Szymon Gruszecki](http://mars.iti.pk.edu.pl/~grucha/).
- * CVE-2012-3414, in 1127712c89f33a1324591de07a27fa2eb205673b. Reported to WordPress by [Neal Poole](http://nealpoole.com) and [Nathan Partlan](http://greywhind.wordpress.com).
- * CVE-2012-2399, in f6e5097c32d4680fe66ed04c91926959ed763d52. Reported to WordPress by [Szymon Gruszecki](http://mars.iti.pk.edu.pl/~grucha/).
+ * CVE-2013-2205, in [c6165608855eeab00f8fea92606ed5be418124a4](https://github.com/wordpress/secure-swfupload/commit/c6165608855eeab00f8fea92606ed5be418124a4). Reported to WordPress by [Szymon Gruszecki](http://mars.iti.pk.edu.pl/~grucha/).
+ * CVE-2012-3414, in [1127712c89f33a1324591de07a27fa2eb205673b](https://github.com/wordpress/secure-swfupload/commit/1127712c89f33a1324591de07a27fa2eb205673b). Reported to WordPress by [Neal Poole](http://nealpoole.com) and [Nathan Partlan](http://greywhind.wordpress.com).
+ * CVE-2012-2399, in [f6e5097c32d4680fe66ed04c91926959ed763d52](https://github.com/wordpress/secure-swfupload/commit/f6e5097c32d4680fe66ed04c91926959ed763d52). Reported to WordPress by [Szymon Gruszecki](http://mars.iti.pk.edu.pl/~grucha/).
 
 Acknowledgements
 ----------------
